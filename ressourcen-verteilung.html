@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ressourcenverteilung: Strategische Budgetplanung</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1117;
+    --card: #181b24;
+    --card-border: #252833;
+    --text: #e8e9ed;
+    --text-muted: #8b8fa3;
+    --accent-profit: #f59e0b;
+    --accent-profit-bg: rgba(245, 158, 11, 0.12);
+    --accent-growth: #3b82f6;
+    --accent-growth-bg: rgba(59, 130, 246, 0.12);
+    --accent-sustain: #10b981;
+    --accent-sustain-bg: rgba(16, 185, 129, 0.12);
+    --accent-profit-glow: rgba(245, 158, 11, 0.3);
+    --accent-growth-glow: rgba(59, 130, 246, 0.3);
+    --accent-sustain-glow: rgba(16, 185, 129, 0.3);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .grain-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+  }
+
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 40px 24px 60px;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 48px;
+    animation: fadeUp 0.8s ease-out;
+  }
+
+  .header-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    border-radius: 100px;
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    color: var(--accent-growth);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+
+  .header-badge svg { width: 14px; height: 14px; }
+
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(28px, 5vw, 42px);
+    font-weight: 400;
+    line-height: 1.2;
+    margin-bottom: 16px;
+    background: linear-gradient(135deg, #fff 0%, #a0a6b8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .subtitle {
+    color: var(--text-muted);
+    font-size: 15px;
+    line-height: 1.7;
+    max-width: 560px;
+    margin: 0 auto;
+  }
+
+  .scenario-card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 32px;
+    animation: fadeUp 0.8s ease-out 0.1s both;
+  }
+
+  .scenario-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+  }
+
+  .scenario-text {
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--text);
+  }
+
+  .scenario-text strong {
+    color: #fff;
+    font-weight: 600;
+  }
+
+  .budget-display {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 8px;
+    margin: 32px 0 8px;
+    animation: fadeUp 0.8s ease-out 0.2s both;
+  }
+
+  .budget-label {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .budget-remaining {
+    font-family: 'DM Serif Display', serif;
+    font-size: 48px;
+    transition: color 0.3s;
+  }
+
+  .budget-remaining.valid { color: #fff; }
+  .budget-remaining.over { color: #ef4444; }
+  .budget-remaining.perfect { color: var(--accent-sustain); }
+
+  .budget-hint {
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 40px;
+    min-height: 20px;
+    transition: all 0.3s;
+    animation: fadeUp 0.8s ease-out 0.25s both;
+  }
+
+  .budget-hint.warn { color: #ef4444; }
+  .budget-hint.done { color: var(--accent-sustain); }
+
+  .sliders-section {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    margin-bottom: 40px;
+  }
+
+  .slider-card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 24px 28px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .slider-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    border-radius: 16px 16px 0 0;
+    transition: opacity 0.4s;
+    opacity: 0;
+  }
+
+  .slider-card.profit::before { background: var(--accent-profit); }
+  .slider-card.growth::before { background: var(--accent-growth); }
+  .slider-card.sustain::before { background: var(--accent-sustain); }
+
+  .slider-card.active::before { opacity: 1; }
+
+  .slider-card:nth-child(1) { animation: fadeUp 0.6s ease-out 0.3s both; }
+  .slider-card:nth-child(2) { animation: fadeUp 0.6s ease-out 0.4s both; }
+  .slider-card:nth-child(3) { animation: fadeUp 0.6s ease-out 0.5s both; }
+
+  .slider-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 6px;
+  }
+
+  .slider-icon-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .slider-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .profit .slider-icon { background: var(--accent-profit-bg); color: var(--accent-profit); }
+  .growth .slider-icon { background: var(--accent-growth-bg); color: var(--accent-growth); }
+  .sustain .slider-icon { background: var(--accent-sustain-bg); color: var(--accent-sustain); }
+
+  .slider-icon svg { width: 20px; height: 20px; }
+
+  .slider-title {
+    font-weight: 600;
+    font-size: 16px;
+    color: #fff;
+  }
+
+  .slider-desc {
+    font-size: 12.5px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .slider-value {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    min-width: 100px;
+    text-align: right;
+    transition: color 0.3s;
+  }
+
+  .profit .slider-value { color: var(--accent-profit); }
+  .growth .slider-value { color: var(--accent-growth); }
+  .sustain .slider-value { color: var(--accent-sustain); }
+
+  .slider-value .unit {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    opacity: 0.6;
+    margin-left: 2px;
+  }
+
+  .slider-track-container {
+    margin-top: 16px;
+    position: relative;
+  }
+
+  .slider-input {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 8px;
+    border-radius: 8px;
+    outline: none;
+    cursor: pointer;
+    position: relative;
+    z-index: 2;
+  }
+
+  .profit .slider-input {
+    background: linear-gradient(to right, var(--accent-profit) 0%, var(--accent-profit) var(--fill), #252833 var(--fill), #252833 100%);
+  }
+  .growth .slider-input {
+    background: linear-gradient(to right, var(--accent-growth) 0%, var(--accent-growth) var(--fill), #252833 var(--fill), #252833 100%);
+  }
+  .sustain .slider-input {
+    background: linear-gradient(to right, var(--accent-sustain) 0%, var(--accent-sustain) var(--fill), #252833 var(--fill), #252833 100%);
+  }
+
+  .slider-input::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #fff;
+    cursor: grab;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+
+  .slider-input::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+  }
+
+  .profit .slider-input::-webkit-slider-thumb:hover { box-shadow: 0 0 0 8px var(--accent-profit-glow), 0 2px 8px rgba(0,0,0,0.4); }
+  .growth .slider-input::-webkit-slider-thumb:hover { box-shadow: 0 0 0 8px var(--accent-growth-glow), 0 2px 8px rgba(0,0,0,0.4); }
+  .sustain .slider-input::-webkit-slider-thumb:hover { box-shadow: 0 0 0 8px var(--accent-sustain-glow), 0 2px 8px rgba(0,0,0,0.4); }
+
+  .slider-input::-webkit-slider-thumb:active { cursor: grabbing; transform: scale(1.2); }
+
+  .slider-input::-moz-range-thumb {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #fff;
+    cursor: grab;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  }
+
+  .slider-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    font-size: 11px;
+    color: var(--text-muted);
+    opacity: 0.5;
+  }
+
+  .bar-chart {
+    display: flex;
+    height: 12px;
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 32px 0 12px;
+    background: #252833;
+    animation: fadeUp 0.6s ease-out 0.6s both;
+  }
+
+  .bar-segment {
+    height: 100%;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    min-width: 0;
+  }
+
+  .bar-segment.profit-bar { background: var(--accent-profit); }
+  .bar-segment.growth-bar { background: var(--accent-growth); border-left: 2px solid var(--bg); }
+  .bar-segment.sustain-bar { background: var(--accent-sustain); border-left: 2px solid var(--bg); }
+
+  .bar-legend {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+    animation: fadeUp 0.6s ease-out 0.65s both;
+  }
+
+  .bar-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .bar-legend-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+  }
+
+  .btn-evaluate {
+    display: block;
+    width: 100%;
+    padding: 18px;
+    border: none;
+    border-radius: 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: fadeUp 0.6s ease-out 0.7s both;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-evaluate.disabled {
+    background: #252833;
+    color: var(--text-muted);
+    cursor: not-allowed;
+  }
+
+  .btn-evaluate.ready {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+  }
+
+  .btn-evaluate.ready:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(59, 130, 246, 0.4);
+  }
+
+  .btn-evaluate.ready:active { transform: translateY(0); }
+
+  /* Results */
+  .results-section {
+    display: none;
+    margin-top: 48px;
+  }
+
+  .results-section.visible {
+    display: block;
+    animation: fadeUp 0.8s ease-out;
+  }
+
+  .result-card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 20px;
+  }
+
+  .result-card:nth-child(1) { animation: fadeUp 0.6s ease-out 0s both; }
+  .result-card:nth-child(2) { animation: fadeUp 0.6s ease-out 0.15s both; }
+  .result-card:nth-child(3) { animation: fadeUp 0.6s ease-out 0.3s both; }
+
+  .strategy-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 18px;
+    border-radius: 100px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 16px;
+  }
+
+  .strategy-badge.profit-strat { background: var(--accent-profit-bg); color: var(--accent-profit); border: 1px solid rgba(245,158,11,0.25); }
+  .strategy-badge.growth-strat { background: var(--accent-growth-bg); color: var(--accent-growth); border: 1px solid rgba(59,130,246,0.25); }
+  .strategy-badge.sustain-strat { background: var(--accent-sustain-bg); color: var(--accent-sustain); border: 1px solid rgba(16,185,129,0.25); }
+  .strategy-badge.balanced-strat { background: rgba(139,143,163,0.12); color: var(--text); border: 1px solid rgba(139,143,163,0.25); }
+
+  .result-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    color: #fff;
+    margin-bottom: 12px;
+  }
+
+  .result-text {
+    font-size: 14.5px;
+    line-height: 1.75;
+    color: var(--text-muted);
+  }
+
+  .result-text strong { color: var(--text); font-weight: 600; }
+
+  .consequence-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  @media (max-width: 500px) {
+    .consequence-grid { grid-template-columns: 1fr; }
+  }
+
+  .consequence-item {
+    padding: 16px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--card-border);
+  }
+
+  .consequence-item .label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .consequence-item.pro .label { color: var(--accent-sustain); }
+  .consequence-item.con .label { color: #ef4444; }
+
+  .consequence-item .text {
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: var(--text-muted);
+  }
+
+  .benchmark-bars {
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .benchmark-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .benchmark-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .benchmark-track {
+    height: 8px;
+    background: #252833;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .benchmark-fill {
+    height: 100%;
+    border-radius: 8px;
+    transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .benchmark-marker {
+    position: absolute;
+    top: -4px;
+    width: 3px;
+    height: 16px;
+    background: #fff;
+    border-radius: 2px;
+    transition: left 1s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 0 6px rgba(255,255,255,0.5);
+  }
+
+  .benchmark-marker-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-align: center;
+    margin-top: 4px;
+  }
+
+  .btn-reset {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 24px;
+  }
+
+  .btn-reset:hover {
+    border-color: var(--text-muted);
+    color: var(--text);
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 600px) {
+    .container { padding: 24px 16px 40px; }
+    .slider-card { padding: 20px; }
+    .slider-header { flex-direction: column; gap: 12px; }
+    .slider-value { text-align: left; }
+    .budget-remaining { font-size: 36px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="grain-overlay"></div>
+
+<div class="container">
+  <header class="header">
+    <div class="header-badge">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      Interaktive Übung
+    </div>
+    <h1>Strategische Ressourcenverteilung</h1>
+    <p class="subtitle">Sie sind CEO eines mittelständischen Schweizer Unternehmens. Verteilen Sie Ihr Budget von CHF 5 Millionen auf drei strategische Ziele.</p>
+  </header>
+
+  <div class="scenario-card">
+    <div class="scenario-label">Ausgangslage</div>
+    <p class="scenario-text">
+      Ihr Unternehmen steht an einem Wendepunkt: Der Markt wandelt sich, die Konkurrenz investiert, und gleichzeitig steigen die Erwartungen an gesellschaftliche Verantwortung. Sie haben <strong>CHF 5 Millionen</strong> zur Verfügung. Wie Sie dieses Budget verteilen, definiert Ihre strategische Ausrichtung für die nächsten Jahre.
+    </p>
+  </div>
+
+  <div class="budget-display">
+    <span class="budget-label">Verbleibend:</span>
+    <span class="budget-remaining valid" id="budgetRemaining">5.0</span>
+    <span class="budget-label">Mio. CHF</span>
+  </div>
+  <div class="budget-hint" id="budgetHint">Verschieben Sie die Regler, um Ihr Budget zu verteilen.</div>
+
+  <div class="bar-chart" id="barChart">
+    <div class="bar-segment profit-bar" id="barProfit" style="width:0%"></div>
+    <div class="bar-segment growth-bar" id="barGrowth" style="width:0%"></div>
+    <div class="bar-segment sustain-bar" id="barSustain" style="width:0%"></div>
+  </div>
+  <div class="bar-legend">
+    <div class="bar-legend-item"><div class="bar-legend-dot" style="background:var(--accent-profit)"></div><span id="legendProfit">Gewinn: 0%</span></div>
+    <div class="bar-legend-item"><div class="bar-legend-dot" style="background:var(--accent-growth)"></div><span id="legendGrowth">Wachstum: 0%</span></div>
+    <div class="bar-legend-item"><div class="bar-legend-dot" style="background:var(--accent-sustain)"></div><span id="legendSustain">Nachhaltigkeit: 0%</span></div>
+  </div>
+
+  <div class="sliders-section">
+    <!-- Gewinn -->
+    <div class="slider-card profit" id="cardProfit">
+      <div class="slider-header">
+        <div class="slider-icon-title">
+          <div class="slider-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+          </div>
+          <div>
+            <div class="slider-title">Gewinn steigern</div>
+            <div class="slider-desc">Kostensenkung, Effizienz, Automatisierung</div>
+          </div>
+        </div>
+        <div class="slider-value" id="valProfit">0.0 <span class="unit">Mio.</span></div>
+      </div>
+      <div class="slider-track-container">
+        <input type="range" class="slider-input" id="sliderProfit" min="0" max="50" value="0" step="1" style="--fill:0%">
+        <div class="slider-labels"><span>CHF 0</span><span>CHF 5 Mio.</span></div>
+      </div>
+    </div>
+
+    <!-- Wachstum -->
+    <div class="slider-card growth" id="cardGrowth">
+      <div class="slider-header">
+        <div class="slider-icon-title">
+          <div class="slider-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <div>
+            <div class="slider-title">Wachstum fördern</div>
+            <div class="slider-desc">Neue Märkte, Produktentwicklung, Marketing</div>
+          </div>
+        </div>
+        <div class="slider-value" id="valGrowth">0.0 <span class="unit">Mio.</span></div>
+      </div>
+      <div class="slider-track-container">
+        <input type="range" class="slider-input" id="sliderGrowth" min="0" max="50" value="0" step="1" style="--fill:0%">
+        <div class="slider-labels"><span>CHF 0</span><span>CHF 5 Mio.</span></div>
+      </div>
+    </div>
+
+    <!-- Nachhaltigkeit -->
+    <div class="slider-card sustain" id="cardSustain">
+      <div class="slider-header">
+        <div class="slider-icon-title">
+          <div class="slider-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+          </div>
+          <div>
+            <div class="slider-title">Nachhaltigkeit erhöhen</div>
+            <div class="slider-desc">Grüne Technologien, Soziales, Mitarbeiterentwicklung</div>
+          </div>
+        </div>
+        <div class="slider-value" id="valSustain">0.0 <span class="unit">Mio.</span></div>
+      </div>
+      <div class="slider-track-container">
+        <input type="range" class="slider-input" id="sliderSustain" min="0" max="50" value="0" step="1" style="--fill:0%">
+        <div class="slider-labels"><span>CHF 0</span><span>CHF 5 Mio.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-evaluate disabled" id="btnEvaluate" disabled>Budget vollständig verteilen, um auszuwerten</button>
+
+  <div class="results-section" id="resultsSection">
+    <div class="result-card" id="strategyCard"></div>
+    <div class="result-card" id="consequenceCard"></div>
+    <div class="result-card" id="benchmarkCard"></div>
+    <button class="btn-reset" id="btnReset">Zurücksetzen und erneut verteilen</button>
+  </div>
+</div>
+
+<script>
+const TOTAL = 50; // 50 steps = 5.0 Mio
+const sliders = {
+  profit: document.getElementById('sliderProfit'),
+  growth: document.getElementById('sliderGrowth'),
+  sustain: document.getElementById('sliderSustain')
+};
+const vals = {
+  profit: document.getElementById('valProfit'),
+  growth: document.getElementById('valGrowth'),
+  sustain: document.getElementById('valSustain')
+};
+const cards = {
+  profit: document.getElementById('cardProfit'),
+  growth: document.getElementById('cardGrowth'),
+  sustain: document.getElementById('cardSustain')
+};
+
+const budgetEl = document.getElementById('budgetRemaining');
+const hintEl = document.getElementById('budgetHint');
+const btnEval = document.getElementById('btnEvaluate');
+const resultsSection = document.getElementById('resultsSection');
+
+function getValues() {
+  return {
+    profit: parseInt(sliders.profit.value),
+    growth: parseInt(sliders.growth.value),
+    sustain: parseInt(sliders.sustain.value)
+  };
+}
+
+function update() {
+  const v = getValues();
+  const sum = v.profit + v.growth + v.sustain;
+  const remaining = (TOTAL - sum) / 10;
+
+  // Update displayed values
+  vals.profit.innerHTML = (v.profit / 10).toFixed(1) + ' <span class="unit">Mio.</span>';
+  vals.growth.innerHTML = (v.growth / 10).toFixed(1) + ' <span class="unit">Mio.</span>';
+  vals.sustain.innerHTML = (v.sustain / 10).toFixed(1) + ' <span class="unit">Mio.</span>';
+
+  // Update slider fill
+  sliders.profit.style.setProperty('--fill', (v.profit / TOTAL * 100) + '%');
+  sliders.growth.style.setProperty('--fill', (v.growth / TOTAL * 100) + '%');
+  sliders.sustain.style.setProperty('--fill', (v.sustain / TOTAL * 100) + '%');
+
+  // Active cards
+  cards.profit.classList.toggle('active', v.profit > 0);
+  cards.growth.classList.toggle('active', v.growth > 0);
+  cards.sustain.classList.toggle('active', v.sustain > 0);
+
+  // Budget display
+  budgetEl.textContent = remaining.toFixed(1);
+  budgetEl.className = 'budget-remaining';
+  hintEl.className = 'budget-hint';
+
+  if (sum > TOTAL) {
+    budgetEl.classList.add('over');
+    hintEl.classList.add('warn');
+    hintEl.textContent = 'Budget überschritten! Bitte reduzieren Sie Ihre Verteilung.';
+    btnEval.className = 'btn-evaluate disabled';
+    btnEval.disabled = true;
+  } else if (sum === TOTAL) {
+    budgetEl.classList.add('perfect');
+    hintEl.classList.add('done');
+    hintEl.textContent = '✓ Perfekt! Ihr Budget ist vollständig verteilt.';
+    btnEval.className = 'btn-evaluate ready';
+    btnEval.disabled = false;
+  } else {
+    budgetEl.classList.add('valid');
+    hintEl.textContent = `Noch CHF ${remaining.toFixed(1)} Mio. zu verteilen.`;
+    btnEval.className = 'btn-evaluate disabled';
+    btnEval.disabled = true;
+  }
+
+  // Bar chart
+  const pPct = sum > 0 ? (v.profit / TOTAL * 100) : 0;
+  const gPct = sum > 0 ? (v.growth / TOTAL * 100) : 0;
+  const sPct = sum > 0 ? (v.sustain / TOTAL * 100) : 0;
+  document.getElementById('barProfit').style.width = pPct + '%';
+  document.getElementById('barGrowth').style.width = gPct + '%';
+  document.getElementById('barSustain').style.width = sPct + '%';
+
+  document.getElementById('legendProfit').textContent = `Gewinn: ${Math.round(pPct)}%`;
+  document.getElementById('legendGrowth').textContent = `Wachstum: ${Math.round(gPct)}%`;
+  document.getElementById('legendSustain').textContent = `Nachhaltigkeit: ${Math.round(sPct)}%`;
+}
+
+// Constrain sliders so total never exceeds 5 Mio
+Object.values(sliders).forEach(slider => {
+  slider.addEventListener('input', function() {
+    const v = getValues();
+    const sum = v.profit + v.growth + v.sustain;
+    if (sum > TOTAL) {
+      this.value = parseInt(this.value) - (sum - TOTAL);
+    }
+    update();
+  });
+});
+
+function evaluate() {
+  const v = getValues();
+  const pPct = v.profit / TOTAL * 100;
+  const gPct = v.growth / TOTAL * 100;
+  const sPct = v.sustain / TOTAL * 100;
+
+  // Determine strategy
+  let strategy = getStrategy(pPct, gPct, sPct);
+
+  // Strategy card
+  document.getElementById('strategyCard').innerHTML = `
+    <div class="strategy-badge ${strategy.badgeClass}">${strategy.emoji} ${strategy.name}</div>
+    <div class="result-title">${strategy.title}</div>
+    <div class="result-text">${strategy.description}</div>
+  `;
+
+  // Consequences card
+  document.getElementById('consequenceCard').innerHTML = `
+    <div class="result-title">Mögliche Konsequenzen</div>
+    <div class="result-text" style="margin-bottom:12px">${strategy.consequenceIntro}</div>
+    <div class="consequence-grid">
+      <div class="consequence-item pro">
+        <div class="label">✦ Chancen</div>
+        <div class="text">${strategy.pros}</div>
+      </div>
+      <div class="consequence-item con">
+        <div class="label">⚠ Risiken</div>
+        <div class="text">${strategy.cons}</div>
+      </div>
+    </div>
+  `;
+
+  // Benchmark card
+  const benchmarks = { profit: 35, growth: 40, sustain: 25 };
+  document.getElementById('benchmarkCard').innerHTML = `
+    <div class="result-title">Branchenvergleich</div>
+    <div class="result-text">Vergleich Ihrer Verteilung mit typischen KMU-Benchmarks in der Schweiz (Durchschnitt verarbeitendes Gewerbe/Dienstleistung).</div>
+    <div class="benchmark-bars">
+      ${benchmarkRow('Gewinn', pPct, benchmarks.profit, 'var(--accent-profit)')}
+      ${benchmarkRow('Wachstum', gPct, benchmarks.growth, 'var(--accent-growth)')}
+      ${benchmarkRow('Nachhaltigkeit', sPct, benchmarks.sustain, 'var(--accent-sustain)')}
+    </div>
+  `;
+
+  resultsSection.classList.add('visible');
+  resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function benchmarkRow(label, userPct, benchPct, color) {
+  return `
+    <div class="benchmark-row">
+      <div class="benchmark-label">
+        <span>${label}</span>
+        <span>Sie: ${Math.round(userPct)}% · Benchmark: ${benchPct}%</span>
+      </div>
+      <div class="benchmark-track">
+        <div class="benchmark-fill" style="width:${userPct}%;background:${color};"></div>
+        <div class="benchmark-marker" style="left:${benchPct}%;" title="Branchen-Benchmark"></div>
+      </div>
+    </div>
+  `;
+}
+
+function getStrategy(p, g, s) {
+  // Dominant check: one area >= 50%
+  if (p >= 50) return strategies.profitDominant(p, g, s);
+  if (g >= 50) return strategies.growthDominant(p, g, s);
+  if (s >= 50) return strategies.sustainDominant(p, g, s);
+
+  // Dual focus: two areas together >= 75% and individually >= 30%
+  if (p >= 30 && g >= 30) return strategies.profitGrowth(p, g, s);
+  if (p >= 30 && s >= 30) return strategies.profitSustain(p, g, s);
+  if (g >= 30 && s >= 30) return strategies.growthSustain(p, g, s);
+
+  // Balanced: all between 20-40%
+  if (p >= 20 && g >= 20 && s >= 20) return strategies.balanced(p, g, s);
+
+  // Fallback: determine strongest
+  if (p >= g && p >= s) return strategies.profitLean(p, g, s);
+  if (g >= p && g >= s) return strategies.growthLean(p, g, s);
+  return strategies.sustainLean(p, g, s);
+}
+
+const strategies = {
+  profitDominant: (p, g, s) => ({
+    name: 'Gewinnorientiert',
+    badgeClass: 'profit-strat',
+    emoji: '💰',
+    title: 'Effizienz zuerst, dann der Rest',
+    description: `Mit <strong>${Math.round(p)}% in Gewinnsteigerung</strong> setzen Sie klar auf kurzfristige Rentabilität. Diese Strategie priorisiert Kostensenkung und Automatisierung, was in wirtschaftlich unsicheren Zeiten Stabilität schaffen kann, aber langfristiges Wachstumspotenzial einschränkt.`,
+    consequenceIntro: 'Ihre Strategie fokussiert stark auf Effizienz. Das kann sich lohnen, hat aber seinen Preis.',
+    pros: 'Schnelle Verbesserung der Margen. Wettbewerbsvorteil durch tiefere Kosten. Attraktiv für Investoren, die stabile Renditen suchen.',
+    cons: 'Gefahr der Unterinvestition in Innovation. Mitarbeitende könnten Sparmassnahmen als Belastung empfinden. Marktanteile gehen an mutigere Konkurrenten.'
+  }),
+  growthDominant: (p, g, s) => ({
+    name: 'Wachstumsorientiert',
+    badgeClass: 'growth-strat',
+    emoji: '🚀',
+    title: 'Expansion als Priorität',
+    description: `Mit <strong>${Math.round(g)}% in Wachstum</strong> investieren Sie offensiv in neue Märkte und Produkte. Diese Strategie ist ambitioniert und kann bei Erfolg überproportionale Renditen bringen, birgt aber auch ein erhöhtes Risiko.`,
+    consequenceIntro: 'Wer wachsen will, muss Risiken eingehen. Die Frage ist nur, ob die Organisation bereit dafür ist.',
+    pros: 'Potenzial für signifikante Umsatzsteigerung. First-Mover-Vorteile in neuen Märkten. Starke Marktposition bei Erfolg.',
+    cons: 'Hoher Kapitalbedarf ohne Garantie auf Erfolg. Bestehende Strukturen könnten überfordert werden. Profitabilität leidet kurzfristig.'
+  }),
+  sustainDominant: (p, g, s) => ({
+    name: 'Nachhaltigkeitsfokus',
+    badgeClass: 'sustain-strat',
+    emoji: '🌍',
+    title: 'Zukunftsfähig durch Verantwortung',
+    description: `Mit <strong>${Math.round(s)}% in Nachhaltigkeit</strong> setzen Sie ein starkes Signal. Diese Strategie stärkt Reputation, Mitarbeiterbindung und langfristige Resilienz, kann aber kurzfristig die Wettbewerbsfähigkeit belasten.`,
+    consequenceIntro: 'Nachhaltigkeit als Kernstrategie ist mutig. Die Frage ist, ob der Markt das bereits honoriert.',
+    pros: 'Stärkere Arbeitgebermarke und tiefere Fluktuation. Zugang zu ESG-orientierten Investoren und Aufträgen. Regulatorische Vorteile bei strengeren Umweltauflagen.',
+    cons: 'Höhere Kosten ohne sofortige Rendite. Wettbewerber, die auf Effizienz setzen, könnten preislich überlegen sein. ROI schwer messbar.'
+  }),
+  profitGrowth: (p, g, s) => ({
+    name: 'Gewinn & Wachstum',
+    badgeClass: 'growth-strat',
+    emoji: '⚡',
+    title: 'Klassisch unternehmerisch',
+    description: `Sie kombinieren <strong>Effizienz (${Math.round(p)}%)</strong> mit <strong>Expansion (${Math.round(g)}%)</strong>. Das ist die klassische Unternehmensstrategie: Kosten optimieren, um Wachstum zu finanzieren. Funktioniert, solange Nachhaltigkeit nicht zum Reputationsrisiko wird.`,
+    consequenceIntro: 'Eine bewährte Kombination mit einem blinden Fleck.',
+    pros: 'Effiziente Skalierung. Wachstum wird durch Einsparungen teilweise selbstfinanziert. Starke Marktposition.',
+    cons: `Nur ${Math.round(s)}% für Nachhaltigkeit könnte langfristig zum Problem werden. Regulatorische Risiken steigen. Talentgewinnung bei jüngeren Generationen erschwert.`
+  }),
+  profitSustain: (p, g, s) => ({
+    name: 'Effizient & Nachhaltig',
+    badgeClass: 'sustain-strat',
+    emoji: '♻️',
+    title: 'Grüne Effizienz',
+    description: `<strong>Effizienz (${Math.round(p)}%)</strong> und <strong>Nachhaltigkeit (${Math.round(s)}%)</strong> ergänzen sich gut: Nachhaltige Prozesse sind oft auch effizientere Prozesse. Diese Kombination ist zukunftssicher, aber wenig offensiv.`,
+    consequenceIntro: 'Stabilität und Verantwortung, aber ohne Wachstumsimpulse.',
+    pros: 'Kostensenkung durch nachhaltige Prozesse (z.B. Energie). Starkes Employer Branding. Regulatorisch gut aufgestellt.',
+    cons: `Nur ${Math.round(g)}% für Wachstum bedeutet: Marktanteile könnten stagnieren. Innovationsrückstand gegenüber aggressiveren Wettbewerbern.`
+  }),
+  growthSustain: (p, g, s) => ({
+    name: 'Wachstum & Nachhaltigkeit',
+    badgeClass: 'growth-strat',
+    emoji: '🌱',
+    title: 'Purpose-driven Growth',
+    description: `<strong>Wachstum (${Math.round(g)}%)</strong> und <strong>Nachhaltigkeit (${Math.round(s)}%)</strong> verbinden sich zur modernsten Strategie: Wachsen, aber verantwortungsvoll. Besonders im B2C-Bereich kann das ein starkes Differenzierungsmerkmal sein.`,
+    consequenceIntro: 'Die Strategie der Zukunft, aber kurzfristig anspruchsvoll.',
+    pros: 'Attraktiv für ESG-Investoren und nachhaltigkeitsbewusste Kunden. Starke Marke und differenziertes Wachstum. Zukunftssichere Positionierung.',
+    cons: `Nur ${Math.round(p)}% für Effizienz: Margen stehen unter Druck. Höhere Kosten im Wachstum, weil nachhaltige Expansion teurer ist.`
+  }),
+  balanced: (p, g, s) => ({
+    name: 'Ausgewogen',
+    badgeClass: 'balanced-strat',
+    emoji: '⚖️',
+    title: 'Der Allrounder-Ansatz',
+    description: `Mit einer relativ gleichmässigen Verteilung (<strong>${Math.round(p)}% / ${Math.round(g)}% / ${Math.round(s)}%</strong>) setzen Sie auf Balance. Das minimiert Risiken, kann aber auch bedeuten, dass Sie in keinem Bereich wirklich Durchbrüche erzielen.`,
+    consequenceIntro: 'Balance klingt vernünftig, hat aber ihren eigenen Preis.',
+    pros: 'Risikodiversifikation. Keine blinden Flecken. Flexible Anpassung an Marktveränderungen.',
+    cons: 'Gefahr der «Mittelstrasse»: In keinem Bereich dominieren Sie. Wettbewerber mit klarerem Fokus könnten Sie überholen.'
+  }),
+  profitLean: (p, g, s) => ({
+    name: 'Gewinn-Tendenz',
+    badgeClass: 'profit-strat',
+    emoji: '📊',
+    title: 'Leichte Gewinnorientierung',
+    description: `Ihre Verteilung neigt sich mit <strong>${Math.round(p)}%</strong> leicht Richtung Gewinnsteigerung. Das ist pragmatisch und bodenständig, aber die ungleiche Verteilung zeigt: Sie haben noch keine klare strategische Linie.`,
+    consequenceIntro: 'Pragmatisch, aber ohne klares Profil.',
+    pros: 'Leicht verbesserte Margen. Solide Grundlage für spätere Investitionen.',
+    cons: 'Weder klare Wachstumsstrategie noch Nachhaltigkeitsprofil. Schwer zu kommunizieren an Stakeholder.'
+  }),
+  growthLean: (p, g, s) => ({
+    name: 'Wachstums-Tendenz',
+    badgeClass: 'growth-strat',
+    emoji: '📈',
+    title: 'Leichte Wachstumsorientierung',
+    description: `Mit <strong>${Math.round(g)}%</strong> fliesst der grösste Anteil ins Wachstum. Das zeigt Ambition, aber die breite Streuung signalisiert auch Unsicherheit über den richtigen Weg.`,
+    consequenceIntro: 'Ambitioniert, aber nicht fokussiert genug.',
+    pros: 'Wachstumsimpulse vorhanden. Moderate Risikostreuung.',
+    cons: 'Weder volle Wachstumspower noch klare Effizienzgewinne. Strategie wirkt unentschlossen.'
+  }),
+  sustainLean: (p, g, s) => ({
+    name: 'Nachhaltigkeits-Tendenz',
+    badgeClass: 'sustain-strat',
+    emoji: '🌿',
+    title: 'Leichte Nachhaltigkeitsorientierung',
+    description: `<strong>${Math.round(s)}%</strong> gehen in Nachhaltigkeit, was ein wertebasiertes Mindset zeigt. Die breite Streuung bedeutet aber, dass kein Bereich genug Ressourcen für transformative Veränderungen erhält.`,
+    consequenceIntro: 'Gute Absichten, aber zu wenig Fokus für echten Impact.',
+    pros: 'Signal an Mitarbeitende und Öffentlichkeit. Erste Schritte Richtung nachhaltige Transformation.',
+    cons: 'Zu wenig für echte Veränderung. Weder effizient noch wachstumsstark genug positioniert.'
+  })
+};
+
+btnEval.addEventListener('click', evaluate);
+
+document.getElementById('btnReset').addEventListener('click', () => {
+  sliders.profit.value = 0;
+  sliders.growth.value = 0;
+  sliders.sustain.value = 0;
+  resultsSection.classList.remove('visible');
+  update();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+// Init
+update();
+</script>
+</body>
+</html>
