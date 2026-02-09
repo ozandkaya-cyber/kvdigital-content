@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stakeholder-Map: Interaktive Übung</title>
+<link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&family=SF+Pro+Text:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Instrument+Serif&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f5f7;
+    --bg-white: #ffffff;
+    --card: #ffffff;
+    --card-border: rgba(0,0,0,0.06);
+    --card-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
+    --card-shadow-hover: 0 2px 8px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.06);
+    --text: #1d1d1f;
+    --text-secondary: #6e6e73;
+    --text-tertiary: #86868b;
+    --accent: #0071e3;
+    --accent-bg: rgba(0,113,227,0.06);
+    --accent-border: rgba(0,113,227,0.15);
+    --q-keyplayer: #ff6b35;
+    --q-keyplayer-bg: rgba(255,107,53,0.06);
+    --q-keyplayer-border: rgba(255,107,53,0.18);
+    --q-satisfy: #af52de;
+    --q-satisfy-bg: rgba(175,82,222,0.06);
+    --q-satisfy-border: rgba(175,82,222,0.18);
+    --q-inform: #30d158;
+    --q-inform-bg: rgba(48,209,88,0.06);
+    --q-inform-border: rgba(48,209,88,0.18);
+    --q-monitor: #86868b;
+    --q-monitor-bg: rgba(134,134,139,0.06);
+    --q-monitor-border: rgba(134,134,139,0.18);
+    --success: #34c759;
+    --warning: #ff9500;
+    --danger: #ff3b30;
+    --radius: 14px;
+    --radius-sm: 10px;
+    --radius-xs: 8px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 44px;
+    animation: fadeUp 0.7s ease-out;
+  }
+
+  .header-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 14px;
+    border-radius: 100px;
+    background: var(--accent-bg);
+    border: 1px solid var(--accent-border);
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  h1 {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-size: clamp(32px, 5vw, 48px);
+    font-weight: 400;
+    line-height: 1.15;
+    color: var(--text);
+    margin-bottom: 14px;
+    letter-spacing: -0.5px;
+  }
+
+  .subtitle {
+    color: var(--text-secondary);
+    font-size: 16px;
+    line-height: 1.65;
+    max-width: 600px;
+    margin: 0 auto;
+    font-weight: 400;
+  }
+
+  /* Scenario */
+  .scenario {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius);
+    padding: 24px 28px;
+    margin-bottom: 32px;
+    box-shadow: var(--card-shadow);
+    animation: fadeUp 0.7s ease-out 0.08s both;
+  }
+
+  .scenario-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-xs);
+    background: linear-gradient(135deg, #ff6b35, #ff3b30);
+    color: #fff;
+    font-size: 18px;
+    margin-bottom: 14px;
+  }
+
+  .scenario-title {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+
+  .scenario-text {
+    font-size: 14.5px;
+    line-height: 1.7;
+    color: var(--text-secondary);
+  }
+
+  .scenario-text strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  /* Progress */
+  .progress-bar-container {
+    margin-bottom: 28px;
+    animation: fadeUp 0.7s ease-out 0.12s both;
+  }
+
+  .progress-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .progress-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+
+  .progress-count {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .progress-track {
+    height: 6px;
+    background: rgba(0,0,0,0.06);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), #40a9ff);
+    border-radius: 6px;
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 0%;
+  }
+
+  /* Main Layout */
+  .exercise-layout {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 20px;
+    align-items: start;
+    animation: fadeUp 0.7s ease-out 0.16s both;
+  }
+
+  @media (max-width: 740px) {
+    .exercise-layout {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Stakeholder Chips Sidebar */
+  .chips-panel {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius);
+    padding: 18px;
+    box-shadow: var(--card-shadow);
+    position: sticky;
+    top: 20px;
+  }
+
+  .chips-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    margin-bottom: 14px;
+  }
+
+  .chips-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 60px;
+  }
+
+  .chip {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 10px 14px;
+    background: var(--bg);
+    border: 1.5px solid var(--card-border);
+    border-radius: var(--radius-sm);
+    cursor: grab;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+    position: relative;
+  }
+
+  .chip:hover {
+    border-color: var(--accent-border);
+    box-shadow: var(--card-shadow-hover);
+    transform: translateY(-1px);
+  }
+
+  .chip:active, .chip.dragging {
+    cursor: grabbing;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    transform: scale(1.04);
+    z-index: 1000;
+    border-color: var(--accent);
+    background: var(--bg-white);
+  }
+
+  .chip-number {
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    background: var(--accent-bg);
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .chip-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  .chip-grip {
+    margin-left: auto;
+    color: var(--text-tertiary);
+    opacity: 0.4;
+    flex-shrink: 0;
+  }
+
+  /* Matrix */
+  .matrix-container {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: var(--card-shadow);
+  }
+
+  .matrix-wrapper {
+    position: relative;
+  }
+
+  .axis-label-y {
+    position: absolute;
+    left: -8px;
+    top: 50%;
+    transform: rotate(-90deg) translateX(50%);
+    transform-origin: center;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    white-space: nowrap;
+  }
+
+  .axis-label-x {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    margin-top: 12px;
+  }
+
+  .axis-arrows {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 4px;
+    font-size: 10px;
+    color: var(--text-tertiary);
+    font-weight: 500;
+    padding: 0 2px;
+  }
+
+  .axis-arrows-y {
+    position: absolute;
+    left: 22px;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    font-size: 10px;
+    color: var(--text-tertiary);
+    font-weight: 500;
+  }
+
+  .matrix-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 3px;
+    margin-left: 36px;
+    aspect-ratio: 1;
+    max-height: 520px;
+    background: rgba(0,0,0,0.03);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+  }
+
+  .quadrant {
+    background: var(--bg-white);
+    padding: 14px;
+    min-height: 160px;
+    position: relative;
+    transition: all 0.25s;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .quadrant.dragover {
+    transform: scale(1.005);
+  }
+
+  .quadrant.q-keyplayer { border-top: 3px solid var(--q-keyplayer); }
+  .quadrant.q-satisfy { border-top: 3px solid var(--q-satisfy); }
+  .quadrant.q-inform { border-top: 3px solid var(--q-inform); }
+  .quadrant.q-monitor { border-top: 3px solid var(--q-monitor); }
+
+  .quadrant.q-keyplayer.dragover { background: var(--q-keyplayer-bg); }
+  .quadrant.q-satisfy.dragover { background: var(--q-satisfy-bg); }
+  .quadrant.q-inform.dragover { background: var(--q-inform-bg); }
+  .quadrant.q-monitor.dragover { background: var(--q-monitor-bg); }
+
+  .quadrant-header {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 8px;
+  }
+
+  .quadrant-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  .q-keyplayer .quadrant-dot { background: var(--q-keyplayer); }
+  .q-satisfy .quadrant-dot { background: var(--q-satisfy); }
+  .q-inform .quadrant-dot { background: var(--q-inform); }
+  .q-monitor .quadrant-dot { background: var(--q-monitor); }
+
+  .quadrant-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .q-keyplayer .quadrant-title { color: var(--q-keyplayer); }
+  .q-satisfy .quadrant-title { color: var(--q-satisfy); }
+  .q-inform .quadrant-title { color: var(--q-inform); }
+  .q-monitor .quadrant-title { color: var(--q-monitor); }
+
+  .quadrant-subtitle {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    line-height: 1.5;
+    margin-bottom: 12px;
+  }
+
+  .quadrant-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    flex-grow: 1;
+    align-content: flex-start;
+  }
+
+  .chip-in-quadrant {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 11px;
+    border-radius: var(--radius-xs);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: grab;
+    transition: all 0.2s;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+    border: 1.5px solid transparent;
+  }
+
+  .chip-in-quadrant:active { cursor: grabbing; }
+
+  .q-keyplayer .chip-in-quadrant { background: var(--q-keyplayer-bg); color: var(--q-keyplayer); border-color: var(--q-keyplayer-border); }
+  .q-satisfy .chip-in-quadrant { background: var(--q-satisfy-bg); color: var(--q-satisfy); border-color: var(--q-satisfy-border); }
+  .q-inform .chip-in-quadrant { background: var(--q-inform-bg); color: var(--q-inform); border-color: var(--q-inform-border); }
+  .q-monitor .chip-in-quadrant { background: var(--q-monitor-bg); color: var(--q-monitor); border-color: var(--q-monitor-border); }
+
+  .chip-in-quadrant .chip-remove {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s;
+    margin-left: 2px;
+    flex-shrink: 0;
+  }
+
+  .chip-in-quadrant:hover .chip-remove { opacity: 1; }
+
+  /* Evaluate Button */
+  .btn-evaluate {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: var(--radius);
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-top: 24px;
+    animation: fadeUp 0.7s ease-out 0.2s both;
+  }
+
+  .btn-evaluate.disabled {
+    background: rgba(0,0,0,0.04);
+    color: var(--text-tertiary);
+    cursor: not-allowed;
+  }
+
+  .btn-evaluate.ready {
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(0,113,227,0.25);
+  }
+
+  .btn-evaluate.ready:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 24px rgba(0,113,227,0.35);
+  }
+
+  /* Results */
+  .results-section {
+    display: none;
+    margin-top: 36px;
+  }
+
+  .results-section.visible {
+    display: block;
+    animation: fadeUp 0.6s ease-out;
+  }
+
+  .result-card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius);
+    padding: 28px;
+    margin-bottom: 16px;
+    box-shadow: var(--card-shadow);
+  }
+
+  .result-card:nth-child(1) { animation: fadeUp 0.5s ease-out 0s both; }
+  .result-card:nth-child(2) { animation: fadeUp 0.5s ease-out 0.1s both; }
+  .result-card:nth-child(3) { animation: fadeUp 0.5s ease-out 0.2s both; }
+  .result-card:nth-child(4) { animation: fadeUp 0.5s ease-out 0.3s both; }
+
+  .result-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .result-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-xs);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .result-title {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-size: 22px;
+    color: var(--text);
+  }
+
+  .result-text {
+    font-size: 14.5px;
+    line-height: 1.75;
+    color: var(--text-secondary);
+  }
+
+  .result-text strong { color: var(--text); font-weight: 600; }
+
+  .score-display {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px;
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    margin-bottom: 20px;
+  }
+
+  .score-ring {
+    width: 72px;
+    height: 72px;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .score-ring svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+  }
+
+  .score-ring-bg {
+    fill: none;
+    stroke: rgba(0,0,0,0.06);
+    stroke-width: 5;
+  }
+
+  .score-ring-fill {
+    fill: none;
+    stroke-width: 5;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .score-number {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--text);
+  }
+
+  .score-info {
+    flex: 1;
+  }
+
+  .score-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .score-sub {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  /* Quadrant result rows */
+  .quadrant-result {
+    display: flex;
+    gap: 14px;
+    padding: 16px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 10px;
+    background: var(--bg);
+    border: 1px solid var(--card-border);
+  }
+
+  .qr-indicator {
+    width: 4px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+
+  .qr-content { flex: 1; }
+
+  .qr-title {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .qr-placed {
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+  }
+
+  .qr-correct { color: var(--success); }
+  .qr-wrong { color: var(--danger); }
+
+  .qr-strategy {
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: var(--text-tertiary);
+    padding: 10px 12px;
+    background: rgba(255,255,255,0.7);
+    border-radius: var(--radius-xs);
+    margin-top: 8px;
+  }
+
+  .qr-strategy strong { color: var(--text-secondary); }
+
+  /* Learning outcome */
+  .learning-card {
+    background: linear-gradient(135deg, rgba(0,113,227,0.04), rgba(64,169,255,0.06));
+    border: 1px solid var(--accent-border);
+  }
+
+  .learning-icon-box {
+    background: var(--accent-bg);
+    color: var(--accent);
+  }
+
+  /* Reset button */
+  .btn-reset {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius);
+    background: transparent;
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 16px;
+  }
+
+  .btn-reset:hover {
+    border-color: var(--text-tertiary);
+    color: var(--text);
+    background: rgba(0,0,0,0.02);
+  }
+
+  /* Empty state */
+  .empty-hint {
+    color: var(--text-tertiary);
+    font-size: 12px;
+    font-style: italic;
+    padding: 8px 0;
+    text-align: center;
+    opacity: 0.6;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes chipPop {
+    0% { transform: scale(0.8); opacity: 0; }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .chip-in-quadrant { animation: chipPop 0.3s ease-out; }
+
+  /* Drag ghost */
+  .drag-ghost {
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.92;
+    transform: scale(1.06) rotate(2deg);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+    border-radius: var(--radius-sm);
+    transition: none;
+  }
+
+  @media (max-width: 740px) {
+    .container { padding: 28px 16px 60px; }
+    .matrix-grid { max-height: none; aspect-ratio: auto; }
+    .quadrant { min-height: 120px; padding: 12px; }
+    .chips-panel { position: static; }
+    .exercise-layout { gap: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header class="header">
+    <div class="header-badge">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      Interaktive Übung
+    </div>
+    <h1>Stakeholder-Map erstellen</h1>
+    <p class="subtitle">Ordnen Sie die Stakeholder nach Macht und Interesse ein. Ziehen Sie die Karten in den passenden Quadranten der Matrix.</p>
+  </header>
+
+  <div class="scenario">
+    <div class="scenario-icon">🏭</div>
+    <div class="scenario-title">Szenario: Geplante Werksschliessung</div>
+    <p class="scenario-text">
+      Ihr Unternehmen plant die <strong>Schliessung eines Produktionsstandorts</strong> in einer Schweizer Kleinstadt. 350 Arbeitsplätze sind betroffen. Die Entscheidung ist strategisch begründet, aber noch nicht öffentlich. Sie müssen nun die relevanten Stakeholder identifizieren und priorisieren, um eine <strong>geeignete Kommunikationsstrategie</strong> zu entwickeln.
+    </p>
+  </div>
+
+  <div class="progress-bar-container">
+    <div class="progress-info">
+      <span class="progress-label">Fortschritt</span>
+      <span class="progress-count" id="progressCount">0 / 10 zugeordnet</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+  </div>
+
+  <div class="exercise-layout">
+    <!-- Sidebar: Stakeholder Chips -->
+    <div class="chips-panel">
+      <div class="chips-title">Stakeholder</div>
+      <div class="chips-list" id="chipsList">
+        <!-- Chips rendered by JS -->
+      </div>
+    </div>
+
+    <!-- Matrix -->
+    <div class="matrix-container">
+      <div class="matrix-wrapper">
+        <div class="axis-label-y">Macht (Einfluss) →</div>
+        <div class="axis-arrows-y">
+          <span>hoch</span>
+          <span>niedrig</span>
+        </div>
+        <div class="matrix-grid" id="matrixGrid">
+          <!-- Top-Left: High Power, Low Interest -->
+          <div class="quadrant q-satisfy" data-quadrant="satisfy" id="qSatisfy">
+            <div class="quadrant-header">
+              <div class="quadrant-dot"></div>
+              <div class="quadrant-title">Zufriedenstellen</div>
+            </div>
+            <div class="quadrant-subtitle">Hohe Macht, niedriges Interesse</div>
+            <div class="quadrant-chips" data-dropzone="satisfy"></div>
+          </div>
+
+          <!-- Top-Right: High Power, High Interest -->
+          <div class="quadrant q-keyplayer" data-quadrant="keyplayer" id="qKeyplayer">
+            <div class="quadrant-header">
+              <div class="quadrant-dot"></div>
+              <div class="quadrant-title">Key Player</div>
+            </div>
+            <div class="quadrant-subtitle">Hohe Macht, hohes Interesse</div>
+            <div class="quadrant-chips" data-dropzone="keyplayer"></div>
+          </div>
+
+          <!-- Bottom-Left: Low Power, Low Interest -->
+          <div class="quadrant q-monitor" data-quadrant="monitor" id="qMonitor">
+            <div class="quadrant-header">
+              <div class="quadrant-dot"></div>
+              <div class="quadrant-title">Beobachten</div>
+            </div>
+            <div class="quadrant-subtitle">Niedrige Macht, niedriges Interesse</div>
+            <div class="quadrant-chips" data-dropzone="monitor"></div>
+          </div>
+
+          <!-- Bottom-Right: Low Power, High Interest -->
+          <div class="quadrant q-inform" data-quadrant="inform" id="qInform">
+            <div class="quadrant-header">
+              <div class="quadrant-dot"></div>
+              <div class="quadrant-title">Informiert halten</div>
+            </div>
+            <div class="quadrant-subtitle">Niedrige Macht, hohes Interesse</div>
+            <div class="quadrant-chips" data-dropzone="inform"></div>
+          </div>
+        </div>
+        <div class="axis-label-x">Interesse (Betroffenheit) →</div>
+        <div class="axis-arrows" style="margin-left:36px;">
+          <span>niedrig</span>
+          <span>hoch</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-evaluate disabled" id="btnEvaluate" disabled>Alle 10 Stakeholder zuordnen, um auszuwerten</button>
+
+  <div class="results-section" id="resultsSection"></div>
+</div>
+
+<script>
+const STAKEHOLDERS = [
+  { id: 1, name: 'Hauptaktionär', correct: 'keyplayer' },
+  { id: 2, name: 'Lokale Medien', correct: 'inform' },
+  { id: 3, name: 'Gewerkschaft', correct: 'keyplayer' },
+  { id: 4, name: 'Kleinaktionäre', correct: 'satisfy' },
+  { id: 5, name: 'Anwohner der Fabrik', correct: 'inform' },
+  { id: 6, name: 'Geschäftsleitung', correct: 'keyplayer' },
+  { id: 7, name: 'Betroffene Mitarbeitende', correct: 'keyplayer' },
+  { id: 8, name: 'Lokale Politiker', correct: 'satisfy' },
+  { id: 9, name: 'Umweltverbände', correct: 'monitor' },
+  { id: 10, name: 'Konkurrierende Unternehmen', correct: 'monitor' }
+];
+
+const QUADRANT_INFO = {
+  keyplayer: {
+    label: 'Key Player',
+    color: 'var(--q-keyplayer)',
+    strategy: '<strong>Strategie:</strong> Eng einbinden und ständig informieren. Diese Stakeholder haben sowohl die Macht, Ihre Pläne zu beeinflussen, als auch ein starkes persönliches Interesse am Ausgang. Regelmässige bilaterale Gespräche, frühzeitige Einbindung in Entscheidungsprozesse und transparente Kommunikation sind hier entscheidend.'
+  },
+  satisfy: {
+    label: 'Zufriedenstellen',
+    color: 'var(--q-satisfy)',
+    strategy: '<strong>Strategie:</strong> Informieren, aber nicht überfrachten. Diese Stakeholder haben erheblichen Einfluss, sind aber nicht direkt betroffen. Halten Sie sie zufrieden mit regelmässigen, aber kompakten Updates. Vermeiden Sie Überraschungen, denn wenn sie aktiviert werden, können sie Ihr Vorhaben blockieren.'
+  },
+  inform: {
+    label: 'Informiert halten',
+    color: 'var(--q-inform)',
+    strategy: '<strong>Strategie:</strong> Regelmässige Updates geben. Diese Stakeholder sind stark betroffen, haben aber wenig direkte Macht. Vernachlässigen Sie sie nicht, denn sie können durch öffentlichen Druck oder Allianzen mit mächtigeren Gruppen an Einfluss gewinnen. Transparenz und Empathie sind hier der Schlüssel.'
+  },
+  monitor: {
+    label: 'Beobachten',
+    color: 'var(--q-monitor)',
+    strategy: '<strong>Strategie:</strong> Generelle Information reicht. Diese Stakeholder haben weder viel Macht noch starkes Interesse. Beobachten Sie sie, da sich ihre Position ändern kann, etwa wenn Umweltverbände mediale Aufmerksamkeit gewinnen oder Konkurrenten die Situation für sich nutzen.'
+  }
+};
+
+// State
+let placements = {}; // { stakeholderId: quadrantId }
+let draggedChipId = null;
+let ghostEl = null;
+
+// Render chips
+function renderChips() {
+  const list = document.getElementById('chipsList');
+  list.innerHTML = '';
+  const unplaced = STAKEHOLDERS.filter(s => !placements[s.id]);
+  
+  if (unplaced.length === 0) {
+    list.innerHTML = '<div class="empty-hint">Alle zugeordnet ✓</div>';
+    return;
+  }
+
+  unplaced.forEach(s => {
+    const chip = document.createElement('div');
+    chip.className = 'chip';
+    chip.dataset.id = s.id;
+    chip.innerHTML = `
+      <span class="chip-number">${s.id}</span>
+      <span class="chip-label">${s.name}</span>
+      <svg class="chip-grip" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="8" cy="4" r="2"/><circle cx="16" cy="4" r="2"/><circle cx="8" cy="12" r="2"/><circle cx="16" cy="12" r="2"/><circle cx="8" cy="20" r="2"/><circle cx="16" cy="20" r="2"/></svg>
+    `;
+    setupDrag(chip, s.id);
+    list.appendChild(chip);
+  });
+}
+
+// Render quadrant chips
+function renderQuadrants() {
+  document.querySelectorAll('.quadrant-chips').forEach(zone => {
+    const qId = zone.dataset.dropzone;
+    zone.innerHTML = '';
+    const placed = STAKEHOLDERS.filter(s => placements[s.id] === qId);
+    placed.forEach(s => {
+      const el = document.createElement('span');
+      el.className = 'chip-in-quadrant';
+      el.dataset.id = s.id;
+      el.innerHTML = `${s.name}<span class="chip-remove" title="Zurück">✕</span>`;
+      
+      // Remove on click
+      el.querySelector('.chip-remove').addEventListener('click', (e) => {
+        e.stopPropagation();
+        delete placements[s.id];
+        updateAll();
+      });
+
+      // Allow re-dragging from quadrant
+      setupDrag(el, s.id);
+      zone.appendChild(el);
+    });
+  });
+}
+
+function updateProgress() {
+  const count = Object.keys(placements).length;
+  document.getElementById('progressCount').textContent = `${count} / 10 zugeordnet`;
+  document.getElementById('progressFill').style.width = (count / 10 * 100) + '%';
+
+  const btn = document.getElementById('btnEvaluate');
+  if (count === 10) {
+    btn.className = 'btn-evaluate ready';
+    btn.disabled = false;
+    btn.textContent = 'Auswertung anzeigen';
+  } else {
+    btn.className = 'btn-evaluate disabled';
+    btn.disabled = true;
+    btn.textContent = `Alle 10 Stakeholder zuordnen, um auszuwerten`;
+  }
+}
+
+function updateAll() {
+  renderChips();
+  renderQuadrants();
+  updateProgress();
+}
+
+// Drag & Drop (pointer events for touch + mouse)
+function setupDrag(el, chipId) {
+  let startX, startY, offsetX, offsetY, isDragging = false;
+
+  function onStart(e) {
+    e.preventDefault();
+    const ev = e.touches ? e.touches[0] : e;
+    startX = ev.clientX;
+    startY = ev.clientY;
+
+    const rect = el.getBoundingClientRect();
+    offsetX = ev.clientX - rect.left;
+    offsetY = ev.clientY - rect.top;
+
+    draggedChipId = chipId;
+
+    // Create ghost
+    ghostEl = el.cloneNode(true);
+    ghostEl.className = (el.className.includes('chip-in-quadrant') ? 'chip' : el.className) + ' drag-ghost';
+    ghostEl.style.width = rect.width + 'px';
+    ghostEl.style.left = (ev.clientX - offsetX) + 'px';
+    ghostEl.style.top = (ev.clientY - offsetY) + 'px';
+
+    // Style ghost like sidebar chip
+    const s = STAKEHOLDERS.find(st => st.id === chipId);
+    if (el.className.includes('chip-in-quadrant')) {
+      ghostEl.innerHTML = `
+        <span class="chip-number">${s.id}</span>
+        <span class="chip-label">${s.name}</span>
+      `;
+      ghostEl.style.display = 'flex';
+      ghostEl.style.alignItems = 'center';
+      ghostEl.style.gap = '9px';
+      ghostEl.style.padding = '10px 14px';
+      ghostEl.style.background = '#fff';
+      ghostEl.style.border = '1.5px solid var(--accent)';
+      ghostEl.style.fontSize = '13px';
+      ghostEl.style.fontWeight = '500';
+      ghostEl.style.fontFamily = 'inherit';
+      ghostEl.style.color = 'var(--text)';
+      ghostEl.style.width = 'auto';
+    }
+
+    document.body.appendChild(ghostEl);
+    el.style.opacity = '0.3';
+    isDragging = true;
+
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onEnd);
+    document.addEventListener('touchmove', onMove, { passive: false });
+    document.addEventListener('touchend', onEnd);
+  }
+
+  function onMove(e) {
+    if (!isDragging) return;
+    e.preventDefault();
+    const ev = e.touches ? e.touches[0] : e;
+    
+    if (ghostEl) {
+      ghostEl.style.left = (ev.clientX - offsetX) + 'px';
+      ghostEl.style.top = (ev.clientY - offsetY) + 'px';
+    }
+
+    // Highlight quadrant under cursor
+    document.querySelectorAll('.quadrant').forEach(q => q.classList.remove('dragover'));
+    const target = getQuadrantUnder(ev.clientX, ev.clientY);
+    if (target) target.classList.add('dragover');
+  }
+
+  function onEnd(e) {
+    if (!isDragging) return;
+    isDragging = false;
+
+    const ev = e.changedTouches ? e.changedTouches[0] : e;
+    const target = getQuadrantUnder(ev.clientX, ev.clientY);
+
+    if (target) {
+      const qId = target.dataset.quadrant;
+      // Remove from previous if any
+      delete placements[chipId];
+      placements[chipId] = qId;
+    }
+
+    // Cleanup
+    document.querySelectorAll('.quadrant').forEach(q => q.classList.remove('dragover'));
+    if (ghostEl) { ghostEl.remove(); ghostEl = null; }
+    el.style.opacity = '1';
+    draggedChipId = null;
+
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onEnd);
+    document.removeEventListener('touchmove', onMove);
+    document.removeEventListener('touchend', onEnd);
+
+    updateAll();
+  }
+
+  el.addEventListener('mousedown', onStart);
+  el.addEventListener('touchstart', onStart, { passive: false });
+}
+
+function getQuadrantUnder(x, y) {
+  const quads = document.querySelectorAll('.quadrant');
+  for (const q of quads) {
+    const r = q.getBoundingClientRect();
+    if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return q;
+  }
+  return null;
+}
+
+// Evaluate
+document.getElementById('btnEvaluate').addEventListener('click', evaluate);
+
+function evaluate() {
+  let correct = 0;
+  let results = { keyplayer: [], satisfy: [], inform: [], monitor: [] };
+
+  STAKEHOLDERS.forEach(s => {
+    const placed = placements[s.id];
+    const isCorrect = placed === s.correct;
+    if (isCorrect) correct++;
+
+    results[placed].push({
+      name: s.name,
+      isCorrect: isCorrect,
+      shouldBe: s.correct
+    });
+  });
+
+  const pct = Math.round(correct / 10 * 100);
+  const circ = 2 * Math.PI * 30;
+  const offset = circ - (correct / 10) * circ;
+  
+  let scoreColor = correct >= 8 ? 'var(--success)' : correct >= 5 ? 'var(--warning)' : 'var(--danger)';
+  let scoreText = correct >= 8 ? 'Hervorragend! Sie haben ein klares Verständnis der Stakeholder-Dynamik.' : correct >= 5 ? 'Gute Grundlage! Einige Stakeholder wurden jedoch falsch eingeschätzt. Schauen Sie sich die Details unten an.' : 'Hier gibt es noch Lernpotenzial. Die Stakeholder-Analyse erfordert Übung, schauen Sie sich die Empfehlungen unten genau an.';
+
+  let html = `
+    <div class="result-card">
+      <div class="result-header">
+        <div class="result-icon" style="background:${scoreColor}10;color:${scoreColor};">🎯</div>
+        <div class="result-title">Ihre Auswertung</div>
+      </div>
+      <div class="score-display">
+        <div class="score-ring">
+          <svg viewBox="0 0 72 72">
+            <circle class="score-ring-bg" cx="36" cy="36" r="30"/>
+            <circle class="score-ring-fill" cx="36" cy="36" r="30"
+              stroke="${scoreColor}"
+              stroke-dasharray="${circ}"
+              stroke-dashoffset="${offset}"/>
+          </svg>
+          <div class="score-number">${pct}%</div>
+        </div>
+        <div class="score-info">
+          <div class="score-label">${correct} von 10 richtig zugeordnet</div>
+          <div class="score-sub">${scoreText}</div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Quadrant details
+  ['keyplayer', 'satisfy', 'inform', 'monitor'].forEach(qId => {
+    const info = QUADRANT_INFO[qId];
+    const items = results[qId];
+    const shouldBeHere = STAKEHOLDERS.filter(s => s.correct === qId).map(s => s.name);
+
+    html += `
+      <div class="result-card">
+        <div class="quadrant-result">
+          <div class="qr-indicator" style="background:${info.color};"></div>
+          <div class="qr-content">
+            <div class="qr-title" style="color:${info.color};">${info.label}</div>
+            <div class="qr-placed">
+              <strong>Ihre Zuordnung:</strong> ${items.length > 0 ? items.map(i =>
+                `<span class="${i.isCorrect ? 'qr-correct' : 'qr-wrong'}">${i.name} ${i.isCorrect ? '✓' : '✗'}</span>`
+              ).join(', ') : '<em>Keine</em>'}
+            </div>
+            <div class="qr-placed">
+              <strong>Richtige Zuordnung:</strong> ${shouldBeHere.join(', ')}
+            </div>
+            <div class="qr-strategy">${info.strategy}</div>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+
+  // Learning card
+  html += `
+    <div class="result-card learning-card">
+      <div class="result-header">
+        <div class="result-icon learning-icon-box">💡</div>
+        <div class="result-title">Lernerfolg</div>
+      </div>
+      <div class="result-text">
+        <strong>Zentrale Erkenntnis:</strong> Nicht alle Stakeholder müssen gleich behandelt werden, aber alle sollten berücksichtigt werden. Die Stakeholder-Map hilft Ihnen, Ressourcen gezielt einzusetzen: <strong>Key Player</strong> brauchen intensive Betreuung, während Gruppen mit niedrigem Interesse und niedriger Macht lediglich beobachtet werden müssen.
+        <br><br>
+        Bedenken Sie auch: Stakeholder-Positionen sind <strong>nicht statisch</strong>. Lokale Medien haben zunächst wenig direkte Macht, können aber durch Berichterstattung die öffentliche Meinung formen und so indirekt enormen Einfluss ausüben. Eine gute Stakeholder-Analyse wird daher regelmässig aktualisiert.
+      </div>
+    </div>
+
+    <button class="btn-reset" id="btnReset">Zurücksetzen und erneut zuordnen</button>
+  `;
+
+  const section = document.getElementById('resultsSection');
+  section.innerHTML = html;
+  section.classList.add('visible');
+  section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  document.getElementById('btnReset').addEventListener('click', () => {
+    placements = {};
+    section.classList.remove('visible');
+    section.innerHTML = '';
+    updateAll();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+}
+
+// Init
+updateAll();
+</script>
+</body>
+</html>
