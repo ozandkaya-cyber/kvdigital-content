@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workshop: HKV Nordwest & KV Pro</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reset.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/theme/white.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* Custom HKV / Ozan Style Overrides */
+        :root {
+            --hkv-blue: #1f4e5f; /* Teal/Petrol */
+            --hkv-bronze: #8c7853; /* Muted Gold/Brown */
+            --hkv-dark: #2c3e50;
+            --hkv-light: #f8f9fa;
+        }
+
+        body {
+            background-color: var(--hkv-light);
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+
+        .reveal h1, .reveal h2, .reveal h3 {
+            text-transform: none;
+            font-weight: 600;
+            color: var(--hkv-dark);
+        }
+
+        .reveal h1 { font-size: 2.2em; }
+        .reveal h2 { font-size: 1.6em; color: var(--hkv-blue); }
+        .reveal h3 { font-size: 1.2em; color: var(--hkv-bronze); margin-bottom: 30px; }
+
+        .reveal p, .reveal li {
+            font-size: 0.8em;
+            line-height: 1.6;
+            color: #4a4a4a;
+        }
+
+        /* Branding Header */
+        .header-brand {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 14px;
+            color: #aaa;
+            z-index: 10;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        /* Custom Elements */
+        .agenda-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            background: white;
+            padding: 15px;
+            border-left: 5px solid var(--hkv-blue);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .agenda-time {
+            font-weight: bold;
+            min-width: 100px;
+            color: var(--hkv-bronze);
+        }
+
+        .rule-card {
+            background: white;
+            padding: 20px;
+            border-radius: 4px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            height: 100%;
+            text-align: left;
+        }
+        
+        .rule-number {
+            font-size: 2em;
+            color: var(--hkv-blue);
+            font-weight: bold;
+            opacity: 0.3;
+        }
+
+        /* MATRIX FIX - NEUES LAYOUT */
+        .matrix-wrapper {
+            display: grid;
+            grid-template-columns: 80px 1fr 1fr 80px;
+            grid-template-rows: 50px 1fr 1fr 50px;
+            gap: 10px;
+            width: 800px;
+            height: 500px;
+            margin: 20px auto;
+            align-items: center;
+            justify-items: center;
+        }
+
+        .m-label {
+            font-weight: bold;
+            color: #888;
+            font-size: 0.7em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .m-label-top { grid-column: 2 / 4; grid-row: 1; align-self: end; color: var(--hkv-blue); }
+        .m-label-bottom { grid-column: 2 / 4; grid-row: 4; align-self: start; }
+        .m-label-left { grid-column: 1; grid-row: 2 / 4; writing-mode: vertical-rl; transform: rotate(180deg); color: var(--hkv-blue); }
+        .m-label-right { grid-column: 4; grid-row: 2 / 4; writing-mode: vertical-rl; transform: rotate(180deg); }
+
+        .matrix-quad {
+            background: rgba(31, 78, 95, 0.05);
+            border: 1px solid #ddd;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--hkv-dark);
+            font-size: 1.1em;
+            position: relative;
+        }
+        
+        .matrix-quad.highlight {
+            background: rgba(31, 78, 95, 0.2);
+            border: 3px solid var(--hkv-blue);
+            color: var(--hkv-blue);
+        }
+
+        /* Q1: Top Left */
+        .q1 { grid-column: 2; grid-row: 2; border-right: none; border-bottom: none; }
+        /* Q2: Top Right */
+        .q2 { grid-column: 3; grid-row: 2; border-left: 2px solid #333; border-bottom: none; }
+        /* Q3: Bottom Left */
+        .q3 { grid-column: 2; grid-row: 3; border-right: none; border-top: 2px solid #333; }
+        /* Q4: Bottom Right */
+        .q4 { grid-column: 3; grid-row: 3; border-left: 2px solid #333; border-top: 2px solid #333; }
+
+
+        .icon-large {
+            font-size: 3em !important;
+            margin-bottom: 20px !important;
+            color: var(--hkv-blue);
+        }
+
+        .quote-box {
+            border-left: 4px solid var(--hkv-bronze);
+            padding-left: 20px;
+            font-style: italic;
+            font-size: 1.2em !important;
+        }
+
+        /* Helper for Grid Layouts */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-brand">HKV NORDWEST & KV PRO</div>
+
+    <div class="reveal">
+        <div class="slides">
+
+            <section>
+                <div style="font-size: 4em; color: var(--hkv-blue); margin-bottom: 20px;">
+                    <i class="fa-solid fa-handshake"></i>
+                </div>
+                <h1>Weiterbildungsmarkt in der Nordwestschweiz</h1>
+                <h3>Gemeinsam erkunden, gemeinsam denken.</h3>
+                <p style="margin-top: 50px; font-size: 0.7em; color: #888;">
+                    11. Februar 2026 | Hägendorf
+                </p>
+            </section>
+
+            <section>
+                <h2>Worum es heute geht</h2>
+                <hr style="width: 10%; border-color: var(--hkv-bronze);">
+                <p class="quote-box" style="margin-top: 40px;">
+                    "Dieser Nachmittag ist kein Verhandlungstermin und kein Pitch."
+                </p>
+                <p>
+                    Es geht darum, die jeweiligen Perspektiven zu verstehen und gemeinsam zu überlegen, ob und wo es sinnvolle Berührungspunkte gibt.
+                </p>
+            </section>
+
+            <section>
+                <div class="grid-2" style="grid-template-columns: 1fr 1fr 1fr;">
+                    <div>
+                        <i class="fa-solid fa-compass icon-large"></i>
+                        <h4>Verstehen</h4>
+                        <p style="font-size: 0.6em;">Wo stehen wir jeweils? Was beschäftigt uns in den nächsten Jahren?</p>
+                    </div>
+                    <div>
+                        <i class="fa-solid fa-users icon-large" style="color: var(--hkv-dark);"></i>
+                        <h4>Austauschen</h4>
+                        <p style="font-size: 0.6em;">Was beobachten wir im Markt? Was hören wir von Studierenden?</p>
+                    </div>
+                    <div>
+                        <i class="fa-solid fa-lightbulb icon-large" style="color: var(--hkv-bronze);"></i>
+                        <h4>Erkunden</h4>
+                        <p style="font-size: 0.6em;">Gibt es Schnittmengen? Ideen, die für beide Seiten Sinn machen?</p>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2>Unsere Spielregeln</h2>
+                <div class="grid-2" style="font-size: 0.7em;">
+                    <div class="rule-card">
+                        <div class="rule-number">01</div>
+                        <strong>Offen und ehrlich</strong><br>
+                        Wir sprechen aus, was uns beschäftigt. Keine Floskeln.
+                    </div>
+                    <div class="rule-card">
+                        <div class="rule-number">02</div>
+                        <strong>Zuhören vor antworten</strong><br>
+                        Wir nehmen uns Zeit, die Perspektive der anderen Seite wirklich zu verstehen.
+                    </div>
+                    <div class="rule-card">
+                        <div class="rule-number">03</div>
+                        <strong>Kein Ergebnisdruck</strong><br>
+                        Es muss nichts beschlossen werden. Wenn etwas entsteht: gut. Wenn nicht: auch gut.
+                    </div>
+                    <div class="rule-card">
+                        <div class="rule-number">04</div>
+                        <strong>Gemeinsam am Flipchart</strong><br>
+                        Keine vorbereiteten Antworten, alles entsteht hier.
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2>Unser Nachmittag</h2>
+                <div style="font-size: 0.6em; text-align: left; max-width: 700px; margin: 0 auto;">
+                    
+                    <div class="agenda-item">
+                        <div class="agenda-time">15 Min.</div>
+                        <div>
+                            <strong>Ankommen</strong><br>
+                            Kaffee, persönlicher Austausch
+                        </div>
+                    </div>
+
+                    <div class="agenda-item">
+                        <div class="agenda-time">45 Min.</div>
+                        <div>
+                            <strong>Standortbestimmung</strong><br>
+                            Wo stehen wir? Was bewegt uns? Herausforderungen teilen.
+                        </div>
+                    </div>
+
+                    <div class="agenda-item">
+                        <div class="agenda-time">30 Min.</div>
+                        <div>
+                            <strong>Gemeinsamer Blick</strong><br>
+                            Wie verändert sich die Weiterbildungslandschaft? Markttrends.
+                        </div>
+                    </div>
+
+                    <div class="agenda-item">
+                        <div class="agenda-time">20 Min.</div>
+                        <div>
+                            <strong>Ideen sammeln</strong><br>
+                            Gibt es Schnittmengen? Frei denken.
+                        </div>
+                    </div>
+
+                    <div class="agenda-item" style="border-left-color: var(--hkv-bronze);">
+                        <div class="agenda-time">15 Min.</div>
+                        <div>
+                            <strong>Nächste Schritte</strong><br>
+                            Was nehmen wir mit? Wollen wir im Gespräch bleiben?
+                        </div>
+                    </div>
+                    
+                    <p style="text-align: center; font-style: italic; margin-top: 10px;">"Die Zeiten sind Richtwerte. Wir nehmen uns die Zeit, die wir brauchen."</p>
+                </div>
+            </section>
+
+            <section>
+                <h2>Leitfragen</h2>
+                <p style="font-size: 0.6em;">Gedacht als Anstösse, nicht als fixer Katalog.</p>
+                
+                <div style="text-align: left; font-size: 0.7em; margin-top: 30px;">
+                    <ul style="list-style-type: none;">
+                        <li style="margin-bottom: 20px;">
+                            <i class="fa-solid fa-caret-right" style="color: var(--hkv-blue);"></i> 
+                            <strong>Standort:</strong> Wenn wir drei Jahre vorausschauen: Was sind die grössten Herausforderungen für die kaufmännische Weiterbildung?
+                        </li>
+                        <li style="margin-bottom: 20px;">
+                            <i class="fa-solid fa-caret-right" style="color: var(--hkv-blue);"></i> 
+                            <strong>Markt:</strong> Wie verändert sich die Landschaft? Neue Mitbewerber? Was hören wir von Unternehmen?
+                        </li>
+                        <li style="margin-bottom: 20px;">
+                            <i class="fa-solid fa-caret-right" style="color: var(--hkv-bronze);"></i> 
+                            <strong>Ideen:</strong> Wo könnten wir uns gegenseitig nützlich sein? Was wäre denkbar, wenn wir ganz frei denken?
+                        </li>
+                    </ul>
+                </div>
+            </section>
+
+            <section>
+                <h2>Ideen einordnen</h2>
+                <p>Wir arbeiten mit Post-its und einer einfachen Matrix.</p>
+                
+                <div class="matrix-wrapper">
+                    <div class="m-label m-label-top">Hoher Nutzen</div>
+                    <div class="m-label m-label-bottom">Geringer Nutzen</div>
+                    <div class="m-label m-label-left">Einfach</div>
+                    <div class="m-label m-label-right">Komplex</div>
+
+                    <div class="matrix-quad highlight q1">
+                        <i class="fa-solid fa-star" style="margin-right: 10px;"></i> Hier starten
+                    </div>
+                    <div class="matrix-quad q2">Strategisch</div>
+                    <div class="matrix-quad q3">"Quick Wins"</div>
+                    <div class="matrix-quad q4">Warten</div>
+                </div>
+            </section>
+
+            <section>
+                <h2>Am Ende des Nachmittags</h2>
+                <div class="grid-2" style="font-size: 0.8em; margin-top: 40px;">
+                    <div>
+                        <h4>01 Festhalten</h4>
+                        <p>Wir fotografieren das Flipchart als gemeinsames Protokoll.</p>
+                    </div>
+                    <div>
+                        <h4>02 Klären</h4>
+                        <p>Gibt es einen konkreten nächsten Schritt? Wer macht was bis wann?</p>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 60px; background-color: var(--hkv-blue); color: white; padding: 30px; border-radius: 8px;">
+                    <i class="fa-solid fa-quote-left" style="opacity: 0.5;"></i>
+                    <p style="font-size: 1.1em; margin: 10px 0; color: white;">
+                        "Gute Zusammenarbeit beginnt nicht mit einem Vertrag, sondern mit einem Gespräch."
+                    </p>
+                    <i class="fa-solid fa-quote-right" style="opacity: 0.5;"></i>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.js"></script>
+    <script>
+        Reveal.initialize({
+            controls: true,
+            progress: true,
+            center: true,
+            hash: true,
+            transition: 'slide', // none/fade/slide/convex/concave/zoom
+            width: 1200, // Breiteres Layout für bessere Lesbarkeit
+            height: 800
+        });
+    </script>
+</body>
+</html>
