@@ -1,0 +1,751 @@
+<!doctype html>
+<html lang="de-CH">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kennzahlanalyse (Bilanz) - KMU Übung</title>
+  <style>
+    :root {
+      --bg: #f4efe6;
+      --paper: #fffdf9;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --brand: #0b6e4f;
+      --brand-soft: #d6f5e9;
+      --accent: #c75000;
+      --warn: #b91c1c;
+      --ok: #166534;
+      --border: #e7ddd1;
+      --shadow: 0 16px 40px rgba(31, 41, 55, 0.08);
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Space Grotesk", "Avenir Next", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 10% 10%, #f6dcc0 0%, transparent 38%),
+        radial-gradient(circle at 90% 20%, #d7e7ff 0%, transparent 36%),
+        linear-gradient(140deg, #f7f2ea, #eee3d5 56%, #f4efe7);
+      min-height: 100vh;
+      padding: 28px 16px 48px;
+    }
+
+    .app {
+      max-width: 1080px;
+      margin: 0 auto;
+      display: grid;
+      gap: 20px;
+    }
+
+    .hero,
+    .card {
+      background: var(--paper);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      top: -36px;
+      right: -36px;
+      width: 180px;
+      height: 180px;
+      background: conic-gradient(from 220deg, #0b6e4f, #57c597, #f6dcc0, #0b6e4f);
+      border-radius: 50%;
+      opacity: 0.2;
+      filter: blur(2px);
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(1.3rem, 2.4vw, 2rem);
+      line-height: 1.2;
+      letter-spacing: 0.01em;
+    }
+
+    .subtitle {
+      margin: 0;
+      max-width: 74ch;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 20px;
+    }
+
+    .card {
+      padding: 18px;
+    }
+
+    .card h2 {
+      margin: 0 0 14px;
+      font-size: 1.08rem;
+    }
+
+    .table-wrap {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.94rem;
+    }
+
+    th,
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #eee6db;
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    th {
+      font-size: 0.8rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      background: #f8f4ed;
+      color: #4b5563;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    .konto {
+      font-weight: 600;
+      color: #374151;
+      white-space: nowrap;
+    }
+
+    .value-cell {
+      min-width: 190px;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      max-width: 190px;
+      border: 1px solid #d6cdc0;
+      border-radius: 10px;
+      padding: 9px 10px;
+      font: inherit;
+      background: #fffefb;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    input[type="number"]:focus {
+      outline: none;
+      border-color: #35a37d;
+      box-shadow: 0 0 0 4px rgba(53, 163, 125, 0.15);
+    }
+
+    .totals {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+      font-size: 0.9rem;
+    }
+
+    .totals div {
+      background: #faf6f0;
+      border: 1px solid #ede3d7;
+      border-radius: 10px;
+      padding: 9px 10px;
+    }
+
+    .status {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 0.91rem;
+      display: none;
+    }
+
+    .status.warn {
+      display: block;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: var(--warn);
+    }
+
+    .status.ok {
+      display: block;
+      background: #ecfdf5;
+      border: 1px solid #bbf7d0;
+      color: var(--ok);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.14s ease, filter 0.14s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.03);
+    }
+
+    button:disabled {
+      opacity: 0.48;
+      cursor: not-allowed;
+      transform: none;
+      filter: none;
+    }
+
+    .btn-brand {
+      background: var(--brand);
+      color: #fff;
+    }
+
+    .btn-ghost {
+      background: #f3ece3;
+      color: #433224;
+      border: 1px solid #e8ddd0;
+    }
+
+    .kpi-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .kpi {
+      border: 1px solid #e9ded2;
+      border-radius: 12px;
+      padding: 10px;
+      background: linear-gradient(180deg, #fff, #fdf8f1);
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 14px;
+    }
+
+    .kpi small {
+      display: block;
+      color: #6b7280;
+      font-size: 0.77rem;
+      margin-top: 3px;
+    }
+
+    .kpi strong {
+      font-size: 1.05rem;
+      color: #0f172a;
+      white-space: nowrap;
+    }
+
+    .quiz-box {
+      margin-top: 14px;
+      padding: 14px;
+      border: 1px solid #e6dbc8;
+      border-radius: 12px;
+      background: #fffdf8;
+    }
+
+    .quiz-box p {
+      margin: 0 0 10px;
+      font-size: 0.92rem;
+      color: #4b5563;
+    }
+
+    .quiz-row {
+      display: grid;
+      grid-template-columns: 1fr 130px;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .quiz-row label {
+      font-size: 0.9rem;
+    }
+
+    .quiz-row input {
+      max-width: 130px;
+    }
+
+    .feedback {
+      margin-top: 10px;
+      font-size: 0.9rem;
+      color: #334155;
+    }
+
+    .feedback ul {
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+
+    .feedback li {
+      margin-bottom: 5px;
+    }
+
+    .quiz-input.is-correct {
+      border-color: #16a34a;
+      background: #f0fdf4;
+      box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.15);
+    }
+
+    .quiz-input.is-wrong {
+      border-color: #dc2626;
+      background: #fef2f2;
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.14);
+    }
+
+    .badge {
+      display: inline-block;
+      background: var(--brand-soft);
+      color: var(--brand);
+      border: 1px solid #b0e6cf;
+      border-radius: 999px;
+      padding: 4px 9px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      margin-bottom: 8px;
+    }
+
+    .formula-list {
+      margin: 10px 0 0;
+      padding-left: 18px;
+      color: #4b5563;
+      font-size: 0.88rem;
+    }
+
+    .formula-list li { margin-bottom: 5px; }
+
+    @media (max-width: 930px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .quiz-row {
+        grid-template-columns: 1fr;
+      }
+
+      .quiz-row input {
+        max-width: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="hero">
+      <span class="badge">Praxisfall CH-KMU</span>
+      <h1>Interaktive Bilanz-Kennzahlanalyse nach KMU-Kontenplan</h1>
+      <p class="subtitle">
+        Aufgabe: Werte einer fiktiven Schweizer Firma analysieren, Kennzahlen berechnen und deine Resultate prüfen.
+        Die Konten orientieren sich am üblichen KMU-Kontenplan (Klasse 1 Aktiven / Klasse 2 Passiven).
+      </p>
+    </section>
+
+    <section class="layout">
+      <article class="card">
+        <h2>1) Bilanzwerte bearbeiten</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Konto</th>
+                <th>Bezeichnung</th>
+                <th>Wert (CHF)</th>
+              </tr>
+            </thead>
+            <tbody id="accountsBody"></tbody>
+          </table>
+        </div>
+
+        <div class="totals">
+          <div><strong>Total Aktiven:</strong> <span id="totalAssets">0</span></div>
+          <div><strong>Total Passiven:</strong> <span id="totalLiabilitiesEquity">0</span></div>
+        </div>
+
+        <div id="balanceStatus" class="status"></div>
+
+        <div class="actions">
+          <button class="btn-brand" id="calcBtn">Resultate anzeigen</button>
+          <button class="btn-ghost" id="newCaseBtn">Neuer Übungsfall</button>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>2) Deine Auswertung</h2>
+        <div class="kpi-grid" id="kpiGrid"></div>
+
+        <section class="quiz-box">
+          <p><strong>Mini-Check:</strong> Trage deine berechneten Werte ein (in % bzw. CHF bei Working Capital).</p>
+
+          <div class="quiz-row">
+            <label for="qEigen">Eigenfinanzierungsgrad (%)</label>
+            <input class="quiz-input" type="number" step="0.1" id="qEigen" />
+          </div>
+          <div class="quiz-row">
+            <label for="qLiq2">Liquiditätsgrad 2 (%)</label>
+            <input class="quiz-input" type="number" step="0.1" id="qLiq2" />
+          </div>
+          <div class="quiz-row">
+            <label for="qDebt">Verschuldungsgrad (%)</label>
+            <input class="quiz-input" type="number" step="0.1" id="qDebt" />
+          </div>
+          <div class="quiz-row">
+            <label for="qAnlage">Anlagedeckungsgrad 2 (%)</label>
+            <input class="quiz-input" type="number" step="0.1" id="qAnlage" />
+          </div>
+          <div class="quiz-row">
+            <label for="qWC">Working Capital (CHF)</label>
+            <input class="quiz-input" type="number" step="1" id="qWC" />
+          </div>
+
+          <div class="actions">
+            <button class="btn-brand" id="checkBtn">Antworten prüfen</button>
+            <button class="btn-ghost" id="showBtn">Musterlösung zeigen</button>
+          </div>
+          <div class="feedback" id="feedback"></div>
+
+          <ol class="formula-list">
+            <li>Eigenfinanzierungsgrad = Eigenkapital / Gesamtkapital x 100</li>
+            <li>Liquiditätsgrad 2 = (Flüssige Mittel + Forderungen) / kurzfristiges Fremdkapital x 100</li>
+            <li>Verschuldungsgrad = Fremdkapital / Eigenkapital x 100</li>
+            <li>Anlagedeckungsgrad 2 = (Eigenkapital + langfristiges Fremdkapital) / Anlagevermögen x 100</li>
+            <li>Working Capital = Umlaufvermögen - kurzfristiges Fremdkapital</li>
+          </ol>
+        </section>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const accounts = [
+      { id: "1000", name: "Kasse", side: "asset", group: "liquid", min: 8000, max: 42000 },
+      { id: "1020", name: "Bank", side: "asset", group: "liquid", min: 45000, max: 180000 },
+      { id: "1100", name: "Forderungen aus Lieferungen und Leistungen", side: "asset", group: "receivables", min: 60000, max: 230000 },
+      { id: "1200", name: "Vorräte Handelswaren", side: "asset", group: "inventory", min: 35000, max: 190000 },
+      { id: "1400", name: "Maschinen", side: "asset", group: "fixed", min: 120000, max: 440000 },
+      { id: "1500", name: "Fahrzeuge", side: "asset", group: "fixed", min: 45000, max: 140000 },
+      { id: "2000", name: "Verbindlichkeiten aus L+L", side: "liability", group: "shortDebt", min: 50000, max: 190000 },
+      { id: "2300", name: "Passive Rechnungsabgrenzungen", side: "liability", group: "shortDebt", min: 12000, max: 48000 },
+      { id: "2400", name: "Langfristige Finanzverbindlichkeiten", side: "liability", group: "longDebt", min: 120000, max: 420000 },
+      { id: "2800", name: "Eigenkapital", side: "equity", group: "equity", min: 180000, max: 430000 }
+    ];
+
+    const el = {
+      body: document.getElementById("accountsBody"),
+      totalAssets: document.getElementById("totalAssets"),
+      totalLiabilitiesEquity: document.getElementById("totalLiabilitiesEquity"),
+      balanceStatus: document.getElementById("balanceStatus"),
+      kpiGrid: document.getElementById("kpiGrid"),
+      calcBtn: document.getElementById("calcBtn"),
+      newCaseBtn: document.getElementById("newCaseBtn"),
+      checkBtn: document.getElementById("checkBtn"),
+      showBtn: document.getElementById("showBtn"),
+      feedback: document.getElementById("feedback"),
+      quiz: {
+        eigen: document.getElementById("qEigen"),
+        liq2: document.getElementById("qLiq2"),
+        debt: document.getElementById("qDebt"),
+        anlage: document.getElementById("qAnlage"),
+        wc: document.getElementById("qWC")
+      }
+    };
+
+    let latestKpis = null;
+    let resultsVisible = false;
+    let revealUnlocked = false;
+
+    function r(min, max) {
+      return Math.round((Math.random() * (max - min) + min) / 1000) * 1000;
+    }
+
+    function formatCHF(value) {
+      return new Intl.NumberFormat("de-CH", {
+        style: "currency",
+        currency: "CHF",
+        maximumFractionDigits: 0
+      }).format(value);
+    }
+
+    function formatPct(value) {
+      return `${value.toFixed(1)} %`;
+    }
+
+    function renderRows() {
+      el.body.innerHTML = "";
+      for (const acc of accounts) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td class="konto">${acc.id}</td>
+          <td>${acc.name}</td>
+          <td class="value-cell"><input type="number" min="0" step="1000" id="acc-${acc.id}" /></td>
+        `;
+        el.body.appendChild(tr);
+      }
+    }
+
+    function getValues() {
+      const values = {};
+      for (const acc of accounts) {
+        const input = document.getElementById(`acc-${acc.id}`);
+        values[acc.id] = Number(input.value) || 0;
+      }
+      return values;
+    }
+
+    function setRandomCase() {
+      for (const acc of accounts) {
+        const input = document.getElementById(`acc-${acc.id}`);
+        input.value = r(acc.min, acc.max);
+      }
+
+      const values = getValues();
+      const assets = sumBySide(values, "asset");
+      const withoutEquity = sumBySide(values, "liability");
+      document.getElementById("acc-2800").value = Math.max(20000, assets - withoutEquity);
+
+      updateTotals();
+      clearQuiz();
+      latestKpis = null;
+      setRevealUnlocked(false);
+      setResultsVisibility(false);
+    }
+
+    function sumBySide(values, side) {
+      return accounts
+        .filter((a) => a.side === side)
+        .reduce((sum, a) => sum + (values[a.id] || 0), 0);
+    }
+
+    function sumByGroup(values, group) {
+      return accounts
+        .filter((a) => a.group === group)
+        .reduce((sum, a) => sum + (values[a.id] || 0), 0);
+    }
+
+    function updateTotals() {
+      const values = getValues();
+      const assets = sumBySide(values, "asset");
+      const liabilities = sumBySide(values, "liability");
+      const equity = sumBySide(values, "equity");
+      const totalRight = liabilities + equity;
+
+      el.totalAssets.textContent = formatCHF(assets);
+      el.totalLiabilitiesEquity.textContent = formatCHF(totalRight);
+
+      if (Math.abs(assets - totalRight) > 1) {
+        el.balanceStatus.className = "status warn";
+        el.balanceStatus.textContent = `Bilanz ist nicht ausgeglichen: Differenz ${formatCHF(assets - totalRight)}.`;
+      } else {
+        el.balanceStatus.className = "status ok";
+        el.balanceStatus.textContent = "Bilanz ist ausgeglichen.";
+      }
+
+      return { values, assets, liabilities, equity, totalRight };
+    }
+
+    function computeKPIs() {
+      const { values, assets, liabilities, equity } = updateTotals();
+      const liquid = sumByGroup(values, "liquid");
+      const receivables = sumByGroup(values, "receivables");
+      const inventory = sumByGroup(values, "inventory");
+      const shortDebt = sumByGroup(values, "shortDebt");
+      const longDebt = sumByGroup(values, "longDebt");
+      const fixedAssets = sumByGroup(values, "fixed");
+      const currentAssets = liquid + receivables + inventory;
+
+      const safeDiv = (num, den) => (den === 0 ? 0 : (num / den) * 100);
+
+      return {
+        eigenfinanzierung: safeDiv(equity, assets),
+        liquiditaet2: safeDiv(liquid + receivables, shortDebt),
+        verschuldung: safeDiv(liabilities, equity),
+        anlagedeckung2: safeDiv(equity + longDebt, fixedAssets),
+        workingCapital: currentAssets - shortDebt
+      };
+    }
+
+    function renderKPIs(kpi) {
+      if (!kpi) {
+        el.kpiGrid.innerHTML = `<div class="kpi"><span>Resultate sind verborgen.</span><small>Prüfe zuerst den Mini-Check und klicke dann auf "Resultate anzeigen".</small></div>`;
+        return;
+      }
+
+      el.kpiGrid.innerHTML = `
+        <div class="kpi">
+          <span>Eigenfinanzierungsgrad<small>Anteil Eigenkapital am Gesamtkapital</small></span>
+          <strong>${formatPct(kpi.eigenfinanzierung)}</strong>
+        </div>
+        <div class="kpi">
+          <span>Liquiditätsgrad 2<small>Zahlungsfähigkeit kurzfristig</small></span>
+          <strong>${formatPct(kpi.liquiditaet2)}</strong>
+        </div>
+        <div class="kpi">
+          <span>Verschuldungsgrad<small>Fremdkapital im Verhältnis zu Eigenkapital</small></span>
+          <strong>${formatPct(kpi.verschuldung)}</strong>
+        </div>
+        <div class="kpi">
+          <span>Anlagedeckungsgrad 2<small>Fristenkongruenz der Finanzierung</small></span>
+          <strong>${formatPct(kpi.anlagedeckung2)}</strong>
+        </div>
+        <div class="kpi">
+          <span>Working Capital<small>Umlaufvermögen minus kurzfristiges FK</small></span>
+          <strong>${formatCHF(kpi.workingCapital)}</strong>
+        </div>
+      `;
+    }
+
+    function clearQuiz() {
+      Object.values(el.quiz).forEach((q) => {
+        q.value = "";
+        q.classList.remove("is-correct", "is-wrong");
+      });
+      el.feedback.textContent = "";
+    }
+
+    function setRevealUnlocked(unlocked) {
+      revealUnlocked = unlocked;
+      el.calcBtn.disabled = !revealUnlocked;
+      el.showBtn.disabled = !revealUnlocked;
+    }
+
+    function setResultsVisibility(visible) {
+      resultsVisible = visible;
+
+      if (!resultsVisible) {
+        renderKPIs(null);
+        el.calcBtn.textContent = "Resultate anzeigen";
+        return;
+      }
+
+      latestKpis = computeKPIs();
+      renderKPIs(latestKpis);
+      el.calcBtn.textContent = "Resultate ausblenden";
+    }
+
+    function getHint(check) {
+      const direction = check.user < check.real ? "Dein Wert scheint eher zu tief." : "Dein Wert scheint eher zu hoch.";
+      const hints = {
+        eigen: "Prüfe, ob im Nenner wirklich das Gesamtkapital (Total Aktiven) steht.",
+        liq2: "Nur flüssige Mittel + Forderungen zählen, Vorräte gehören nicht in den Zähler.",
+        debt: "Im Zähler nur das gesamte Fremdkapital verwenden, im Nenner das Eigenkapital.",
+        anlage: "Nutze Eigenkapital + langfristiges Fremdkapital im Zähler, geteilt durch Anlagevermögen.",
+        wc: "Working Capital basiert auf Umlaufvermögen minus kurzfristigem Fremdkapital."
+      };
+      return `${hints[check.key]} ${direction}`;
+    }
+
+    function checkAnswers() {
+      latestKpis = computeKPIs();
+
+      const tolerancePct = 0.2;
+      const toleranceChf = 500;
+
+      const checks = [
+        { key: "eigen", input: el.quiz.eigen, raw: el.quiz.eigen.value, real: latestKpis.eigenfinanzierung, tol: tolerancePct, label: "Eigenfinanzierungsgrad" },
+        { key: "liq2", input: el.quiz.liq2, raw: el.quiz.liq2.value, real: latestKpis.liquiditaet2, tol: tolerancePct, label: "Liquiditätsgrad 2" },
+        { key: "debt", input: el.quiz.debt, raw: el.quiz.debt.value, real: latestKpis.verschuldung, tol: tolerancePct, label: "Verschuldungsgrad" },
+        { key: "anlage", input: el.quiz.anlage, raw: el.quiz.anlage.value, real: latestKpis.anlagedeckung2, tol: tolerancePct, label: "Anlagedeckungsgrad 2" },
+        { key: "wc", input: el.quiz.wc, raw: el.quiz.wc.value, real: latestKpis.workingCapital, tol: toleranceChf, label: "Working Capital" }
+      ].map((c) => ({ ...c, user: Number(c.raw) }));
+
+      const missing = checks.filter((c) => c.raw.trim() === "");
+      if (missing.length > 0) {
+        el.feedback.textContent = "Bitte alle Felder ausfüllen, dann erneut prüfen.";
+        setRevealUnlocked(false);
+        setResultsVisibility(false);
+        return;
+      }
+
+      setRevealUnlocked(true);
+
+      checks.forEach((c) => c.input.classList.remove("is-correct", "is-wrong"));
+      checks.forEach((c) => {
+        const isCorrect = Math.abs(c.user - c.real) <= c.tol;
+        c.input.classList.add(isCorrect ? "is-correct" : "is-wrong");
+      });
+
+      const correct = checks.filter((c) => Math.abs(c.user - c.real) <= c.tol);
+      const total = checks.length;
+
+      if (correct.length === total) {
+        el.feedback.innerHTML = `<strong>Sehr gut: ${correct.length}/${total} korrekt.</strong> Die Resultate kannst du jetzt optional anzeigen.`;
+      } else {
+        const wrong = checks.filter((c) => Math.abs(c.user - c.real) > c.tol);
+        const hintItems = wrong.map((c) => `<li><strong>${c.label}:</strong> ${getHint(c)}</li>`).join("");
+        el.feedback.innerHTML = `<strong>${correct.length}/${total} korrekt.</strong> Korrekturhinweise:<ul>${hintItems}</ul>`;
+      }
+    }
+
+    function showSolution() {
+      if (!latestKpis) {
+        latestKpis = computeKPIs();
+      }
+
+      el.quiz.eigen.value = latestKpis.eigenfinanzierung.toFixed(1);
+      el.quiz.liq2.value = latestKpis.liquiditaet2.toFixed(1);
+      el.quiz.debt.value = latestKpis.verschuldung.toFixed(1);
+      el.quiz.anlage.value = latestKpis.anlagedeckung2.toFixed(1);
+      el.quiz.wc.value = Math.round(latestKpis.workingCapital);
+      Object.values(el.quiz).forEach((q) => {
+        q.classList.remove("is-wrong");
+        q.classList.add("is-correct");
+      });
+      el.feedback.textContent = "Musterlösung ist eingetragen.";
+    }
+
+    function handleResultToggle() {
+      if (!revealUnlocked) {
+        el.feedback.textContent = "Bitte zuerst den Mini-Check mit \"Antworten prüfen\" ausführen.";
+        return;
+      }
+
+      setResultsVisibility(!resultsVisible);
+    }
+
+    function handleAccountChange() {
+      updateTotals();
+      latestKpis = null;
+      setRevealUnlocked(false);
+      setResultsVisibility(false);
+      Object.values(el.quiz).forEach((q) => q.classList.remove("is-correct", "is-wrong"));
+    }
+
+    renderRows();
+    setRandomCase();
+
+    el.body.addEventListener("input", handleAccountChange);
+    el.calcBtn.addEventListener("click", handleResultToggle);
+    el.newCaseBtn.addEventListener("click", setRandomCase);
+    el.checkBtn.addEventListener("click", checkAnswers);
+    el.showBtn.addEventListener("click", showSolution);
+    Object.values(el.quiz).forEach((q) => {
+      q.addEventListener("input", () => q.classList.remove("is-correct", "is-wrong"));
+    });
+  </script>
+</body>
+</html>
