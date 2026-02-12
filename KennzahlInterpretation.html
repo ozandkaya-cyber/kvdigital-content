@@ -1,0 +1,763 @@
+<!doctype html>
+<html lang="de-CH">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kennzahlen berechnen und interpretieren</title>
+  <style>
+    :root {
+      --bg: #f3efe6;
+      --paper: #fffdf8;
+      --ink: #1f2937;
+      --muted: #5b6470;
+      --brand: #0f6a44;
+      --brand-2: #0f3f76;
+      --line: #e6ddd0;
+      --ok: #166534;
+      --ok-soft: #ecfdf3;
+      --bad: #b91c1c;
+      --bad-soft: #fef2f2;
+      --info-soft: #eef6ff;
+      --radius: 14px;
+      --shadow: 0 14px 32px rgba(31, 41, 55, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 14% 8%, #dbeedb 0%, transparent 32%),
+        radial-gradient(circle at 90% 20%, #e0ecff 0%, transparent 30%),
+        linear-gradient(180deg, #f8f4ed, #f1e9dd);
+      color: var(--ink);
+      padding: 18px;
+    }
+
+    .app {
+      max-width: 1180px;
+      margin: 0 auto;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid #b8dac6;
+      background: #e8f7ee;
+      color: var(--brand);
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.24rem, 2.7vw, 1.82rem);
+      color: #133122;
+    }
+
+    .lead {
+      margin: 8px 0 16px;
+      color: var(--muted);
+      line-height: 1.45;
+      max-width: 86ch;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(340px, 1fr) minmax(440px, 1.05fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 12px;
+    }
+
+    .card h2 {
+      margin: 0 0 10px;
+      font-size: 1.03rem;
+      color: #12283f;
+    }
+
+    .table-wrap {
+      border: 1px solid #e8dfd4;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid #efe7dc;
+      padding: 8px 10px;
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    th {
+      background: #f8f3ea;
+      font-size: 0.79rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: #4b5563;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    .group {
+      font-weight: 700;
+      color: #164133;
+      background: #eef8f1;
+    }
+
+    .money {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      font-weight: 700;
+      color: #0f172a;
+      white-space: nowrap;
+    }
+
+    .totals {
+      margin-top: 10px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      font-size: 0.9rem;
+    }
+
+    .totals div {
+      border: 1px solid #ece2d6;
+      border-radius: 10px;
+      background: #fcf8f3;
+      padding: 8px 10px;
+    }
+
+    .status {
+      margin-top: 9px;
+      padding: 8px 10px;
+      border: 1px solid #cde5d5;
+      border-radius: 10px;
+      background: #effaf2;
+      color: #0f5132;
+      font-size: 0.89rem;
+    }
+
+    .question {
+      border: 1px solid #e8dfd2;
+      border-radius: 11px;
+      padding: 10px;
+      margin-bottom: 8px;
+      background: #fffdf8;
+    }
+
+    .question:last-child { margin-bottom: 0; }
+
+    .question label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #233244;
+    }
+
+    input[type="number"],
+    select {
+      width: 100%;
+      border: 1px solid #d6ccbe;
+      border-radius: 9px;
+      padding: 8px 9px;
+      font: inherit;
+      background: #fff;
+    }
+
+    input[type="number"]:focus,
+    select:focus {
+      outline: none;
+      border-color: #358664;
+      box-shadow: 0 0 0 3px rgba(53, 134, 100, 0.15);
+    }
+
+    .is-correct {
+      border-color: var(--ok) !important;
+      background: var(--ok-soft) !important;
+      box-shadow: 0 0 0 3px rgba(22, 101, 52, 0.12);
+    }
+
+    .is-wrong {
+      border-color: var(--bad) !important;
+      background: var(--bad-soft) !important;
+      box-shadow: 0 0 0 3px rgba(185, 28, 28, 0.12);
+    }
+
+    .actions {
+      margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    button {
+      border: 0;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.12s ease, filter 0.12s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.03);
+    }
+
+    button:disabled {
+      opacity: 0.48;
+      cursor: not-allowed;
+      transform: none;
+      filter: none;
+    }
+
+    .btn-primary { background: var(--brand-2); color: #fff; }
+    .btn-neutral {
+      background: #f1ebe1;
+      color: #2a2f37;
+      border: 1px solid #e2d7c9;
+    }
+
+    .progress {
+      margin-left: auto;
+      font-size: 0.86rem;
+      font-weight: 700;
+      color: #204d34;
+      background: #eaf7ee;
+      border: 1px solid #cae4d3;
+      padding: 6px 10px;
+      border-radius: 999px;
+    }
+
+    .feedback {
+      margin-top: 12px;
+      border: 1px solid #e3d9ca;
+      border-radius: 11px;
+      padding: 10px;
+      background: #fffefb;
+      min-height: 70px;
+      font-size: 0.9rem;
+    }
+
+    .feedback ul {
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+
+    .result-box {
+      margin-top: 12px;
+      border: 1px solid #d5e5f8;
+      border-radius: 11px;
+      padding: 10px;
+      background: var(--info-soft);
+      display: none;
+    }
+
+    .result-box.visible { display: block; }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      font-size: 0.9rem;
+    }
+
+    .result-grid div {
+      border: 1px solid #caddf2;
+      border-radius: 9px;
+      background: #fff;
+      padding: 8px;
+    }
+
+    .footnote {
+      margin-top: 9px;
+      font-size: 0.82rem;
+      color: #546072;
+    }
+
+    @media (max-width: 760px) {
+      .layout { grid-template-columns: 1fr; }
+      .totals,
+      .result-grid { grid-template-columns: 1fr; }
+      .progress { margin-left: 0; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <span class="badge">INTERAKTIVES ELEMENT: Kennzahlentraining</span>
+    <h1>Kennzahlen berechnen und interpretieren (CH-KMU)</h1>
+    <p class="lead">
+      Bilanzwerte sind vorgegeben (Basis: Schweizer KMU-Kontenplan). Schritt 1: Kennzahlen selbst berechnen und einordnen.
+      Schritt 2: Resultate optional anzeigen.
+    </p>
+
+    <section class="layout">
+      <article class="card">
+        <h2>Bilanzdaten (Uebungsfall)</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Konto</th>
+                <th>Bezeichnung</th>
+                <th>CHF</th>
+              </tr>
+            </thead>
+            <tbody id="caseTable"></tbody>
+          </table>
+        </div>
+        <div class="totals">
+          <div><strong>Total Aktiven:</strong> <span id="totalAssets">-</span></div>
+          <div><strong>Total Passiven:</strong> <span id="totalPassives">-</span></div>
+        </div>
+        <div class="status" id="balanceStatus">Bilanz wird geladen ...</div>
+      </article>
+
+      <article class="card">
+        <h2>Mini-Check: Deine Berechnung</h2>
+
+        <div class="question">
+          <label for="qEigen">Eigenfinanzierungsgrad (%)</label>
+          <input class="answer" type="number" step="0.1" id="qEigen" />
+        </div>
+
+        <div class="question">
+          <label for="qLiq2">Liquiditaetsgrad 2 (%)</label>
+          <input class="answer" type="number" step="0.1" id="qLiq2" />
+        </div>
+
+        <div class="question">
+          <label for="qAnlage2">Anlagedeckungsgrad 2 (%)</label>
+          <input class="answer" type="number" step="0.1" id="qAnlage2" />
+        </div>
+
+        <div class="question">
+          <label for="qWc">Working Capital (CHF)</label>
+          <input class="answer" type="number" step="100" id="qWc" />
+        </div>
+
+        <div class="question">
+          <label for="qEqInterpret">Interpretation Eigenfinanzierung</label>
+          <select class="answer" id="qEqInterpret">
+            <option value="">Bitte waehlen ...</option>
+            <option value="solid">Solide Kapitalbasis</option>
+            <option value="middle">Mittel, beobachtbar</option>
+            <option value="critical">Kritische Eigenkapitalbasis</option>
+          </select>
+        </div>
+
+        <div class="question">
+          <label for="qLiqInterpret">Interpretation Liquiditaet 2</label>
+          <select class="answer" id="qLiqInterpret">
+            <option value="">Bitte waehlen ...</option>
+            <option value="good">Kurzfristig gut zahlungsfaehig</option>
+            <option value="tense">Angespannte kurzfristige Liquiditaet</option>
+            <option value="critical">Kritische kurzfristige Liquiditaet</option>
+          </select>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn-primary" id="checkBtn">Antworten pruefen</button>
+          <button type="button" class="btn-primary" id="toggleResultsBtn" disabled>Resultate anzeigen</button>
+          <button type="button" class="btn-neutral" id="nextBtn">Naechste Uebung</button>
+          <button type="button" class="btn-neutral" id="solutionBtn" disabled>Musterantwort eintragen</button>
+          <span class="progress" id="progress">Uebung 1</span>
+        </div>
+
+        <section class="feedback" id="feedback">
+          Trage deine Antworten ein und klicke auf <strong>Antworten pruefen</strong>.
+        </section>
+
+        <section class="result-box" id="resultBox">
+          <strong>Berechnete Resultate:</strong>
+          <div class="result-grid" id="resultGrid"></div>
+          <p class="footnote">Die Resultate werden erst nach dem ersten Pruefschritt eingeblendet.</p>
+        </section>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const fmtChf = (value) => new Intl.NumberFormat("de-CH", { style: "currency", currency: "CHF", maximumFractionDigits: 0 }).format(value);
+    const fmtPct = (value) => `${value.toFixed(1)} %`;
+
+    const el = {
+      caseTable: document.getElementById("caseTable"),
+      totalAssets: document.getElementById("totalAssets"),
+      totalPassives: document.getElementById("totalPassives"),
+      balanceStatus: document.getElementById("balanceStatus"),
+      checkBtn: document.getElementById("checkBtn"),
+      toggleResultsBtn: document.getElementById("toggleResultsBtn"),
+      nextBtn: document.getElementById("nextBtn"),
+      solutionBtn: document.getElementById("solutionBtn"),
+      feedback: document.getElementById("feedback"),
+      resultBox: document.getElementById("resultBox"),
+      resultGrid: document.getElementById("resultGrid"),
+      progress: document.getElementById("progress"),
+      qEigen: document.getElementById("qEigen"),
+      qLiq2: document.getElementById("qLiq2"),
+      qAnlage2: document.getElementById("qAnlage2"),
+      qWc: document.getElementById("qWc"),
+      qEqInterpret: document.getElementById("qEqInterpret"),
+      qLiqInterpret: document.getElementById("qLiqInterpret")
+    };
+
+    let caseData = null;
+    let kpis = null;
+    let showResults = false;
+    let unlocked = false;
+    let caseNo = 0;
+
+    function randomStep(min, max, step = 1000) {
+      const val = Math.floor((Math.random() * (max - min) + min) / step) * step;
+      return Math.max(step, val);
+    }
+
+    function buildCase() {
+      let generated = null;
+
+      for (let i = 0; i < 60; i += 1) {
+        const c = {
+          cash: randomStep(18000, 70000),
+          bank: randomStep(90000, 280000),
+          receivables: randomStep(120000, 380000),
+          inventory: randomStep(90000, 280000),
+          machines: randomStep(220000, 560000),
+          property: randomStep(320000, 900000),
+          payables: randomStep(100000, 300000),
+          shortLoans: randomStep(80000, 240000),
+          longLoans: randomStep(260000, 760000),
+          shareCapital: randomStep(350000, 900000)
+        };
+
+        c.assets = c.cash + c.bank + c.receivables + c.inventory + c.machines + c.property;
+        c.shortDebt = c.payables + c.shortLoans;
+        c.debt = c.shortDebt + c.longLoans;
+        c.reserves = c.assets - c.debt - c.shareCapital;
+
+        if (c.reserves >= 120000 && c.reserves <= 900000) {
+          generated = c;
+          break;
+        }
+      }
+
+      if (!generated) {
+        generated = {
+          cash: 40000,
+          bank: 160000,
+          receivables: 220000,
+          inventory: 180000,
+          machines: 360000,
+          property: 620000,
+          payables: 180000,
+          shortLoans: 130000,
+          longLoans: 430000,
+          shareCapital: 540000
+        };
+        generated.assets = generated.cash + generated.bank + generated.receivables + generated.inventory + generated.machines + generated.property;
+        generated.shortDebt = generated.payables + generated.shortLoans;
+        generated.debt = generated.shortDebt + generated.longLoans;
+        generated.reserves = generated.assets - generated.debt - generated.shareCapital;
+      }
+
+      return generated;
+    }
+
+    function computeKpis(c) {
+      const equity = c.shareCapital + c.reserves;
+      const currentAssets = c.cash + c.bank + c.receivables + c.inventory;
+      const fixedAssets = c.machines + c.property;
+
+      const safePct = (num, den) => den === 0 ? 0 : (num / den) * 100;
+
+      const eigen = safePct(equity, c.assets);
+      const liq2 = safePct(c.cash + c.bank + c.receivables, c.shortDebt);
+      const anlage2 = safePct(equity + c.longLoans, fixedAssets);
+      const wc = currentAssets - c.shortDebt;
+
+      return {
+        eigen,
+        liq2,
+        anlage2,
+        wc,
+        eqInterpret: eigen >= 40 ? "solid" : (eigen >= 25 ? "middle" : "critical"),
+        liqInterpret: liq2 >= 100 ? "good" : (liq2 >= 70 ? "tense" : "critical")
+      };
+    }
+
+    function renderCase() {
+      const rows = [
+        ["", "Umlaufvermoegen", "", true],
+        ["1000", "Kasse", caseData.cash],
+        ["1020", "Bank", caseData.bank],
+        ["1100", "Forderungen aus L+L", caseData.receivables],
+        ["1200", "Vorrat Handelswaren", caseData.inventory],
+        ["", "Anlagevermoegen", "", true],
+        ["1500", "Maschinen und Apparate", caseData.machines],
+        ["1600", "Geschaeftsliegenschaft", caseData.property],
+        ["", "Fremdkapital", "", true],
+        ["2000", "Verbindlichkeiten aus L+L", caseData.payables],
+        ["2100", "Kurzfristige Finanzverbindlichkeiten", caseData.shortLoans],
+        ["2400", "Langfristige Finanzverbindlichkeiten", caseData.longLoans],
+        ["", "Eigenkapital", "", true],
+        ["2800", "Aktienkapital", caseData.shareCapital],
+        ["2900", "Gewinnreserven", caseData.reserves]
+      ];
+
+      el.caseTable.innerHTML = rows.map((row) => {
+        if (row[3]) {
+          return `<tr class="group"><td></td><td>${row[1]}</td><td></td></tr>`;
+        }
+        return `<tr><td>${row[0]}</td><td>${row[1]}</td><td class="money">${fmtChf(row[2])}</td></tr>`;
+      }).join("");
+
+      const totalPassives = caseData.debt + caseData.shareCapital + caseData.reserves;
+      el.totalAssets.textContent = fmtChf(caseData.assets);
+      el.totalPassives.textContent = fmtChf(totalPassives);
+
+      if (Math.abs(caseData.assets - totalPassives) <= 1) {
+        el.balanceStatus.textContent = "Bilanz ist ausgeglichen.";
+      } else {
+        el.balanceStatus.textContent = "Bilanz ist nicht ausgeglichen.";
+      }
+    }
+
+    function clearMarks() {
+      document.querySelectorAll(".answer").forEach((field) => field.classList.remove("is-correct", "is-wrong"));
+    }
+
+    function setUnlocked(value) {
+      unlocked = value;
+      el.toggleResultsBtn.disabled = !unlocked;
+      el.solutionBtn.disabled = !unlocked;
+      if (!unlocked) {
+        showResults = false;
+        el.resultBox.classList.remove("visible");
+        el.toggleResultsBtn.textContent = "Resultate anzeigen";
+      }
+    }
+
+    function renderResults() {
+      el.resultGrid.innerHTML = `
+        <div><strong>Eigenfinanzierungsgrad</strong><br>${fmtPct(kpis.eigen)}</div>
+        <div><strong>Liquiditaetsgrad 2</strong><br>${fmtPct(kpis.liq2)}</div>
+        <div><strong>Anlagedeckungsgrad 2</strong><br>${fmtPct(kpis.anlage2)}</div>
+        <div><strong>Working Capital</strong><br>${fmtChf(kpis.wc)}</div>
+        <div><strong>Interpretation Eigenfinanzierung</strong><br>${eqInterpretLabel(kpis.eqInterpret)}</div>
+        <div><strong>Interpretation Liquiditaet 2</strong><br>${liqInterpretLabel(kpis.liqInterpret)}</div>
+      `;
+    }
+
+    function eqInterpretLabel(code) {
+      if (code === "solid") return "Solide Kapitalbasis";
+      if (code === "middle") return "Mittel, beobachtbar";
+      return "Kritische Eigenkapitalbasis";
+    }
+
+    function liqInterpretLabel(code) {
+      if (code === "good") return "Kurzfristig gut zahlungsfaehig";
+      if (code === "tense") return "Angespannte kurzfristige Liquiditaet";
+      return "Kritische kurzfristige Liquiditaet";
+    }
+
+    function numberHint(label, user, real, formulaHint) {
+      const direction = user < real ? "Dein Wert ist eher zu tief." : "Dein Wert ist eher zu hoch.";
+      return `<li><strong>${label}:</strong> ${formulaHint} ${direction}</li>`;
+    }
+
+    function checkAnswers() {
+      kpis = computeKpis(caseData);
+      clearMarks();
+
+      const checks = [
+        {
+          key: "eigen",
+          label: "Eigenfinanzierungsgrad",
+          field: el.qEigen,
+          userRaw: el.qEigen.value,
+          user: Number(el.qEigen.value),
+          real: kpis.eigen,
+          tol: 0.2,
+          hint: "Nutze Eigenkapital / Gesamtkapital x 100."
+        },
+        {
+          key: "liq2",
+          label: "Liquiditaetsgrad 2",
+          field: el.qLiq2,
+          userRaw: el.qLiq2.value,
+          user: Number(el.qLiq2.value),
+          real: kpis.liq2,
+          tol: 0.2,
+          hint: "Nutze (fluessige Mittel + Forderungen) / kurzfristiges Fremdkapital x 100."
+        },
+        {
+          key: "anlage2",
+          label: "Anlagedeckungsgrad 2",
+          field: el.qAnlage2,
+          userRaw: el.qAnlage2.value,
+          user: Number(el.qAnlage2.value),
+          real: kpis.anlage2,
+          tol: 0.2,
+          hint: "Nutze (Eigenkapital + langfristiges Fremdkapital) / Anlagevermoegen x 100."
+        },
+        {
+          key: "wc",
+          label: "Working Capital",
+          field: el.qWc,
+          userRaw: el.qWc.value,
+          user: Number(el.qWc.value),
+          real: kpis.wc,
+          tol: 1000,
+          hint: "Nutze Umlaufvermoegen minus kurzfristiges Fremdkapital."
+        },
+        {
+          key: "eqInterpret",
+          label: "Interpretation Eigenfinanzierung",
+          field: el.qEqInterpret,
+          userRaw: el.qEqInterpret.value,
+          user: el.qEqInterpret.value,
+          real: kpis.eqInterpret,
+          tol: 0,
+          hint: "Nutze die Schwellen: >=40 solide, 25-39 mittel, <25 kritisch."
+        },
+        {
+          key: "liqInterpret",
+          label: "Interpretation Liquiditaet 2",
+          field: el.qLiqInterpret,
+          userRaw: el.qLiqInterpret.value,
+          user: el.qLiqInterpret.value,
+          real: kpis.liqInterpret,
+          tol: 0,
+          hint: "Nutze die Schwellen: >=100 gut, 70-99 angespannt, <70 kritisch."
+        }
+      ];
+
+      const missing = checks.filter((c) => c.userRaw.trim() === "");
+      if (missing.length > 0) {
+        setUnlocked(false);
+        el.feedback.innerHTML = "Bitte alle Felder ausfuellen und erneut pruefen.";
+        return;
+      }
+
+      const hints = [];
+      let correct = 0;
+
+      checks.forEach((c) => {
+        const isCorrect = typeof c.real === "number"
+          ? Math.abs(c.user - c.real) <= c.tol
+          : c.user === c.real;
+
+        c.field.classList.add(isCorrect ? "is-correct" : "is-wrong");
+
+        if (isCorrect) {
+          correct += 1;
+          return;
+        }
+
+        if (typeof c.real === "number") {
+          hints.push(numberHint(c.label, c.user, c.real, c.hint));
+        } else {
+          hints.push(`<li><strong>${c.label}:</strong> ${c.hint}</li>`);
+        }
+      });
+
+      setUnlocked(true);
+      renderResults();
+
+      if (correct === checks.length) {
+        el.feedback.innerHTML = `<strong>Sehr gut: ${correct}/${checks.length} korrekt.</strong> Resultate kannst du jetzt optional einblenden.`;
+      } else {
+        el.feedback.innerHTML = `<strong>${correct}/${checks.length} korrekt.</strong> Korrekturhinweise:<ul>${hints.join("")}</ul>`;
+      }
+    }
+
+    function applySolution() {
+      if (!kpis) kpis = computeKpis(caseData);
+
+      el.qEigen.value = kpis.eigen.toFixed(1);
+      el.qLiq2.value = kpis.liq2.toFixed(1);
+      el.qAnlage2.value = kpis.anlage2.toFixed(1);
+      el.qWc.value = Math.round(kpis.wc);
+      el.qEqInterpret.value = kpis.eqInterpret;
+      el.qLiqInterpret.value = kpis.liqInterpret;
+
+      clearMarks();
+      document.querySelectorAll(".answer").forEach((field) => field.classList.add("is-correct"));
+      renderResults();
+      setUnlocked(true);
+      el.feedback.innerHTML = "Musterantwort eingetragen. Du kannst die Resultate anzeigen oder ausblenden.";
+    }
+
+    function toggleResults() {
+      if (!unlocked) {
+        el.feedback.innerHTML = "Bitte zuerst auf <strong>Antworten pruefen</strong> klicken.";
+        return;
+      }
+
+      showResults = !showResults;
+      el.resultBox.classList.toggle("visible", showResults);
+      el.toggleResultsBtn.textContent = showResults ? "Resultate ausblenden" : "Resultate anzeigen";
+    }
+
+    function newCase() {
+      caseNo += 1;
+      caseData = buildCase();
+      kpis = computeKpis(caseData);
+      showResults = false;
+
+      el.progress.textContent = `Uebung ${caseNo}`;
+      renderCase();
+
+      [el.qEigen, el.qLiq2, el.qAnlage2, el.qWc].forEach((input) => {
+        input.value = "";
+      });
+      [el.qEqInterpret, el.qLiqInterpret].forEach((input) => {
+        input.value = "";
+      });
+
+      clearMarks();
+      setUnlocked(false);
+      renderResults();
+      el.feedback.innerHTML = "Neuer Fall geladen. Rechne nun die Kennzahlen und interpretiere sie.";
+    }
+
+    el.checkBtn.addEventListener("click", checkAnswers);
+    el.toggleResultsBtn.addEventListener("click", toggleResults);
+    el.solutionBtn.addEventListener("click", applySolution);
+    el.nextBtn.addEventListener("click", newCase);
+
+    document.querySelectorAll(".answer").forEach((field) => {
+      field.addEventListener("input", () => field.classList.remove("is-correct", "is-wrong"));
+    });
+
+    newCase();
+  </script>
+</body>
+</html>
