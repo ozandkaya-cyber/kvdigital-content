@@ -1,0 +1,539 @@
+<!doctype html>
+<html lang="de-CH">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Interaktive Bilanz-Zuordnung</title>
+  <style>
+    :root {
+      --bg: #edf6ef;
+      --card: #ffffff;
+      --ink: #1f2937;
+      --muted: #4b5563;
+      --line: #cdddcf;
+      --brand: #1f6b2c;
+      --brand-soft: #e4f4e7;
+      --ok: #166534;
+      --ok-soft: #ecfdf3;
+      --bad: #b91c1c;
+      --bad-soft: #fef2f2;
+      --accent: #0e3b70;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      background: radial-gradient(circle at 10% 5%, #d8ebdc 0%, transparent 30%), linear-gradient(180deg, #f2f8f3, #ecf4ed);
+      color: var(--ink);
+      padding: 18px;
+    }
+
+    .exercise {
+      max-width: 1120px;
+      margin: 0 auto;
+      background: var(--card);
+      border: 1px solid #d5e2d7;
+      border-radius: 16px;
+      box-shadow: 0 14px 30px rgba(20, 30, 20, 0.08);
+      padding: 20px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.25rem, 2.8vw, 1.85rem);
+      color: var(--brand);
+    }
+
+    .lead {
+      margin: 8px 0 16px;
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.45;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid #b9d8bf;
+      background: var(--brand-soft);
+      color: var(--brand);
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      margin-bottom: 8px;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: 1fr 1.25fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .panel {
+      background: #fbfefb;
+      border: 1px solid #d9e6db;
+      border-radius: 14px;
+      padding: 12px;
+    }
+
+    .panel h2 {
+      margin: 2px 0 10px;
+      font-size: 1.02rem;
+      color: #12331a;
+    }
+
+    .zone-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .zone-shell {
+      border: 1px solid var(--line);
+      background: #f5faf6;
+      border-radius: 12px;
+      padding: 8px;
+    }
+
+    .zone-shell h3 {
+      margin: 0 0 8px;
+      font-size: 0.9rem;
+      color: #1e3a2a;
+    }
+
+    .dropzone {
+      min-height: 120px;
+      border: 2px dashed #b9cbbb;
+      border-radius: 10px;
+      padding: 7px;
+      background: #ffffff;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+
+    .dropzone.over {
+      border-color: #2f855a;
+      background: #f0fbf2;
+    }
+
+    .dropzone.pool {
+      min-height: 290px;
+      background: #fff;
+    }
+
+    .item {
+      border: 1px solid #c5d5c8;
+      border-radius: 9px;
+      padding: 9px 10px;
+      background: #fbfffb;
+      margin-bottom: 8px;
+      cursor: grab;
+      font-size: 0.92rem;
+      line-height: 1.3;
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
+      user-select: none;
+    }
+
+    .item:last-child { margin-bottom: 0; }
+
+    .item:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 5px 14px rgba(17, 35, 24, 0.08);
+    }
+
+    .item.dragging {
+      opacity: 0.6;
+    }
+
+    .item.selected {
+      border-color: #1d4ed8;
+      box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.16);
+      background: #eff6ff;
+    }
+
+    .item.correct {
+      border-color: var(--ok);
+      background: var(--ok-soft);
+      box-shadow: 0 0 0 3px rgba(22, 101, 52, 0.14);
+    }
+
+    .item.wrong {
+      border-color: var(--bad);
+      background: var(--bad-soft);
+      box-shadow: 0 0 0 3px rgba(185, 28, 28, 0.14);
+    }
+
+    .controls {
+      margin-top: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    button {
+      border: 0;
+      border-radius: 10px;
+      padding: 10px 13px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.12s ease, filter 0.12s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.02);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn-neutral {
+      background: #edf3ee;
+      color: #25332a;
+      border: 1px solid #d7e4d8;
+    }
+
+    .status {
+      margin-left: auto;
+      font-size: 0.9rem;
+      color: #27472f;
+      background: #edf8ee;
+      border: 1px solid #c8dfcc;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-weight: 700;
+    }
+
+    .meta {
+      margin-top: 10px;
+      font-size: 0.86rem;
+      color: #54625a;
+    }
+
+    .feedback {
+      margin-top: 14px;
+      border: 1px solid #d9e5da;
+      border-radius: 12px;
+      padding: 10px 12px;
+      background: #fcfefc;
+      min-height: 68px;
+      font-size: 0.92rem;
+    }
+
+    .feedback ul {
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+
+    .feedback li { margin-bottom: 6px; }
+
+    .feedback .ok { color: var(--ok); }
+
+    .feedback .bad { color: #7f1d1d; }
+
+    @media (max-width: 980px) {
+      .board {
+        grid-template-columns: 1fr;
+      }
+
+      .zone-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .status {
+        margin-left: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="exercise">
+    <span class="pill">INTERAKTIVES ELEMENT: Bilanz-Zuordnung</span>
+    <h1>Bilanz-Positionen korrekt zuordnen</h1>
+    <p class="lead">
+      Ziehe jede Position in den passenden Zielbereich. Alternativ: Position anklicken und danach in einen Zielbereich klicken.
+    </p>
+
+    <section class="board">
+      <article class="panel">
+        <h2>Positionen zum Zuordnen</h2>
+        <div class="dropzone pool" data-zone="pool" id="pool"></div>
+      </article>
+
+      <article class="panel">
+        <h2>Zielbereiche (Schweizer Reihenfolge)</h2>
+        <div class="zone-grid">
+          <section class="zone-shell">
+            <h3>Aktiven (Umlaufvermoegen)</h3>
+            <div class="dropzone" data-zone="asset_current"></div>
+          </section>
+          <section class="zone-shell">
+            <h3>Passiven (Fremdkapital)</h3>
+            <div class="dropzone" data-zone="liability_debt"></div>
+          </section>
+          <section class="zone-shell">
+            <h3>Aktiven (Anlagevermoegen)</h3>
+            <div class="dropzone" data-zone="asset_fixed"></div>
+          </section>
+          <section class="zone-shell">
+            <h3>Passiven (Eigenkapital)</h3>
+            <div class="dropzone" data-zone="liability_equity"></div>
+          </section>
+        </div>
+      </article>
+    </section>
+
+    <div class="controls">
+      <button type="button" class="btn-primary" id="checkBtn">Antworten pruefen</button>
+      <button type="button" class="btn-neutral" id="resetBtn">Neu starten</button>
+      <button type="button" class="btn-neutral" id="solveBtn">Loesung anzeigen</button>
+      <span class="status" id="progress">0/8 zugeordnet</span>
+    </div>
+
+    <p class="meta">
+      Feedback bei richtiger Zuordnung: kurze fachliche Einordnung. Bei falscher Zuordnung: Hinweis auf den Unterschied zwischen Mittelverwendung (Aktiven) und Mittelherkunft (Passiven).
+    </p>
+
+    <section class="feedback" id="feedback">
+      Starte mit Drag-and-Drop und klicke danach auf <strong>Antworten pruefen</strong>.
+    </section>
+  </main>
+
+  <script>
+    const items = [
+      {
+        id: "p1",
+        text: "Computer und Laptops",
+        correctZone: "asset_fixed",
+        explanation: "Richtig: Langlebige Betriebsmittel gehoeren zum Anlagevermoegen.",
+        hint: "Frage dich, ob die Position ein dauerhaft genutzter Vermoegenswert ist (Mittelverwendung)."
+      },
+      {
+        id: "p2",
+        text: "Warenvorraete im Lager",
+        correctZone: "asset_current",
+        explanation: "Richtig: Vorratsbestaende sind typisches Umlaufvermoegen.",
+        hint: "Pruefe, ob der Wert dem laufenden Geschaeft dient und relativ schnell umgesetzt wird."
+      },
+      {
+        id: "p3",
+        text: "Aktienkapital der Gruender",
+        correctZone: "liability_equity",
+        explanation: "Richtig: Das ist Eigenkapital und damit Teil der Passiven (Mittelherkunft).",
+        hint: "Die Frage lautet: Woher stammt das Kapital? Dann bist du auf der Passivseite."
+      },
+      {
+        id: "p4",
+        text: "Offene Lieferantenrechnungen",
+        correctZone: "liability_debt",
+        explanation: "Richtig: Verbindlichkeiten gegenueber Lieferanten sind Fremdkapital.",
+        hint: "Wenn eine Rueckzahlungsverpflichtung gegenueber Dritten besteht, spricht das fuer Fremdkapital."
+      },
+      {
+        id: "p5",
+        text: "Bargeld in der Kasse",
+        correctZone: "asset_current",
+        explanation: "Richtig: Fluessige Mittel gehoeren zum Umlaufvermoegen.",
+        hint: "Handelt es sich um einen sofort verfuegbaren Vermoegenswert? Dann eher Aktiven/Umlauf."
+      },
+      {
+        id: "p6",
+        text: "Hypothek auf das Firmengrundstueck",
+        correctZone: "liability_debt",
+        explanation: "Richtig: Eine Hypothek ist eine fremde Finanzierung und damit Fremdkapital.",
+        hint: "Es geht nicht um das Grundstueck selbst, sondern um die Finanzierungsquelle (Mittelherkunft)."
+      },
+      {
+        id: "p7",
+        text: "Patent fuer ein Produktionsverfahren",
+        correctZone: "asset_fixed",
+        explanation: "Richtig: Das Patent ist ein langfristig genutzter immaterieller Vermoegenswert.",
+        hint: "Ist die Position ein langfristiger Vermoegenswert? Dann eher Anlagevermoegen."
+      },
+      {
+        id: "p8",
+        text: "Einbehaltene Gewinne der Vorjahre",
+        correctZone: "liability_equity",
+        explanation: "Richtig: Einbehaltene Gewinne staerken das Eigenkapital.",
+        hint: "Gewinne, die im Unternehmen bleiben, beschreiben die Herkunft von Mitteln (Passiven)."
+      }
+    ];
+
+    const feedbackEl = document.getElementById("feedback");
+    const progressEl = document.getElementById("progress");
+    const poolEl = document.getElementById("pool");
+    const checkBtn = document.getElementById("checkBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const solveBtn = document.getElementById("solveBtn");
+    const dropzones = Array.from(document.querySelectorAll(".dropzone"));
+
+    let selectedCard = null;
+
+    function createCard(item) {
+      const card = document.createElement("article");
+      card.className = "item";
+      card.id = item.id;
+      card.draggable = true;
+      card.textContent = item.text;
+      card.dataset.correctZone = item.correctZone;
+      card.dataset.explanation = item.explanation;
+      card.dataset.hint = item.hint;
+
+      card.addEventListener("dragstart", (event) => {
+        event.dataTransfer.setData("text/plain", card.id);
+        card.classList.add("dragging");
+        selectedCard = null;
+        clearSelection();
+      });
+
+      card.addEventListener("dragend", () => {
+        card.classList.remove("dragging");
+      });
+
+      card.addEventListener("click", (event) => {
+        event.stopPropagation();
+        if (selectedCard === card) {
+          selectedCard = null;
+          clearSelection();
+          return;
+        }
+
+        selectedCard = card;
+        clearSelection();
+        card.classList.add("selected");
+      });
+
+      return card;
+    }
+
+    function clearSelection() {
+      document.querySelectorAll(".item.selected").forEach((itemEl) => itemEl.classList.remove("selected"));
+    }
+
+    function clearEvaluation() {
+      document.querySelectorAll(".item").forEach((itemEl) => {
+        itemEl.classList.remove("correct", "wrong");
+      });
+    }
+
+    function bindDropzone(zoneEl) {
+      zoneEl.addEventListener("dragover", (event) => {
+        event.preventDefault();
+        zoneEl.classList.add("over");
+      });
+
+      zoneEl.addEventListener("dragleave", () => {
+        zoneEl.classList.remove("over");
+      });
+
+      zoneEl.addEventListener("drop", (event) => {
+        event.preventDefault();
+        zoneEl.classList.remove("over");
+        const id = event.dataTransfer.getData("text/plain");
+        const card = document.getElementById(id);
+        if (!card) return;
+        zoneEl.appendChild(card);
+        clearEvaluation();
+        updateProgress();
+      });
+
+      zoneEl.addEventListener("click", () => {
+        if (!selectedCard) return;
+        zoneEl.appendChild(selectedCard);
+        selectedCard = null;
+        clearSelection();
+        clearEvaluation();
+        updateProgress();
+      });
+    }
+
+    function getAssignedCount() {
+      return document.querySelectorAll(".dropzone:not([data-zone='pool']) .item").length;
+    }
+
+    function updateProgress() {
+      const assigned = getAssignedCount();
+      progressEl.textContent = `${assigned}/8 zugeordnet`;
+    }
+
+    function resetExercise() {
+      selectedCard = null;
+      clearSelection();
+      clearEvaluation();
+      feedbackEl.innerHTML = "Starte mit Drag-and-Drop und klicke danach auf <strong>Antworten pruefen</strong>.";
+
+      poolEl.innerHTML = "";
+      for (const zoneEl of dropzones) {
+        if (zoneEl !== poolEl) zoneEl.innerHTML = "";
+      }
+
+      items.forEach((item) => {
+        poolEl.appendChild(createCard(item));
+      });
+
+      updateProgress();
+    }
+
+    function checkAnswers() {
+      const assigned = getAssignedCount();
+      if (assigned < items.length) {
+        feedbackEl.innerHTML = `Noch nicht vollstaendig: <strong>${assigned}/8</strong> Positionen sind zugeordnet.`;
+        return;
+      }
+
+      clearSelection();
+      const results = [];
+      let correctCount = 0;
+
+      document.querySelectorAll(".item").forEach((card) => {
+        const zone = card.closest(".dropzone").dataset.zone;
+        const isCorrect = zone === card.dataset.correctZone;
+        card.classList.remove("correct", "wrong");
+        card.classList.add(isCorrect ? "correct" : "wrong");
+
+        if (isCorrect) {
+          correctCount += 1;
+          results.push(`<li class="ok"><strong>${card.textContent}:</strong> ${card.dataset.explanation}</li>`);
+        } else {
+          results.push(`<li class="bad"><strong>${card.textContent}:</strong> Noch nicht korrekt. ${card.dataset.hint}</li>`);
+        }
+      });
+
+      if (correctCount === items.length) {
+        feedbackEl.innerHTML = `<strong>Sehr gut: ${correctCount}/8 korrekt.</strong><ul>${results.join("")}</ul>`;
+      } else {
+        feedbackEl.innerHTML = `<strong>${correctCount}/8 korrekt.</strong> Nutze die Hinweise und ordne die roten Karten neu zu.<ul>${results.join("")}</ul>`;
+      }
+    }
+
+    function showSolution() {
+      clearSelection();
+      clearEvaluation();
+
+      items.forEach((item) => {
+        const card = document.getElementById(item.id);
+        const target = document.querySelector(`.dropzone[data-zone='${item.correctZone}']`);
+        target.appendChild(card);
+        card.classList.add("correct");
+      });
+
+      updateProgress();
+      feedbackEl.innerHTML = "Musterloesung eingeblendet. Alle Positionen sind korrekt zugeordnet.";
+    }
+
+    dropzones.forEach(bindDropzone);
+    checkBtn.addEventListener("click", checkAnswers);
+    resetBtn.addEventListener("click", resetExercise);
+    solveBtn.addEventListener("click", showSolution);
+
+    resetExercise();
+  </script>
+</body>
+</html>
