@@ -1,0 +1,870 @@
+<!doctype html>
+<html lang="de-CH">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bilanz erstellen - Interaktiver Trainer</title>
+  <style>
+    :root {
+      --paper: #fffdf8;
+      --ink: #1f2937;
+      --muted: #5b6470;
+      --line: #e7ddd0;
+      --brand: #0d6447;
+      --brand2: #154a87;
+      --ok: #166534;
+      --ok-soft: #ecfdf3;
+      --bad: #b91c1c;
+      --bad-soft: #fef2f2;
+      --hint-soft: #fff7ed;
+      --hint-line: #fdba74;
+      --shadow: 0 14px 34px rgba(31, 41, 55, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 8%, #dcefe0 0%, transparent 30%),
+        radial-gradient(circle at 90% 16%, #dfeaff 0%, transparent 28%),
+        linear-gradient(180deg, #f8f4ed, #f1e9dd);
+      padding: 18px;
+    }
+
+    .app {
+      max-width: 980px;
+      margin: 0 auto;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid #b9dbc7;
+      background: #e8f7ef;
+      color: var(--brand);
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.22rem, 2.6vw, 1.84rem);
+      color: #143528;
+    }
+
+    .lead {
+      margin: 8px 0 16px;
+      color: var(--muted);
+      line-height: 1.45;
+      max-width: 90ch;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: #fff;
+      padding: 12px;
+    }
+
+    .card h2 {
+      margin: 0 0 10px;
+      font-size: 1.02rem;
+      color: #1b3553;
+    }
+
+    .sub {
+      margin: 0 0 10px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .area-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .area-btn {
+      border: 1px solid #d4dded;
+      background: #f6f9ff;
+      color: #1f3451;
+      border-radius: 10px;
+      padding: 10px;
+      text-align: left;
+      cursor: pointer;
+      font: inherit;
+      font-size: 0.88rem;
+      line-height: 1.35;
+      transition: transform 0.12s ease, filter 0.12s ease, border-color 0.12s ease;
+    }
+
+    .area-btn:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.02);
+    }
+
+    .area-btn.active {
+      border-color: #1d4ed8;
+      box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.12);
+      background: #eef4ff;
+    }
+
+    .area-btn.done {
+      border-color: #b7e0c7;
+      background: #ecf8f1;
+    }
+
+    .topbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .tag {
+      border: 1px solid #d8e3f2;
+      border-radius: 999px;
+      padding: 5px 9px;
+      font-size: 0.83rem;
+      background: #f4f8ff;
+      color: #22344f;
+      font-weight: 700;
+    }
+
+    .tag.strong {
+      border-color: #cbe6d4;
+      background: #eff9f2;
+      color: #1b5d3c;
+    }
+
+    .context {
+      border: 1px solid #dbe4f2;
+      border-radius: 10px;
+      background: #f8fbff;
+      padding: 9px;
+      font-size: 0.88rem;
+      color: #334155;
+      margin-bottom: 10px;
+    }
+
+    .items-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .item {
+      border: 1px solid #e7ddd0;
+      border-radius: 10px;
+      background: #fffdf8;
+      padding: 8px 9px;
+      font-size: 0.9rem;
+      display: grid;
+      gap: 4px;
+    }
+
+    .item-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .item .name { color: #2d3748; }
+    .item .value { font-weight: 700; color: #0f172a; }
+    .item .unknown {
+      color: #7a3e08;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+    }
+
+    .group-pill {
+      display: inline-block;
+      border: 1px solid #d3dce8;
+      border-radius: 999px;
+      padding: 2px 7px;
+      width: fit-content;
+      font-size: 0.75rem;
+      color: #475569;
+      background: #f8fafc;
+      font-weight: 700;
+    }
+
+    .inputs {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 9px;
+    }
+
+    .q {
+      border: 1px solid #e7ddd0;
+      border-radius: 10px;
+      background: #fffdf8;
+      padding: 9px;
+    }
+
+    .q label {
+      display: block;
+      font-size: 0.86rem;
+      margin-bottom: 6px;
+      color: #2a3343;
+      font-weight: 700;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      border: 1px solid #d5ccc0;
+      border-radius: 9px;
+      padding: 8px 9px;
+      font: inherit;
+      background: #fff;
+    }
+
+    input[type="number"]:focus {
+      outline: none;
+      border-color: #2b7a5b;
+      box-shadow: 0 0 0 3px rgba(43, 122, 91, 0.14);
+    }
+
+    .is-correct {
+      border-color: var(--ok) !important;
+      background: var(--ok-soft) !important;
+      box-shadow: 0 0 0 3px rgba(22, 101, 52, 0.12);
+    }
+
+    .is-wrong {
+      border-color: var(--bad) !important;
+      background: var(--bad-soft) !important;
+      box-shadow: 0 0 0 3px rgba(185, 28, 28, 0.12);
+    }
+
+    .actions {
+      margin-top: 11px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    button {
+      border: 0;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.12s ease, filter 0.12s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.03);
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+      filter: none;
+    }
+
+    .btn-main { background: var(--brand2); color: #fff; }
+
+    .btn-soft {
+      background: #f0e9de;
+      border: 1px solid #e0d4c4;
+      color: #2a313b;
+    }
+
+    .stats {
+      margin-left: auto;
+      border: 1px solid #cbdfcf;
+      background: #edf8ef;
+      color: #1d5a37;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 0.85rem;
+      font-weight: 800;
+    }
+
+    .feedback {
+      margin-top: 12px;
+      border: 1px solid #e2d7c9;
+      border-radius: 11px;
+      background: #fffdf8;
+      padding: 10px;
+      min-height: 72px;
+      font-size: 0.92rem;
+    }
+
+    .feedback ul {
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+
+    .hint {
+      margin-top: 8px;
+      border: 1px solid var(--hint-line);
+      border-radius: 10px;
+      background: var(--hint-soft);
+      padding: 8px 9px;
+      color: #7a3e08;
+      font-size: 0.88rem;
+      display: none;
+    }
+
+    .hint.visible { display: block; }
+
+    .foot {
+      margin-top: 10px;
+      color: #5f6775;
+      font-size: 0.82rem;
+    }
+
+    @media (max-width: 760px) {
+      .area-grid,
+      .items-grid,
+      .inputs {
+        grid-template-columns: 1fr;
+      }
+
+      .stats {
+        margin-left: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <span class="badge">INTERAKTIVE ÜBUNG: Bilanz erstellen</span>
+    <h1>Bilanz nach UV, AV, FK und EK aufstellen</h1>
+    <p class="lead">
+      Erstellen Sie eine gut gegliederte Bilanz nach Umlaufvermögen, Anlagevermögen, Fremdkapital und Eigenkapital.
+      Ermitteln Sie zudem auch die gesuchte Grösse.
+    </p>
+
+    <section class="layout">
+      <article class="card">
+        <h2>Bereiche auswählen</h2>
+        <p class="sub">Es gibt 4 Bereiche. Wählen Sie einen Bereich und starten Sie mit Ihrer Präferenz.</p>
+        <div id="areaGrid" class="area-grid"></div>
+      </article>
+
+      <article class="card">
+        <h2>Fall</h2>
+        <div class="topbar">
+          <span class="tag strong" id="caseTitle">Bitte Bereich wählen</span>
+          <span class="tag" id="unknownLabel">Gesucht: -</span>
+          <span class="tag" id="progress">Kein Bereich gewählt</span>
+        </div>
+
+        <div id="contextBox" class="context">Wählen Sie einen Bereich, um die bereichsspezifische Ausgangslage zu sehen.</div>
+
+        <div class="items-grid" id="itemsGrid">
+          <div class="item"><span class="name">Wähle einen Bereich oben</span><span class="unknown">Start</span></div>
+        </div>
+
+        <p class="foot">
+          Bilanzgleichung: <strong>Aktiven = Fremdkapital + Eigenkapital</strong>.
+          UV + AV = Bilanzsumme und FK + EK = Bilanzsumme.
+        </p>
+      </article>
+
+      <article class="card">
+        <h2>Deine Eingaben</h2>
+        <div class="inputs">
+          <div class="q">
+            <label id="labelUnknown" for="inUnknown">Gesuchte Grösse (CHF)</label>
+            <input id="inUnknown" class="checkable" type="number" step="1" min="0" />
+          </div>
+          <div class="q">
+            <label for="inUV">Umlaufvermögen (CHF)</label>
+            <input id="inUV" class="checkable" type="number" step="1" min="0" />
+          </div>
+          <div class="q">
+            <label for="inAV">Anlagevermögen (CHF)</label>
+            <input id="inAV" class="checkable" type="number" step="1" min="0" />
+          </div>
+          <div class="q">
+            <label for="inFK">Fremdkapital (CHF)</label>
+            <input id="inFK" class="checkable" type="number" step="1" min="0" />
+          </div>
+          <div class="q">
+            <label for="inEK">Eigenkapital (CHF)</label>
+            <input id="inEK" class="checkable" type="number" step="1" min="0" />
+          </div>
+          <div class="q">
+            <label for="inTotal">Bilanzsumme (CHF)</label>
+            <input id="inTotal" class="checkable" type="number" step="1" min="0" />
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn-main" id="checkBtn">Antworten prüfen</button>
+          <button type="button" class="btn-soft" id="hintBtn">Hinweis</button>
+          <button type="button" class="btn-soft" id="solveBtn">Lösung zeigen</button>
+          <button type="button" class="btn-soft" id="remixBtn">Zahlen neu mischen</button>
+          <button type="button" class="btn-soft" id="nextBtn">Nächster Bereich</button>
+          <span class="stats" id="stats">Serie 0</span>
+        </div>
+
+        <section class="feedback" id="feedback">Wähle zuerst einen Bereich. Trage danach alle 6 Werte ein und prüfe deine Lösung.</section>
+        <section class="hint" id="hintBox"></section>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const profiles = [
+      {
+        id: "handel",
+        title: "Bereich 1 - Handel",
+        short: "Detailhandel mit Warenfokus",
+        context: "Praxisfokus: Hoher Warenbestand und typische Lieferantenverbindlichkeiten prägen die Bilanz.",
+        unknownCandidates: ["equity", "inventory"],
+        accounts: [
+          { key: "cash", name: "Kasse", group: "UV", side: "asset", min: 60, max: 220, step: 10 },
+          { key: "bank", name: "Bankguthaben", group: "UV", side: "asset", min: 220, max: 780, step: 10 },
+          { key: "fll", name: "FLL", group: "UV", side: "asset", min: 120, max: 520, step: 10 },
+          { key: "inventory", name: "Warenbestand", group: "UV", side: "asset", min: 200, max: 800, step: 10 },
+          { key: "furniture", name: "Mobilien", group: "AV", side: "asset", min: 140, max: 460, step: 10 },
+          { key: "building", name: "Liegenschaften", group: "AV", side: "asset", min: 450, max: 1450, step: 10 },
+          { key: "vll", name: "VLL", group: "FK", side: "liability", min: 140, max: 520, step: 10 },
+          { key: "loanShort", name: "Passivdarlehen", group: "FK", side: "liability", min: 80, max: 320, step: 10 },
+          { key: "mortgage", name: "Hypothek", group: "FK", side: "liability", min: 240, max: 900, step: 10 },
+          { key: "equity", name: "Eigenkapital", group: "EK", side: "equity", min: 300, max: 1400, step: 10 }
+        ]
+      },
+      {
+        id: "produktion",
+        title: "Bereich 2 - Produktion",
+        short: "Produktionsbetrieb mit Maschinenfokus",
+        context: "Praxisfokus: Hoher Anteil Anlagevermögen (Maschinen/Hallen), finanzierungsseitig oft mit Darlehen kombiniert.",
+        unknownCandidates: ["equity", "machines"],
+        accounts: [
+          { key: "cash", name: "Kasse", group: "UV", side: "asset", min: 40, max: 150, step: 10 },
+          { key: "bank", name: "Bankguthaben", group: "UV", side: "asset", min: 120, max: 420, step: 10 },
+          { key: "fll", name: "FLL", group: "UV", side: "asset", min: 80, max: 300, step: 10 },
+          { key: "material", name: "Materiallager", group: "UV", side: "asset", min: 110, max: 380, step: 10 },
+          { key: "machines", name: "Maschinen", group: "AV", side: "asset", min: 500, max: 1700, step: 10 },
+          { key: "plant", name: "Produktionshalle", group: "AV", side: "asset", min: 500, max: 1700, step: 10 },
+          { key: "vll", name: "VLL", group: "FK", side: "liability", min: 120, max: 420, step: 10 },
+          { key: "bankDebt", name: "Bankschuld", group: "FK", side: "liability", min: 220, max: 820, step: 10 },
+          { key: "longLoan", name: "Langfristiges Darlehen", group: "FK", side: "liability", min: 240, max: 980, step: 10 },
+          { key: "equity", name: "Eigenkapital", group: "EK", side: "equity", min: 300, max: 1400, step: 10 }
+        ]
+      },
+      {
+        id: "dienstleistung",
+        title: "Bereich 3 - Dienstleistung",
+        short: "Servicebetrieb mit Forderungsfokus",
+        context: "Praxisfokus: Geringe Vorräte, dafür höhere Forderungen und Liquidität aus Dienstleistungen.",
+        unknownCandidates: ["equity", "fll"],
+        accounts: [
+          { key: "cash", name: "Kasse", group: "UV", side: "asset", min: 50, max: 160, step: 10 },
+          { key: "bank", name: "Bankguthaben", group: "UV", side: "asset", min: 220, max: 760, step: 10 },
+          { key: "fll", name: "FLL", group: "UV", side: "asset", min: 140, max: 620, step: 10 },
+          { key: "prepaid", name: "Aktive Rechnungsabgrenzung", group: "UV", side: "asset", min: 20, max: 100, step: 10 },
+          { key: "furniture", name: "Mobilien", group: "AV", side: "asset", min: 100, max: 320, step: 10 },
+          { key: "it", name: "IT-Anlagen", group: "AV", side: "asset", min: 120, max: 360, step: 10 },
+          { key: "vll", name: "VLL", group: "FK", side: "liability", min: 40, max: 180, step: 10 },
+          { key: "loan", name: "Darlehen", group: "FK", side: "liability", min: 100, max: 420, step: 10 },
+          { key: "passiveDef", name: "Passive Rechnungsabgrenzung", group: "FK", side: "liability", min: 20, max: 120, step: 10 },
+          { key: "equity", name: "Eigenkapital", group: "EK", side: "equity", min: 240, max: 1200, step: 10 }
+        ]
+      },
+      {
+        id: "bildung",
+        title: "Bereich 4 - Bildung",
+        short: "Privatschule mit Liquiditätsfokus",
+        context: "Praxisfokus: Hohe Bankliquidität und Forderungen aus Schulgeld, meist tiefere Warenanteile.",
+        unknownCandidates: ["equity", "furniture"],
+        accounts: [
+          { key: "cash", name: "Kasse", group: "UV", side: "asset", min: 20, max: 100, step: 10 },
+          { key: "bank", name: "Bankguthaben", group: "UV", side: "asset", min: 300, max: 980, step: 10 },
+          { key: "fll", name: "FLL", group: "UV", side: "asset", min: 120, max: 420, step: 10 },
+          { key: "tuitionPrepaid", name: "Aktive Rechnungsabgrenzung", group: "UV", side: "asset", min: 20, max: 120, step: 10 },
+          { key: "furniture", name: "Mobilien", group: "AV", side: "asset", min: 120, max: 480, step: 10 },
+          { key: "equipment", name: "Unterrichtsgeräte", group: "AV", side: "asset", min: 100, max: 360, step: 10 },
+          { key: "vll", name: "VLL", group: "FK", side: "liability", min: 20, max: 120, step: 10 },
+          { key: "loan", name: "Passivdarlehen", group: "FK", side: "liability", min: 120, max: 420, step: 10 },
+          { key: "tax", name: "Kurzfristige Verbindlichkeiten", group: "FK", side: "liability", min: 20, max: 140, step: 10 },
+          { key: "equity", name: "Eigenkapital", group: "EK", side: "equity", min: 300, max: 1400, step: 10 }
+        ]
+      }
+    ];
+
+    const groupLabel = {
+      UV: "UV",
+      AV: "AV",
+      FK: "FK",
+      EK: "EK"
+    };
+
+    const el = {
+      areaGrid: document.getElementById("areaGrid"),
+      caseTitle: document.getElementById("caseTitle"),
+      unknownLabel: document.getElementById("unknownLabel"),
+      progress: document.getElementById("progress"),
+      contextBox: document.getElementById("contextBox"),
+      itemsGrid: document.getElementById("itemsGrid"),
+      labelUnknown: document.getElementById("labelUnknown"),
+      inUnknown: document.getElementById("inUnknown"),
+      inUV: document.getElementById("inUV"),
+      inAV: document.getElementById("inAV"),
+      inFK: document.getElementById("inFK"),
+      inEK: document.getElementById("inEK"),
+      inTotal: document.getElementById("inTotal"),
+      checkBtn: document.getElementById("checkBtn"),
+      hintBtn: document.getElementById("hintBtn"),
+      solveBtn: document.getElementById("solveBtn"),
+      remixBtn: document.getElementById("remixBtn"),
+      nextBtn: document.getElementById("nextBtn"),
+      stats: document.getElementById("stats"),
+      feedback: document.getElementById("feedback"),
+      hintBox: document.getElementById("hintBox")
+    };
+
+    let currentIndex = -1;
+    let currentTask = null;
+    let currentSolved = null;
+    let streak = 0;
+    let hintLevel = 0;
+    const completedAreas = new Set();
+
+    function fmt(value) {
+      return new Intl.NumberFormat("de-CH").format(value);
+    }
+
+    function randStep(min, max, step) {
+      const count = Math.floor((max - min) / step);
+      return min + Math.floor(Math.random() * (count + 1)) * step;
+    }
+
+    function setActionsEnabled(enabled) {
+      [el.checkBtn, el.hintBtn, el.solveBtn, el.remixBtn, el.nextBtn].forEach((btn) => {
+        btn.disabled = !enabled;
+      });
+    }
+
+    function solveTask(task) {
+      let assetsKnown = 0;
+      let rightKnown = 0;
+      let unknownItem = null;
+
+      for (const item of task.items) {
+        if (item.value === null) {
+          unknownItem = item;
+          continue;
+        }
+        if (item.side === "asset") assetsKnown += item.value;
+        else rightKnown += item.value;
+      }
+
+      const unknownValue = unknownItem.side === "asset" ? rightKnown - assetsKnown : assetsKnown - rightKnown;
+
+      const totals = { UV: 0, AV: 0, FK: 0, EK: 0 };
+      for (const item of task.items) {
+        const v = item.value === null ? unknownValue : item.value;
+        totals[item.group] += v;
+      }
+
+      const totalAssets = totals.UV + totals.AV;
+      const totalRight = totals.FK + totals.EK;
+
+      return {
+        unknownValue,
+        totals,
+        bilanzsumme: totalAssets,
+        isBalanced: totalAssets === totalRight
+      };
+    }
+
+    function valueMap(task, solved) {
+      const m = {};
+      for (const item of task.items) {
+        m[item.key] = item.value === null ? solved.unknownValue : item.value;
+      }
+      return m;
+    }
+
+    function passesProfileRules(profile, task, solved) {
+      const v = valueMap(task, solved);
+      const uvQuote = solved.totals.UV / solved.bilanzsumme;
+      const avQuote = solved.totals.AV / solved.bilanzsumme;
+      const fkQuote = solved.totals.FK / solved.bilanzsumme;
+
+      if (solved.unknownValue <= 0) return false;
+
+      if (profile.id === "handel") {
+        const invQuote = v.inventory / solved.totals.UV;
+        return uvQuote >= 0.45 && uvQuote <= 0.75 && invQuote >= 0.20;
+      }
+
+      if (profile.id === "produktion") {
+        return avQuote >= 0.55 && (v.machines + v.plant) / solved.totals.AV >= 0.7;
+      }
+
+      if (profile.id === "dienstleistung") {
+        return uvQuote >= 0.55 && avQuote <= 0.45 && v.vll <= 220;
+      }
+
+      if (profile.id === "bildung") {
+        return fkQuote <= 0.55 && (v.bank + v.cash) / solved.totals.UV >= 0.45;
+      }
+
+      return true;
+    }
+
+    function buildDynamicTask(index) {
+      const profile = profiles[index];
+
+      for (let i = 0; i < 120; i += 1) {
+        const unknownKey = profile.unknownCandidates[Math.floor(Math.random() * profile.unknownCandidates.length)];
+
+        const items = profile.accounts.map((acc) => {
+          if (acc.key === unknownKey) {
+            return { ...acc, value: null };
+          }
+          return { ...acc, value: randStep(acc.min, acc.max, acc.step) };
+        });
+
+        const task = {
+          id: profile.id,
+          title: profile.title,
+          short: profile.short,
+          context: profile.context,
+          unknown: profile.accounts.find((a) => a.key === unknownKey).name,
+          items
+        };
+
+        const solved = solveTask(task);
+
+        if (solved.isBalanced && passesProfileRules(profile, task, solved)) {
+          return { task, solved };
+        }
+      }
+
+      // Fallback auf Mittelwerte
+      const fallbackUnknownKey = profile.unknownCandidates[0];
+      const fallbackItems = profile.accounts.map((acc) => {
+        if (acc.key === fallbackUnknownKey) return { ...acc, value: null };
+        return { ...acc, value: Math.round(((acc.min + acc.max) / 2) / acc.step) * acc.step };
+      });
+
+      const fallbackTask = {
+        id: profile.id,
+        title: profile.title,
+        short: profile.short,
+        context: profile.context,
+        unknown: profile.accounts.find((a) => a.key === fallbackUnknownKey).name,
+        items: fallbackItems
+      };
+
+      return { task: fallbackTask, solved: solveTask(fallbackTask) };
+    }
+
+    function renderAreas() {
+      el.areaGrid.innerHTML = profiles
+        .map((p, i) => {
+          const active = i === currentIndex ? "active" : "";
+          const done = completedAreas.has(p.id) ? "done" : "";
+          const doneMark = completedAreas.has(p.id) ? " · erledigt" : "";
+          return `<button type="button" class="area-btn ${active} ${done}" data-index="${i}"><strong>Bereich ${i + 1}</strong><br>${p.short}${doneMark}</button>`;
+        })
+        .join("");
+
+      el.areaGrid.querySelectorAll("button").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          loadArea(Number(btn.dataset.index), true);
+        });
+      });
+    }
+
+    function renderItems(task) {
+      el.itemsGrid.innerHTML = task.items
+        .map((item) => {
+          const val = item.value === null ? '<span class="unknown">?</span>' : `<span class="value">${fmt(item.value)}</span>`;
+          return `
+            <div class="item">
+              <div class="item-top"><span class="name">${item.name}</span>${val}</div>
+              <span class="group-pill">${groupLabel[item.group]}</span>
+            </div>
+          `;
+        })
+        .join("");
+    }
+
+    function clearMarks() {
+      document.querySelectorAll(".checkable").forEach((f) => f.classList.remove("is-correct", "is-wrong"));
+    }
+
+    function mark(field, ok) {
+      field.classList.remove("is-correct", "is-wrong");
+      field.classList.add(ok ? "is-correct" : "is-wrong");
+    }
+
+    function loadArea(index, regenerate = true) {
+      currentIndex = index;
+      setActionsEnabled(true);
+
+      if (regenerate || !currentTask || currentTask.id !== profiles[index].id) {
+        const bundle = buildDynamicTask(index);
+        currentTask = bundle.task;
+        currentSolved = bundle.solved;
+      }
+
+      hintLevel = 0;
+      el.caseTitle.textContent = currentTask.title;
+      el.unknownLabel.textContent = `Gesucht: ${currentTask.unknown}`;
+      el.progress.textContent = `Bereich ${currentIndex + 1} von ${profiles.length}`;
+      el.contextBox.textContent = currentTask.context;
+      el.labelUnknown.textContent = `${currentTask.unknown} (CHF)`;
+      el.stats.textContent = `Serie ${streak}`;
+
+      renderAreas();
+      renderItems(currentTask);
+
+      [el.inUnknown, el.inUV, el.inAV, el.inFK, el.inEK, el.inTotal].forEach((field) => {
+        field.value = "";
+      });
+
+      clearMarks();
+      el.hintBox.classList.remove("visible");
+      el.hintBox.textContent = "";
+      el.feedback.textContent = "Trage alle 6 Werte ein und prüfe danach deine Lösung.";
+    }
+
+    function check() {
+      if (!currentTask) {
+        el.feedback.textContent = "Bitte zuerst einen Bereich auswählen.";
+        return;
+      }
+
+      const fields = [el.inUnknown, el.inUV, el.inAV, el.inFK, el.inEK, el.inTotal];
+      if (fields.some((f) => String(f.value).trim() === "")) {
+        el.feedback.textContent = "Bitte alle Felder ausfüllen und erneut prüfen.";
+        return;
+      }
+
+      const user = {
+        unknown: Number(el.inUnknown.value),
+        uv: Number(el.inUV.value),
+        av: Number(el.inAV.value),
+        fk: Number(el.inFK.value),
+        ek: Number(el.inEK.value),
+        total: Number(el.inTotal.value)
+      };
+
+      const checks = [
+        { field: el.inUnknown, ok: user.unknown === currentSolved.unknownValue, label: currentTask.unknown, hint: "Bilanzgleichung verwenden: Aktiven = FK + EK." },
+        { field: el.inUV, ok: user.uv === currentSolved.totals.UV, label: "Umlaufvermögen", hint: "UV enthält die kurzfristigen Vermögenswerte." },
+        { field: el.inAV, ok: user.av === currentSolved.totals.AV, label: "Anlagevermögen", hint: "AV enthält langfristige Vermögenswerte." },
+        { field: el.inFK, ok: user.fk === currentSolved.totals.FK, label: "Fremdkapital", hint: "FK umfasst alle Verbindlichkeiten." },
+        { field: el.inEK, ok: user.ek === currentSolved.totals.EK, label: "Eigenkapital", hint: "EK ist der Eigentümeranteil bzw. die Restgrösse." },
+        { field: el.inTotal, ok: user.total === currentSolved.bilanzsumme, label: "Bilanzsumme", hint: "Bilanzsumme = UV + AV = FK + EK." }
+      ];
+
+      checks.forEach((c) => mark(c.field, c.ok));
+      const wrong = checks.filter((c) => !c.ok);
+
+      if (wrong.length === 0) {
+        streak += 1;
+        completedAreas.add(currentTask.id);
+        el.stats.textContent = `Serie ${streak}`;
+        el.feedback.innerHTML = "<strong>Sehr gut: 6/6 korrekt.</strong> Du kannst denselben Bereich neu mischen oder einen anderen Bereich wählen.";
+        renderAreas();
+        return;
+      }
+
+      streak = 0;
+      el.stats.textContent = "Serie 0";
+      const hints = wrong.map((w) => `<li><strong>${w.label}:</strong> ${w.hint}</li>`).join("");
+      el.feedback.innerHTML = `<strong>${6 - wrong.length}/6 korrekt.</strong> Prüfe die roten Felder:<ul>${hints}</ul>`;
+    }
+
+    function hint() {
+      if (!currentTask) {
+        el.feedback.textContent = "Bitte zuerst einen Bereich auswählen.";
+        return;
+      }
+
+      hintLevel += 1;
+      let text = "";
+
+      if (hintLevel === 1) {
+        text = "Tipp 1: Rechne zuerst UV und AV separat zusammen.";
+      } else if (hintLevel === 2) {
+        text = "Tipp 2: Rechne danach FK und EK. Beide Seiten müssen gleich gross sein.";
+      } else {
+        text = `Tipp 3: In diesem Fall ist ${currentTask.unknown} = ${fmt(currentSolved.unknownValue)}.`;
+      }
+
+      el.hintBox.textContent = text;
+      el.hintBox.classList.add("visible");
+    }
+
+    function solve() {
+      if (!currentTask) {
+        el.feedback.textContent = "Bitte zuerst einen Bereich auswählen.";
+        return;
+      }
+
+      el.inUnknown.value = currentSolved.unknownValue;
+      el.inUV.value = currentSolved.totals.UV;
+      el.inAV.value = currentSolved.totals.AV;
+      el.inFK.value = currentSolved.totals.FK;
+      el.inEK.value = currentSolved.totals.EK;
+      el.inTotal.value = currentSolved.bilanzsumme;
+
+      [el.inUnknown, el.inUV, el.inAV, el.inFK, el.inEK, el.inTotal].forEach((f) => mark(f, true));
+      el.feedback.textContent = "Lösung eingetragen. Du kannst jetzt neu mischen oder einen anderen Bereich wählen.";
+    }
+
+    function remix() {
+      if (!currentTask) {
+        el.feedback.textContent = "Bitte zuerst einen Bereich auswählen.";
+        return;
+      }
+      loadArea(currentIndex, true);
+    }
+
+    function nextArea() {
+      if (!currentTask) {
+        el.feedback.textContent = "Bitte zuerst einen Bereich auswählen.";
+        return;
+      }
+      loadArea((currentIndex + 1) % profiles.length, true);
+    }
+
+    el.checkBtn.addEventListener("click", check);
+    el.hintBtn.addEventListener("click", hint);
+    el.solveBtn.addEventListener("click", solve);
+    el.remixBtn.addEventListener("click", remix);
+    el.nextBtn.addEventListener("click", nextArea);
+
+    document.querySelectorAll(".checkable").forEach((field) => {
+      field.addEventListener("input", () => field.classList.remove("is-correct", "is-wrong"));
+    });
+
+    renderAreas();
+    setActionsEnabled(false);
+  </script>
+</body>
+</html>
