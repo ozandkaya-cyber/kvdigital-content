@@ -1,0 +1,620 @@
+<!doctype html>
+<html lang="de-CH">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>T-Konto Trainer (interaktiv)</title>
+  <style>
+    :root {
+      --bg: #f3efe7;
+      --paper: #fffdf9;
+      --ink: #1f2937;
+      --muted: #596272;
+      --line: #e5dccf;
+      --brand: #0c5f45;
+      --brand2: #114684;
+      --ok: #166534;
+      --ok-soft: #eefcf3;
+      --bad: #b91c1c;
+      --bad-soft: #fef2f2;
+      --warn-soft: #fff7ed;
+      --warn-line: #fdba74;
+      --shadow: 0 16px 34px rgba(31, 41, 55, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 8%, #deefdf 0%, transparent 30%),
+        radial-gradient(circle at 90% 16%, #dbe9ff 0%, transparent 28%),
+        linear-gradient(180deg, #f7f3ea, #f1e9dd);
+      padding: 18px;
+    }
+
+    .app {
+      max-width: 980px;
+      margin: 0 auto;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid #bcdac8;
+      background: #e9f7ef;
+      color: var(--brand);
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.24rem, 2.7vw, 1.86rem);
+      color: #143528;
+    }
+
+    .lead {
+      margin: 8px 0 16px;
+      color: var(--muted);
+      max-width: 88ch;
+      line-height: 1.46;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(260px, 0.9fr) minmax(360px, 1.1fr);
+      gap: 14px;
+      align-items: start;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: #fff;
+      padding: 12px;
+    }
+
+    .card h2 {
+      margin: 0 0 10px;
+      font-size: 1.04rem;
+      color: #1b3553;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .tag {
+      border: 1px solid #d8e3f2;
+      border-radius: 999px;
+      padding: 5px 9px;
+      font-size: 0.83rem;
+      background: #f4f8ff;
+      color: #22344f;
+      font-weight: 700;
+    }
+
+    .table-wrap {
+      border: 2px solid #1f2937;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    th,
+    td {
+      border: 1px solid #c9ced6;
+      text-align: center;
+      padding: 9px 8px;
+      min-height: 46px;
+      height: 46px;
+      font-size: 1.05rem;
+    }
+
+    th {
+      background: #111827;
+      color: #fff;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+    }
+
+    .konto-head {
+      background: #0b1320;
+      color: #fff;
+      font-size: 1.22rem;
+      height: 58px;
+    }
+
+    .sum-row td {
+      font-weight: 800;
+      background: #f8f7f3;
+    }
+
+    .cell-input {
+      width: 100%;
+      max-width: 120px;
+      border: 1px solid #d5ccc0;
+      border-radius: 9px;
+      padding: 6px 8px;
+      text-align: center;
+      font: inherit;
+      background: #fff;
+    }
+
+    .cell-input:focus,
+    select:focus {
+      outline: none;
+      border-color: #2a7a5a;
+      box-shadow: 0 0 0 3px rgba(42, 122, 90, 0.14);
+    }
+
+    .is-correct {
+      border-color: var(--ok) !important;
+      background: var(--ok-soft) !important;
+      box-shadow: 0 0 0 3px rgba(22, 101, 52, 0.12);
+    }
+
+    .is-wrong {
+      border-color: var(--bad) !important;
+      background: var(--bad-soft) !important;
+      box-shadow: 0 0 0 3px rgba(185, 28, 28, 0.12);
+    }
+
+    .qa {
+      display: grid;
+      gap: 9px;
+    }
+
+    .q {
+      border: 1px solid #e7ddd0;
+      border-radius: 10px;
+      background: #fffdf9;
+      padding: 9px;
+    }
+
+    .q label {
+      display: block;
+      font-size: 0.9rem;
+      margin-bottom: 6px;
+      color: #2a3343;
+      font-weight: 700;
+    }
+
+    select {
+      width: 100%;
+      border: 1px solid #d5ccc0;
+      border-radius: 9px;
+      padding: 8px 9px;
+      background: #fff;
+      font: inherit;
+    }
+
+    .actions {
+      margin-top: 11px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    button {
+      border: 0;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.12s ease, filter 0.12s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.03);
+    }
+
+    .btn-main {
+      background: var(--brand2);
+      color: #fff;
+    }
+
+    .btn-soft {
+      background: #f0e9de;
+      border: 1px solid #e0d4c4;
+      color: #2a313b;
+    }
+
+    .stats {
+      margin-left: auto;
+      border: 1px solid #cbdfcf;
+      background: #edf8ef;
+      color: #1d5a37;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 0.85rem;
+      font-weight: 800;
+    }
+
+    .feedback {
+      margin-top: 12px;
+      border: 1px solid #e2d7c9;
+      border-radius: 11px;
+      background: #fffdf8;
+      padding: 10px;
+      min-height: 72px;
+      font-size: 0.92rem;
+    }
+
+    .feedback ul {
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+
+    .hint-box {
+      margin-top: 8px;
+      border: 1px solid var(--warn-line);
+      border-radius: 10px;
+      background: var(--warn-soft);
+      padding: 8px 9px;
+      color: #7a3e08;
+      font-size: 0.88rem;
+      display: none;
+    }
+
+    .hint-box.visible {
+      display: block;
+    }
+
+    .foot {
+      margin-top: 10px;
+      color: #5f6775;
+      font-size: 0.82rem;
+    }
+
+    @media (max-width: 760px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .stats {
+        margin-left: 0;
+      }
+
+      th,
+      td {
+        font-size: 0.98rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <span class="badge">INTERAKTIVE ÜBUNG: T-Konto</span>
+    <h1>Welche Zahl ist beim jeweiligen Fragezeichen gesucht?</h1>
+    <p class="lead">
+      Diese Version ist datengetrieben und dadurch leicht erweiterbar: neue Konten einfach im Katalog ergänzen.
+      Jede neue Aufgabe wird automatisch generiert (Werte, Konto, Plus-/Minusseite, Saldo).
+    </p>
+
+    <section class="layout">
+      <article class="card">
+        <h2>Kontoansicht</h2>
+        <div class="meta">
+          <span class="tag" id="kontoTag">Konto: -</span>
+          <span class="tag" id="typTag">Kontotyp: -</span>
+          <span class="tag" id="plusTag">Plusseite: -</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th class="konto-head" colspan="2" id="kontoTitel">-</th>
+              </tr>
+              <tr>
+                <th>Soll (+/-)</th>
+                <th>Haben (+/-)</th>
+              </tr>
+            </thead>
+            <tbody id="kontoBody"></tbody>
+          </table>
+        </div>
+        <p class="foot">Hinweis: `?-1` ist der Saldo. `?-2` und `?-3` sind die Totale.</p>
+      </article>
+
+      <article class="card">
+        <h2>Deine Antworten</h2>
+        <div class="qa">
+          <div class="q">
+            <label for="qSaldoSide">Auf welcher Seite steht der Saldo?</label>
+            <select id="qSaldoSide" class="checkable">
+              <option value="">Bitte wählen ...</option>
+              <option value="left">Soll</option>
+              <option value="right">Haben</option>
+            </select>
+          </div>
+          <div class="q">
+            <label for="qType">Welcher Kontotyp ist das?</label>
+            <select id="qType" class="checkable">
+              <option value="">Bitte wählen ...</option>
+              <option value="Aktivkonto">Aktivkonto</option>
+              <option value="Passivkonto">Passivkonto</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn-main" id="checkBtn">Antworten prüfen</button>
+          <button type="button" class="btn-soft" id="hintBtn">Hinweis</button>
+          <button type="button" class="btn-soft" id="solveBtn">Lösung zeigen</button>
+          <button type="button" class="btn-soft" id="nextBtn">Nächste Aufgabe</button>
+          <span class="stats" id="stats">Aufgabe 1</span>
+        </div>
+
+        <section class="feedback" id="feedback">
+          Trage die Zahlen direkt im T‑Konto ein und prüfe danach deine Lösung.
+        </section>
+        <section class="hint-box" id="hintBox"></section>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const kontoKatalog = [
+      { id: "1000", name: "Kasse", type: "Aktivkonto", plusSide: "left" },
+      { id: "1020", name: "Bank", type: "Aktivkonto", plusSide: "left" },
+      { id: "1100", name: "Forderungen aus L+L", type: "Aktivkonto", plusSide: "left" },
+      { id: "1200", name: "Vorrat Handelswaren", type: "Aktivkonto", plusSide: "left" },
+      { id: "1600", name: "Geschäftsliegenschaft", type: "Aktivkonto", plusSide: "left" },
+      { id: "2000", name: "Verbindlichkeiten aus L+L", type: "Passivkonto", plusSide: "right" },
+      { id: "2100", name: "Kurzfristige Finanzverbindlichkeiten", type: "Passivkonto", plusSide: "right" },
+      { id: "2400", name: "Langfristige Finanzverbindlichkeiten", type: "Passivkonto", plusSide: "right" },
+      { id: "2450", name: "Hypotheken", type: "Passivkonto", plusSide: "right" },
+      { id: "2600", name: "Langfristige Rückstellungen", type: "Passivkonto", plusSide: "right" }
+    ];
+
+    const el = {
+      kontoTag: document.getElementById("kontoTag"),
+      typTag: document.getElementById("typTag"),
+      plusTag: document.getElementById("plusTag"),
+      kontoTitel: document.getElementById("kontoTitel"),
+      kontoBody: document.getElementById("kontoBody"),
+      qSaldoSide: document.getElementById("qSaldoSide"),
+      qType: document.getElementById("qType"),
+      checkBtn: document.getElementById("checkBtn"),
+      hintBtn: document.getElementById("hintBtn"),
+      solveBtn: document.getElementById("solveBtn"),
+      nextBtn: document.getElementById("nextBtn"),
+      feedback: document.getElementById("feedback"),
+      hintBox: document.getElementById("hintBox"),
+      stats: document.getElementById("stats")
+    };
+
+    let state = {
+      taskNo: 0,
+      current: null,
+      streak: 0,
+      hintLevel: 0,
+      lastAccountId: null
+    };
+
+    function randStep(min, max, step = 5) {
+      return Math.floor((Math.random() * (max - min) + min) / step) * step;
+    }
+
+    function chooseKonto() {
+      const possible = kontoKatalog.filter((k) => k.id !== state.lastAccountId);
+      const idx = Math.floor(Math.random() * possible.length);
+      return possible[idx];
+    }
+
+    function generateTask() {
+      const konto = chooseKonto();
+
+      const ab = randStep(35, 140);
+      const plus1 = randStep(15, 90);
+      const plus2 = randStep(10, 70);
+      const minus1 = randStep(10, 75);
+      let minus2 = randStep(5, 65);
+
+      let plusSum = ab + plus1 + plus2;
+      let minusSum = minus1 + minus2;
+
+      if (minusSum >= plusSum - 10) {
+        minus2 = Math.max(5, minus2 - randStep(10, 30, 5));
+        minusSum = minus1 + minus2;
+      }
+
+      const saldo = plusSum - minusSum;
+      const total = plusSum;
+      const saldoSide = konto.plusSide === "left" ? "right" : "left";
+
+      const rows = [
+        { left: "", right: "" },
+        { left: "", right: "" },
+        { left: "", right: "" },
+        { left: "", right: "" },
+        { left: "", right: "", sum: true }
+      ];
+
+      if (konto.plusSide === "left") {
+        rows[0].left = `AB: ${ab}`;
+        rows[1].left = plus1;
+        rows[2].left = plus2;
+        rows[0].right = minus1;
+        rows[1].right = minus2;
+        rows[3].right = { field: "q1", placeholder: "?-1" };
+      } else {
+        rows[0].right = `AB: ${ab}`;
+        rows[1].right = plus1;
+        rows[2].right = plus2;
+        rows[0].left = minus1;
+        rows[1].left = minus2;
+        rows[3].left = { field: "q1", placeholder: "?-1" };
+      }
+
+      rows[4].left = { field: "q2", placeholder: "?-2" };
+      rows[4].right = { field: "q3", placeholder: "?-3" };
+
+      return {
+        konto,
+        rows,
+        answers: {
+          q1: saldo,
+          q2: total,
+          q3: total,
+          saldoSide,
+          type: konto.type,
+          plusSum,
+          minusSum
+        }
+      };
+    }
+
+    function renderCell(cell) {
+      if (cell && typeof cell === "object" && cell.field) {
+        return `<input class="cell-input checkable" type="number" id="${cell.field}" placeholder="${cell.placeholder}" />`;
+      }
+      return cell === "" ? "&nbsp;" : String(cell);
+    }
+
+    function renderTask() {
+      const t = state.current;
+
+      el.kontoTitel.textContent = `${t.konto.id} ${t.konto.name}`;
+      el.kontoTag.textContent = `Konto: ${t.konto.name}`;
+      el.typTag.textContent = `Kontotyp: ${t.konto.type}`;
+      el.plusTag.textContent = `Plusseite: ${t.konto.plusSide === "left" ? "Soll" : "Haben"}`;
+      el.stats.textContent = `Aufgabe ${state.taskNo} | Serie ${state.streak}`;
+
+      el.kontoBody.innerHTML = t.rows
+        .map((r) => {
+          const rowClass = r.sum ? "sum-row" : "";
+          return `<tr class="${rowClass}"><td>${renderCell(r.left)}</td><td>${renderCell(r.right)}</td></tr>`;
+        })
+        .join("");
+
+      el.qSaldoSide.value = "";
+      el.qType.value = "";
+      state.hintLevel = 0;
+      el.hintBox.classList.remove("visible");
+      el.hintBox.textContent = "";
+      el.feedback.textContent = "Trage die Zahlen direkt im T‑Konto ein und prüfe danach deine Lösung.";
+
+      document.querySelectorAll(".checkable").forEach((field) => {
+        field.classList.remove("is-correct", "is-wrong");
+        field.addEventListener("input", () => field.classList.remove("is-correct", "is-wrong"));
+      });
+    }
+
+    function mark(fieldId, ok) {
+      const f = document.getElementById(fieldId);
+      if (!f) return;
+      f.classList.remove("is-correct", "is-wrong");
+      f.classList.add(ok ? "is-correct" : "is-wrong");
+    }
+
+    function check() {
+      const a = state.current.answers;
+      const q1Raw = document.getElementById("q1").value;
+      const q2Raw = document.getElementById("q2").value;
+      const q3Raw = document.getElementById("q3").value;
+      const qSaldoSide = el.qSaldoSide.value;
+      const qType = el.qType.value;
+
+      const rawMissing = [q1Raw, q2Raw, q3Raw, qSaldoSide, qType].some((v) => String(v).trim() === "");
+      if (rawMissing) {
+        el.feedback.textContent = "Bitte alle fünf Antworten ausfüllen und erneut prüfen.";
+        return;
+      }
+
+      const q1 = Number(q1Raw);
+      const q2 = Number(q2Raw);
+      const q3 = Number(q3Raw);
+
+      const checks = [
+        { key: "q1", ok: q1 === a.q1, hint: "Saldo = grössere Seite minus kleinere Seite." },
+        { key: "q2", ok: q2 === a.q2, hint: "Das Total auf Soll und Haben ist identisch." },
+        { key: "q3", ok: q3 === a.q3, hint: "Beide Totale müssen übereinstimmen." },
+        { key: "qSaldoSide", ok: qSaldoSide === a.saldoSide, hint: "Der Saldo steht auf der schwächeren Seite des Kontos." },
+        { key: "qType", ok: qType === a.type, hint: "Achte auf Plusseite und AB-Seite des Kontos." }
+      ];
+
+      checks.forEach((c) => mark(c.key, c.ok));
+      const correct = checks.filter((c) => c.ok);
+      const wrong = checks.filter((c) => !c.ok);
+
+      if (wrong.length === 0) {
+        state.streak += 1;
+        el.feedback.innerHTML = "<strong>Sehr gut: 5/5 korrekt.</strong> Nächste Aufgabe ist bereit.";
+      } else {
+        state.streak = 0;
+        const hints = wrong.map((w) => `<li><strong>${w.key}:</strong> ${w.hint}</li>`).join("");
+        el.feedback.innerHTML = `<strong>${correct.length}/5 korrekt.</strong> Nutze die Hinweise und korrigiere die roten Felder.<ul>${hints}</ul>`;
+      }
+
+      el.stats.textContent = `Aufgabe ${state.taskNo} | Serie ${state.streak}`;
+    }
+
+    function nextHint() {
+      state.hintLevel += 1;
+      const a = state.current.answers;
+      let text = "";
+
+      if (state.hintLevel === 1) {
+        text = "Tipp 1: Rechne zuerst beide Seiten ohne Saldo zusammen.";
+      } else if (state.hintLevel === 2) {
+        text = `Tipp 2: Plusseite = ${state.current.konto.plusSide === "left" ? "Soll" : "Haben"}.`; 
+      } else {
+        text = `Tipp 3: Saldo = ${a.plusSum} - ${a.minusSum}.`; 
+      }
+
+      el.hintBox.textContent = text;
+      el.hintBox.classList.add("visible");
+    }
+
+    function solve() {
+      const a = state.current.answers;
+      document.getElementById("q1").value = a.q1;
+      document.getElementById("q2").value = a.q2;
+      document.getElementById("q3").value = a.q3;
+      el.qSaldoSide.value = a.saldoSide;
+      el.qType.value = a.type;
+
+      ["q1", "q2", "q3", "qSaldoSide", "qType"].forEach((id) => mark(id, true));
+      el.feedback.innerHTML = "Lösung eingetragen. Du kannst direkt mit der nächsten Aufgabe weitermachen.";
+    }
+
+    function nextTask() {
+      state.taskNo += 1;
+      state.current = generateTask();
+      state.lastAccountId = state.current.konto.id;
+      renderTask();
+    }
+
+    el.checkBtn.addEventListener("click", check);
+    el.hintBtn.addEventListener("click", nextHint);
+    el.solveBtn.addEventListener("click", solve);
+    el.nextBtn.addEventListener("click", nextTask);
+
+    nextTask();
+  </script>
+</body>
+</html>
