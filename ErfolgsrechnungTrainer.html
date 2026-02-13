@@ -1,0 +1,1100 @@
+<!doctype html>
+<html lang="de-CH">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Erfolgsrechnung vervollständigen - Interaktiver Trainer</title>
+  <style>
+    :root {
+      --paper: #fffdf8;
+      --ink: #1f2937;
+      --muted: #5b6470;
+      --line: #e7ddd0;
+      --brand: #0d6447;
+      --brand2: #154a87;
+      --ok: #166534;
+      --ok-soft: #ecfdf3;
+      --bad: #b91c1c;
+      --bad-soft: #fef2f2;
+      --hint-soft: #fff7ed;
+      --hint-line: #fdba74;
+      --shadow: 0 14px 34px rgba(31, 41, 55, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 8%, #dcefe0 0%, transparent 30%),
+        radial-gradient(circle at 90% 16%, #dfeaff 0%, transparent 28%),
+        linear-gradient(180deg, #f8f4ed, #f1e9dd);
+      padding: 18px;
+    }
+
+    .app {
+      max-width: 980px;
+      margin: 0 auto;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid #b9dbc7;
+      background: #e8f7ef;
+      color: var(--brand);
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.2rem, 2.6vw, 1.82rem);
+      color: #143528;
+    }
+
+    .lead {
+      margin: 8px 0 16px;
+      color: var(--muted);
+      line-height: 1.45;
+      max-width: 92ch;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: #fff;
+      padding: 12px;
+    }
+
+    .card h2 {
+      margin: 0 0 10px;
+      font-size: 1.02rem;
+      color: #1b3553;
+    }
+
+    .sub {
+      margin: 0 0 10px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .mode-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .mode-btn {
+      border: 1px solid #d4dded;
+      background: #f6f9ff;
+      color: #1f3451;
+      border-radius: 10px;
+      padding: 10px;
+      text-align: left;
+      cursor: pointer;
+      font: inherit;
+      font-size: 0.88rem;
+      line-height: 1.35;
+      transition: transform 0.12s ease, filter 0.12s ease, border-color 0.12s ease;
+    }
+
+    .mode-btn:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.02);
+    }
+
+    .mode-btn.active {
+      border-color: #1d4ed8;
+      box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.12);
+      background: #eef4ff;
+    }
+
+    .mode-btn.done {
+      border-color: #b7e0c7;
+      background: #ecf8f1;
+    }
+
+    .topbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .tag {
+      border: 1px solid #d8e3f2;
+      border-radius: 999px;
+      padding: 5px 9px;
+      font-size: 0.83rem;
+      background: #f4f8ff;
+      color: #22344f;
+      font-weight: 700;
+    }
+
+    .tag.strong {
+      border-color: #cbe6d4;
+      background: #eff9f2;
+      color: #1b5d3c;
+    }
+
+    .context {
+      border: 1px solid #dbe4f2;
+      border-radius: 10px;
+      background: #f8fbff;
+      padding: 9px;
+      font-size: 0.88rem;
+      color: #334155;
+      margin-bottom: 10px;
+    }
+
+    .er-table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid #ddd3c5;
+      border-radius: 10px;
+      overflow: hidden;
+      font-size: 0.92rem;
+      table-layout: fixed;
+    }
+
+    .er-table th,
+    .er-table td {
+      border-bottom: 1px solid #efe6da;
+      padding: 8px 9px;
+      vertical-align: middle;
+    }
+
+    .er-table th {
+      text-align: left;
+      background: #f8f3ea;
+      color: #4b5563;
+      font-size: 0.79rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .er-table tr:last-child td { border-bottom: none; }
+
+    .position {
+      color: #253041;
+    }
+
+    .amount {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      font-weight: 700;
+      color: #0f172a;
+      width: 220px;
+      white-space: nowrap;
+    }
+
+    .calc-row td {
+      background: #f9fafb;
+      font-weight: 800;
+    }
+
+    .line-input {
+      width: 100%;
+      max-width: 190px;
+      border: 1px solid #d5ccc0;
+      border-radius: 9px;
+      padding: 8px 9px;
+      text-align: right;
+      font: inherit;
+      background: #fff;
+    }
+
+    .line-input:focus,
+    select:focus {
+      outline: none;
+      border-color: #2b7a5b;
+      box-shadow: 0 0 0 3px rgba(43, 122, 91, 0.14);
+    }
+
+    .question-grid {
+      margin-top: 10px;
+      display: grid;
+      gap: 9px;
+    }
+
+    .q {
+      border: 1px solid #e7ddd0;
+      border-radius: 10px;
+      background: #fffdf8;
+      padding: 9px;
+    }
+
+    .q label {
+      display: block;
+      font-size: 0.86rem;
+      margin-bottom: 6px;
+      color: #2a3343;
+      font-weight: 700;
+    }
+
+    select {
+      width: 100%;
+      border: 1px solid #d5ccc0;
+      border-radius: 9px;
+      padding: 8px 9px;
+      font: inherit;
+      background: #fff;
+    }
+
+    .choice-list {
+      display: grid;
+      gap: 6px;
+    }
+
+    .choice {
+      border: 1px solid #e7ddd0;
+      border-radius: 9px;
+      background: #fff;
+      padding: 7px 9px;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 0.88rem;
+    }
+
+    .choice input[type="checkbox"],
+    .choice input[type="radio"] {
+      margin-top: 2px;
+    }
+
+    .is-correct {
+      border-color: var(--ok) !important;
+      background: var(--ok-soft) !important;
+      box-shadow: 0 0 0 3px rgba(22, 101, 52, 0.12);
+    }
+
+    .is-wrong {
+      border-color: var(--bad) !important;
+      background: var(--bad-soft) !important;
+      box-shadow: 0 0 0 3px rgba(185, 28, 28, 0.12);
+    }
+
+    .actions {
+      margin-top: 11px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    button {
+      border: 0;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.12s ease, filter 0.12s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.03);
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+      filter: none;
+    }
+
+    .btn-main { background: var(--brand2); color: #fff; }
+
+    .btn-soft {
+      background: #f0e9de;
+      border: 1px solid #e0d4c4;
+      color: #2a313b;
+    }
+
+    .stats {
+      margin-left: auto;
+      border: 1px solid #cbdfcf;
+      background: #edf8ef;
+      color: #1d5a37;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 0.85rem;
+      font-weight: 800;
+    }
+
+    .feedback {
+      margin-top: 12px;
+      border: 1px solid #e2d7c9;
+      border-radius: 11px;
+      background: #fffdf8;
+      padding: 10px;
+      min-height: 72px;
+      font-size: 0.92rem;
+    }
+
+    .feedback ul {
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+
+    .hint {
+      margin-top: 8px;
+      border: 1px solid var(--hint-line);
+      border-radius: 10px;
+      background: var(--hint-soft);
+      padding: 8px 9px;
+      color: #7a3e08;
+      font-size: 0.88rem;
+      display: none;
+    }
+
+    .hint.visible { display: block; }
+
+    .foot {
+      margin-top: 10px;
+      color: #5f6775;
+      font-size: 0.82rem;
+    }
+
+    @media (max-width: 760px) {
+      .mode-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .amount {
+        width: 170px;
+      }
+
+      .stats {
+        margin-left: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <span class="badge">INTERAKTIVES ELEMENT: Erfolgsrechnung vervollständigen</span>
+    <h1>Erfolgsrechnung vervollständigen</h1>
+    <p class="lead">
+      Lernpfad mit 3 Modi: Rechnen, Fehler finden und Entscheiden. Jeder Modus nutzt dynamische,
+      praxisnahe Fälle aus unterschiedlichen Branchenprofilen.
+    </p>
+
+    <section class="layout">
+      <article class="card">
+        <h2>Lernpfad</h2>
+        <p class="sub">Wählen Sie einen Modus. Jeder Modus trainiert eine andere Kompetenz.</p>
+        <div id="modeGrid" class="mode-grid"></div>
+      </article>
+
+      <article class="card">
+        <h2>Fall</h2>
+        <div class="topbar">
+          <span class="tag strong" id="caseTitle">Bitte Modus wählen</span>
+          <span class="tag" id="progress">Kein Modus gewählt</span>
+          <span class="tag" id="taskInfo">Aufgabe: -</span>
+        </div>
+
+        <div id="contextBox" class="context">Wählen Sie einen Modus, um zu starten.</div>
+
+        <table class="er-table">
+          <thead>
+            <tr>
+              <th>Position</th>
+              <th class="amount">Betrag (CHF)</th>
+            </tr>
+          </thead>
+          <tbody id="erBody"></tbody>
+        </table>
+
+        <div id="modeQuestions" class="question-grid"></div>
+
+        <p class="foot">
+          Formelstruktur: Bruttoerfolg = Nettoerlös - Warenaufwand. Betriebserfolg = Bruttoerfolg - Betriebsaufwand.
+          Jahreserfolg = Betriebserfolg + Finanzerfolg - Steuern.
+        </p>
+      </article>
+
+      <article class="card">
+        <h2>Interaktion</h2>
+        <div class="actions">
+          <button type="button" class="btn-main" id="checkBtn">Antworten prüfen</button>
+          <button type="button" class="btn-soft" id="hintBtn">Hinweis</button>
+          <button type="button" class="btn-soft" id="solveBtn">Lösung zeigen</button>
+          <button type="button" class="btn-soft" id="remixBtn">Neuer Fall</button>
+          <button type="button" class="btn-soft" id="nextBtn">Nächster Modus</button>
+          <span class="stats" id="stats">Serie 0</span>
+        </div>
+
+        <section class="feedback" id="feedback">Wählen Sie zuerst einen Modus.</section>
+        <section class="hint" id="hintBox"></section>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const erRows = [
+      { key: "revenue", label: "Nettoerlös aus Lieferungen und Leistungen" },
+      { key: "cogs", label: "Warenaufwand" },
+      { key: "grossProfit", label: "Bruttoerfolg", calc: true },
+      { key: "payroll", label: "Personalaufwand" },
+      { key: "rent", label: "Raumaufwand" },
+      { key: "otherOp", label: "Übriger Betriebsaufwand" },
+      { key: "depr", label: "Abschreibungen" },
+      { key: "operatingProfit", label: "Betriebserfolg", calc: true },
+      { key: "finance", label: "Finanzerfolg (+/-)" },
+      { key: "taxes", label: "Direkte Steuern" },
+      { key: "netProfit", label: "Jahreserfolg", calc: true }
+    ];
+
+    const profiles = [
+      {
+        id: "handel",
+        name: "Handel",
+        context: "Hoher Warenaufwand, meist stabiler Bruttoerfolg und moderater Betriebsaufwand.",
+        rules: {
+          revenue: [2200, 5200, 50],
+          cogsRatio: [0.58, 0.74],
+          payrollRatio: [0.09, 0.18],
+          rentRatio: [0.04, 0.09],
+          otherRatio: [0.05, 0.12],
+          deprRatio: [0.02, 0.06],
+          finance: [-120, 40, 10],
+          taxRate: [0.11, 0.18],
+          unknownPool: ["cogs", "grossProfit", "operatingProfit", "taxes", "netProfit"]
+        }
+      },
+      {
+        id: "produktion",
+        name: "Produktion",
+        context: "Höhere Abschreibungen und Fixkosten durch Anlagen und Maschinen.",
+        rules: {
+          revenue: [2600, 6200, 50],
+          cogsRatio: [0.45, 0.62],
+          payrollRatio: [0.12, 0.22],
+          rentRatio: [0.05, 0.1],
+          otherRatio: [0.06, 0.13],
+          deprRatio: [0.06, 0.12],
+          finance: [-180, 20, 10],
+          taxRate: [0.1, 0.17],
+          unknownPool: ["depr", "operatingProfit", "finance", "taxes", "netProfit"]
+        }
+      },
+      {
+        id: "dienstleistung",
+        name: "Dienstleistung",
+        context: "Niedriger Warenaufwand, dafür höherer Personalanteil als zentraler Kostenfaktor.",
+        rules: {
+          revenue: [1800, 4600, 50],
+          cogsRatio: [0.08, 0.26],
+          payrollRatio: [0.25, 0.42],
+          rentRatio: [0.04, 0.11],
+          otherRatio: [0.06, 0.14],
+          deprRatio: [0.01, 0.05],
+          finance: [-90, 80, 10],
+          taxRate: [0.1, 0.16],
+          unknownPool: ["payroll", "grossProfit", "operatingProfit", "taxes", "netProfit"]
+        }
+      },
+      {
+        id: "gastronomie",
+        name: "Gastronomie",
+        context: "Waren- und Personalaufwand sind beide entscheidend für das Ergebnis.",
+        rules: {
+          revenue: [1900, 4800, 50],
+          cogsRatio: [0.28, 0.45],
+          payrollRatio: [0.22, 0.35],
+          rentRatio: [0.06, 0.12],
+          otherRatio: [0.06, 0.14],
+          deprRatio: [0.02, 0.07],
+          finance: [-110, 30, 10],
+          taxRate: [0.08, 0.15],
+          unknownPool: ["cogs", "payroll", "operatingProfit", "taxes", "netProfit"]
+        }
+      }
+    ];
+
+    const modes = [
+      {
+        id: "rechnen",
+        title: "Modus 1: Rechnen",
+        desc: "Lücken in der ER korrekt berechnen"
+      },
+      {
+        id: "fehler",
+        title: "Modus 2: Fehler finden",
+        desc: "Falsche Kennzahlen identifizieren und korrigieren"
+      },
+      {
+        id: "entscheiden",
+        title: "Modus 3: Entscheiden",
+        desc: "Beste Maßnahme zur Ergebnisverbesserung wählen"
+      }
+    ];
+
+    const el = {
+      modeGrid: document.getElementById("modeGrid"),
+      caseTitle: document.getElementById("caseTitle"),
+      progress: document.getElementById("progress"),
+      taskInfo: document.getElementById("taskInfo"),
+      contextBox: document.getElementById("contextBox"),
+      erBody: document.getElementById("erBody"),
+      modeQuestions: document.getElementById("modeQuestions"),
+      checkBtn: document.getElementById("checkBtn"),
+      hintBtn: document.getElementById("hintBtn"),
+      solveBtn: document.getElementById("solveBtn"),
+      remixBtn: document.getElementById("remixBtn"),
+      nextBtn: document.getElementById("nextBtn"),
+      stats: document.getElementById("stats"),
+      feedback: document.getElementById("feedback"),
+      hintBox: document.getElementById("hintBox")
+    };
+
+    let currentModeIndex = -1;
+    let currentProfile = null;
+    let currentTask = null;
+    let streak = 0;
+    let hintLevel = 0;
+    const completedModes = new Set();
+
+    function fmt(value) {
+      return new Intl.NumberFormat("de-CH").format(value);
+    }
+
+    function randInt(min, max, step = 1) {
+      const n = Math.floor((max - min) / step);
+      return min + Math.floor(Math.random() * (n + 1)) * step;
+    }
+
+    function randFloat(min, max) {
+      return min + Math.random() * (max - min);
+    }
+
+    function toOutcome(net) {
+      if (net > 0) return "gewinn";
+      if (net < 0) return "verlust";
+      return "ausgeglichen";
+    }
+
+    function setActionsEnabled(enabled) {
+      [el.checkBtn, el.hintBtn, el.solveBtn, el.remixBtn, el.nextBtn].forEach((btn) => {
+        btn.disabled = !enabled;
+      });
+    }
+
+    function generateBaseCase(profile) {
+      const r = profile.rules;
+
+      for (let i = 0; i < 120; i += 1) {
+        const revenue = randInt(r.revenue[0], r.revenue[1], r.revenue[2]);
+        const cogs = Math.round(revenue * randFloat(r.cogsRatio[0], r.cogsRatio[1]));
+        const grossProfit = revenue - cogs;
+
+        const payroll = Math.round(revenue * randFloat(r.payrollRatio[0], r.payrollRatio[1]));
+        const rent = Math.round(revenue * randFloat(r.rentRatio[0], r.rentRatio[1]));
+        const otherOp = Math.round(revenue * randFloat(r.otherRatio[0], r.otherRatio[1]));
+        const depr = Math.round(revenue * randFloat(r.deprRatio[0], r.deprRatio[1]));
+
+        const operatingProfit = grossProfit - payroll - rent - otherOp - depr;
+        const finance = randInt(r.finance[0], r.finance[1], r.finance[2]);
+        const preTax = operatingProfit + finance;
+        const taxRate = randFloat(r.taxRate[0], r.taxRate[1]);
+        const taxes = preTax > 0 ? Math.round(preTax * taxRate) : 0;
+        const netProfit = preTax - taxes;
+
+        if (revenue < 1000 || grossProfit <= 0 || Math.abs(netProfit) < 20) continue;
+
+        return {
+          values: {
+            revenue,
+            cogs,
+            grossProfit,
+            payroll,
+            rent,
+            otherOp,
+            depr,
+            operatingProfit,
+            finance,
+            taxes,
+            netProfit
+          },
+          taxRate,
+          outcome: toOutcome(netProfit)
+        };
+      }
+
+      return {
+        values: {
+          revenue: 3000,
+          cogs: 1800,
+          grossProfit: 1200,
+          payroll: 450,
+          rent: 180,
+          otherOp: 220,
+          depr: 90,
+          operatingProfit: 260,
+          finance: -40,
+          taxes: 30,
+          netProfit: 190
+        },
+        taxRate: 0.15,
+        outcome: "gewinn"
+      };
+    }
+
+    function recalcDerived(values, taxRate) {
+      const grossProfit = values.revenue - values.cogs;
+      const operatingProfit = grossProfit - values.payroll - values.rent - values.otherOp - values.depr;
+      const preTax = operatingProfit + values.finance;
+      const taxes = preTax > 0 ? Math.round(preTax * taxRate) : 0;
+      const netProfit = preTax - taxes;
+      return { ...values, grossProfit, operatingProfit, taxes, netProfit };
+    }
+
+    function buildModeTask(mode, base, profile) {
+      if (mode.id === "rechnen") {
+        const unknownKeys = [...profile.rules.unknownPool].sort(() => Math.random() - 0.5).slice(0, 4);
+        return {
+          type: "rechnen",
+          values: base.values,
+          unknownKeys,
+          outcome: base.outcome
+        };
+      }
+
+      if (mode.id === "fehler") {
+        const candidates = ["grossProfit", "operatingProfit", "netProfit"];
+        const wrongKeys = [...candidates].sort(() => Math.random() - 0.5).slice(0, 2);
+        const shownValues = { ...base.values };
+
+        for (const key of wrongKeys) {
+          const delta = randInt(40, 180, 10) * (Math.random() > 0.5 ? 1 : -1);
+          shownValues[key] = shownValues[key] + delta;
+          if (shownValues[key] === base.values[key]) shownValues[key] += 10;
+        }
+
+        return {
+          type: "fehler",
+          values: base.values,
+          shownValues,
+          wrongKeys,
+          outcome: base.outcome,
+          candidates
+        };
+      }
+
+      const options = [
+        {
+          id: "optA",
+          label: "Preisanpassung: Nettoerlös +3%",
+          apply: (v) => ({ ...v, revenue: Math.round(v.revenue * 1.03) })
+        },
+        {
+          id: "optB",
+          label: "Einkauf optimieren: Warenaufwand -5%",
+          apply: (v) => ({ ...v, cogs: Math.round(v.cogs * 0.95) })
+        },
+        {
+          id: "optC",
+          label: "Personalplanung: Personalaufwand -7%",
+          apply: (v) => ({ ...v, payroll: Math.round(v.payroll * 0.93) })
+        }
+      ];
+
+      const evaluated = options.map((opt) => {
+        const partial = opt.apply(base.values);
+        const recalculated = recalcDerived(partial, base.taxRate);
+        return { ...opt, netProfit: recalculated.netProfit, values: recalculated };
+      });
+
+      evaluated.sort((a, b) => b.netProfit - a.netProfit);
+
+      return {
+        type: "entscheiden",
+        values: base.values,
+        options: evaluated,
+        bestOptionId: evaluated[0].id,
+        bestNetProfit: evaluated[0].netProfit,
+        outcome: base.outcome
+      };
+    }
+
+    function renderModes() {
+      el.modeGrid.innerHTML = modes
+        .map((m, i) => {
+          const active = i === currentModeIndex ? "active" : "";
+          const done = completedModes.has(m.id) ? "done" : "";
+          const doneMark = completedModes.has(m.id) ? " · erledigt" : "";
+          return `<button type="button" class="mode-btn ${active} ${done}" data-index="${i}"><strong>${m.title}</strong><br>${m.desc}${doneMark}</button>`;
+        })
+        .join("");
+
+      el.modeGrid.querySelectorAll("button").forEach((btn) => {
+        btn.addEventListener("click", () => loadMode(Number(btn.dataset.index), true));
+      });
+    }
+
+    function renderTable(task) {
+      const displayValues = task.type === "fehler" ? task.shownValues : task.values;
+
+      el.erBody.innerHTML = erRows
+        .map((row) => {
+          const isInput = task.type === "rechnen" && task.unknownKeys.includes(row.key);
+          const amountCell = isInput
+            ? `<input class="line-input checkable" id="in-${row.key}" type="number" step="1" />`
+            : fmt(displayValues[row.key]);
+          const rowClass = row.calc ? "calc-row" : "";
+          return `<tr class="${rowClass}"><td class="position">${row.label}</td><td class="amount">${amountCell}</td></tr>`;
+        })
+        .join("");
+    }
+
+    function renderQuestions(task) {
+      if (task.type === "rechnen") {
+        el.modeQuestions.innerHTML = `
+          <div class="q">
+            <label for="qOutcome">Jahresergebnis ist ...</label>
+            <select id="qOutcome" class="checkable">
+              <option value="">Bitte wählen ...</option>
+              <option value="gewinn">Gewinn</option>
+              <option value="verlust">Verlust</option>
+              <option value="ausgeglichen">Ausgeglichen (0)</option>
+            </select>
+          </div>
+        `;
+        return;
+      }
+
+      if (task.type === "fehler") {
+        const choices = task.candidates.map((k) => {
+          const label = erRows.find((r) => r.key === k).label;
+          return `<label class="choice" id="choice-${k}"><input class="checkable" type="checkbox" id="chk-${k}" />${label}</label>`;
+        }).join("");
+
+        el.modeQuestions.innerHTML = `
+          <div class="q">
+            <label>Welche Positionen sind in der Tabelle falsch dargestellt?</label>
+            <div class="choice-list">${choices}</div>
+          </div>
+          <div class="q">
+            <label for="fix-netProfit">Korrigierter Jahreserfolg (CHF)</label>
+            <input class="line-input checkable" id="fix-netProfit" type="number" step="1" />
+          </div>
+          <div class="q">
+            <label for="qOutcome">Jahresergebnis ist ...</label>
+            <select id="qOutcome" class="checkable">
+              <option value="">Bitte wählen ...</option>
+              <option value="gewinn">Gewinn</option>
+              <option value="verlust">Verlust</option>
+              <option value="ausgeglichen">Ausgeglichen (0)</option>
+            </select>
+          </div>
+        `;
+        return;
+      }
+
+      const optionsHtml = task.options.map((opt) => {
+        return `<label class="choice" id="dec-${opt.id}"><input class="checkable" type="radio" name="decision" value="${opt.id}" />${opt.label}</label>`;
+      }).join("");
+
+      el.modeQuestions.innerHTML = `
+        <div class="q">
+          <label>Welche Maßnahme verbessert den Jahreserfolg am stärksten?</label>
+          <div class="choice-list">${optionsHtml}</div>
+        </div>
+        <div class="q">
+          <label for="best-net">Neuer Jahreserfolg nach bester Maßnahme (CHF)</label>
+          <input class="line-input checkable" id="best-net" type="number" step="1" />
+        </div>
+      `;
+    }
+
+    function clearMarks() {
+      document.querySelectorAll(".checkable, .choice").forEach((f) => f.classList.remove("is-correct", "is-wrong"));
+    }
+
+    function mark(target, ok) {
+      const elx = typeof target === "string" ? document.getElementById(target) : target;
+      if (!elx) return;
+      elx.classList.remove("is-correct", "is-wrong");
+      elx.classList.add(ok ? "is-correct" : "is-wrong");
+    }
+
+    function bindInputReset() {
+      document.querySelectorAll(".checkable").forEach((field) => {
+        field.addEventListener("input", () => field.classList.remove("is-correct", "is-wrong"));
+        field.addEventListener("change", () => field.classList.remove("is-correct", "is-wrong"));
+      });
+    }
+
+    function loadMode(index, regenerate) {
+      currentModeIndex = index;
+      const mode = modes[index];
+      currentProfile = profiles[randInt(0, profiles.length - 1, 1)];
+      const base = generateBaseCase(currentProfile);
+      currentTask = buildModeTask(mode, base, currentProfile);
+      hintLevel = 0;
+
+      setActionsEnabled(true);
+      renderModes();
+
+      el.caseTitle.textContent = `${mode.title} · ${currentProfile.name}`;
+      el.progress.textContent = `Modus ${index + 1} von ${modes.length}`;
+      el.taskInfo.textContent = `Profil: ${currentProfile.name}`;
+      el.contextBox.textContent = currentProfile.context;
+
+      const gaps = currentTask.type === "rechnen" ? currentTask.unknownKeys.length + 1
+        : currentTask.type === "fehler" ? 4 : 2;
+      el.taskInfo.textContent = `Profil: ${currentProfile.name} · Inputs: ${gaps}`;
+
+      renderTable(currentTask);
+      renderQuestions(currentTask);
+      bindInputReset();
+      clearMarks();
+
+      el.stats.textContent = `Serie ${streak}`;
+      el.feedback.textContent = "Bearbeiten Sie die Aufgabe und klicken Sie auf Antworten prüfen.";
+      el.hintBox.classList.remove("visible");
+      el.hintBox.textContent = "";
+    }
+
+    function checkRechnen(task) {
+      const missing = task.unknownKeys.some((k) => {
+        const field = document.getElementById(`in-${k}`);
+        return !field || String(field.value).trim() === "";
+      }) || String(document.getElementById("qOutcome").value).trim() === "";
+
+      if (missing) {
+        el.feedback.textContent = "Bitte alle Lücken und das Jahresergebnis ausfüllen.";
+        return { ok: false, wrongCount: task.unknownKeys.length + 1 };
+      }
+
+      let wrongCount = 0;
+
+      for (const key of task.unknownKeys) {
+        const field = document.getElementById(`in-${key}`);
+        const ok = Number(field.value) === task.values[key];
+        mark(field, ok);
+        if (!ok) wrongCount += 1;
+      }
+
+      const out = document.getElementById("qOutcome");
+      const outOk = out.value === task.outcome;
+      mark(out, outOk);
+      if (!outOk) wrongCount += 1;
+
+      return { ok: wrongCount === 0, wrongCount, total: task.unknownKeys.length + 1 };
+    }
+
+    function checkFehler(task) {
+      const out = document.getElementById("qOutcome");
+      const net = document.getElementById("fix-netProfit");
+
+      if (String(out.value).trim() === "" || String(net.value).trim() === "") {
+        el.feedback.textContent = "Bitte Fehlerauswahl, Korrekturwert und Jahresergebnis ausfüllen.";
+        return { ok: false, wrongCount: 4 };
+      }
+
+      let wrongCount = 0;
+
+      for (const key of task.candidates) {
+        const checked = document.getElementById(`chk-${key}`).checked;
+        const expected = task.wrongKeys.includes(key);
+        const wrap = document.getElementById(`choice-${key}`);
+        const ok = checked === expected;
+        mark(wrap, ok);
+        if (!ok) wrongCount += 1;
+      }
+
+      const netOk = Number(net.value) === task.values.netProfit;
+      mark(net, netOk);
+      if (!netOk) wrongCount += 1;
+
+      const outOk = out.value === task.outcome;
+      mark(out, outOk);
+      if (!outOk) wrongCount += 1;
+
+      return { ok: wrongCount === 0, wrongCount, total: task.candidates.length + 2 };
+    }
+
+    function checkEntscheiden(task) {
+      const selected = document.querySelector('input[name="decision"]:checked');
+      const bestNet = document.getElementById("best-net");
+
+      if (!selected || String(bestNet.value).trim() === "") {
+        el.feedback.textContent = "Bitte Maßnahme auswählen und den neuen Jahreserfolg eintragen.";
+        return { ok: false, wrongCount: 2 };
+      }
+
+      let wrongCount = 0;
+
+      task.options.forEach((opt) => {
+        const wrap = document.getElementById(`dec-${opt.id}`);
+        const chosen = selected.value === opt.id;
+        const expected = opt.id === task.bestOptionId;
+        if (chosen) {
+          const ok = chosen && expected;
+          mark(wrap, ok);
+          if (!ok) wrongCount += 1;
+        } else {
+          wrap.classList.remove("is-correct", "is-wrong");
+        }
+      });
+
+      const netOk = Number(bestNet.value) === task.bestNetProfit;
+      mark(bestNet, netOk);
+      if (!netOk) wrongCount += 1;
+
+      return { ok: wrongCount === 0, wrongCount, total: 2 };
+    }
+
+    function check() {
+      if (!currentTask) {
+        el.feedback.textContent = "Bitte zuerst einen Modus auswählen.";
+        return;
+      }
+
+      let result;
+      if (currentTask.type === "rechnen") result = checkRechnen(currentTask);
+      else if (currentTask.type === "fehler") result = checkFehler(currentTask);
+      else result = checkEntscheiden(currentTask);
+
+      if (result.ok) {
+        streak += 1;
+        completedModes.add(modes[currentModeIndex].id);
+        el.stats.textContent = `Serie ${streak}`;
+        el.feedback.innerHTML = `<strong>Sehr gut: alles korrekt.</strong> Du kannst einen neuen Fall starten oder den Modus wechseln.`;
+        renderModes();
+        return;
+      }
+
+      streak = 0;
+      el.stats.textContent = "Serie 0";
+
+      let hint = "";
+      if (currentTask.type === "rechnen") {
+        hint = "Rechne von oben nach unten und nutze die Zwischenergebnisse konsequent.";
+      } else if (currentTask.type === "fehler") {
+        hint = "Prüfe zuerst die Formelketten Bruttoerfolg → Betriebserfolg → Jahreserfolg.";
+      } else {
+        hint = "Vergleiche die Wirkung der Optionen direkt auf den Jahreserfolg, nicht nur auf Einzelkosten.";
+      }
+
+      el.feedback.innerHTML = `<strong>${result.total - result.wrongCount}/${result.total} korrekt.</strong> ${hint}`;
+    }
+
+    function hint() {
+      if (!currentTask) {
+        el.feedback.textContent = "Bitte zuerst einen Modus auswählen.";
+        return;
+      }
+
+      hintLevel += 1;
+      let text = "";
+
+      if (currentTask.type === "rechnen") {
+        if (hintLevel === 1) text = "Tipp 1: Rechne zuerst Bruttoerfolg, dann Betriebserfolg, dann Jahreserfolg.";
+        else if (hintLevel === 2) text = "Tipp 2: Finanzerfolg kann negativ sein, Steuern nur bei positivem Vorsteuerergebnis.";
+        else {
+          const key = currentTask.unknownKeys[0];
+          const label = erRows.find((r) => r.key === key).label;
+          text = `Tipp 3: ${label} = ${fmt(currentTask.values[key])}.`;
+        }
+      } else if (currentTask.type === "fehler") {
+        if (hintLevel === 1) text = "Tipp 1: Prüfe zuerst, ob Bruttoerfolg = Nettoerlös - Warenaufwand stimmt.";
+        else if (hintLevel === 2) text = "Tipp 2: Danach Betriebserfolg und schliesslich Jahreserfolg prüfen.";
+        else text = `Tipp 3: Korrigierter Jahreserfolg = ${fmt(currentTask.values.netProfit)}.`;
+      } else {
+        if (hintLevel === 1) text = "Tipp 1: Prüfe, welche Option den größten positiven Effekt auf den Jahreserfolg hat.";
+        else if (hintLevel === 2) text = "Tipp 2: Ein Erlösanstieg wirkt oft über mehrere Stufen auf den Gewinn.";
+        else text = `Tipp 3: Beste Maßnahme führt zu Jahreserfolg ${fmt(currentTask.bestNetProfit)}.`;
+      }
+
+      el.hintBox.textContent = text;
+      el.hintBox.classList.add("visible");
+    }
+
+    function solve() {
+      if (!currentTask) {
+        el.feedback.textContent = "Bitte zuerst einen Modus auswählen.";
+        return;
+      }
+
+      if (currentTask.type === "rechnen") {
+        currentTask.unknownKeys.forEach((k) => {
+          const field = document.getElementById(`in-${k}`);
+          field.value = currentTask.values[k];
+          mark(field, true);
+        });
+        const out = document.getElementById("qOutcome");
+        out.value = currentTask.outcome;
+        mark(out, true);
+      } else if (currentTask.type === "fehler") {
+        currentTask.candidates.forEach((k) => {
+          const chk = document.getElementById(`chk-${k}`);
+          chk.checked = currentTask.wrongKeys.includes(k);
+          mark(`choice-${k}`, true);
+        });
+        const net = document.getElementById("fix-netProfit");
+        net.value = currentTask.values.netProfit;
+        mark(net, true);
+        const out = document.getElementById("qOutcome");
+        out.value = currentTask.outcome;
+        mark(out, true);
+      } else {
+        const radio = document.querySelector(`input[name="decision"][value="${currentTask.bestOptionId}"]`);
+        if (radio) radio.checked = true;
+        mark(`dec-${currentTask.bestOptionId}`, true);
+        const net = document.getElementById("best-net");
+        net.value = currentTask.bestNetProfit;
+        mark(net, true);
+      }
+
+      el.feedback.textContent = "Lösung eingetragen. Du kannst jetzt einen neuen Fall oder den nächsten Modus wählen.";
+    }
+
+    function remix() {
+      if (currentModeIndex < 0) {
+        el.feedback.textContent = "Bitte zuerst einen Modus auswählen.";
+        return;
+      }
+      loadMode(currentModeIndex, true);
+    }
+
+    function nextMode() {
+      if (currentModeIndex < 0) {
+        el.feedback.textContent = "Bitte zuerst einen Modus auswählen.";
+        return;
+      }
+      loadMode((currentModeIndex + 1) % modes.length, true);
+    }
+
+    el.checkBtn.addEventListener("click", check);
+    el.hintBtn.addEventListener("click", hint);
+    el.solveBtn.addEventListener("click", solve);
+    el.remixBtn.addEventListener("click", remix);
+    el.nextBtn.addEventListener("click", nextMode);
+
+    renderModes();
+    setActionsEnabled(false);
+  </script>
+</body>
+</html>
