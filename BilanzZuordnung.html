@@ -31,13 +31,13 @@
     }
 
     .exercise {
-      max-width: 1120px;
+      max-width: 980px;
       margin: 0 auto;
       background: var(--card);
       border: 1px solid #d5e2d7;
       border-radius: 16px;
       box-shadow: 0 14px 30px rgba(20, 30, 20, 0.08);
-      padding: 20px;
+      padding: 18px;
     }
 
     h1 {
@@ -68,7 +68,7 @@
 
     .board {
       display: grid;
-      grid-template-columns: 1fr 1.25fr;
+      grid-template-columns: minmax(260px, 0.95fr) minmax(340px, 1.05fr);
       gap: 16px;
       align-items: start;
     }
@@ -238,7 +238,7 @@
 
     .feedback .bad { color: #7f1d1d; }
 
-    @media (max-width: 980px) {
+    @media (max-width: 760px) {
       .board {
         grid-template-columns: 1fr;
       }
@@ -272,7 +272,7 @@
         <h2>Zielbereiche (Schweizer Reihenfolge)</h2>
         <div class="zone-grid">
           <section class="zone-shell">
-            <h3>Aktiven (Umlaufvermoegen)</h3>
+            <h3>Aktiven (Umlaufvermögen)</h3>
             <div class="dropzone" data-zone="asset_current"></div>
           </section>
           <section class="zone-shell">
@@ -280,7 +280,7 @@
             <div class="dropzone" data-zone="liability_debt"></div>
           </section>
           <section class="zone-shell">
-            <h3>Aktiven (Anlagevermoegen)</h3>
+            <h3>Aktiven (Anlagevermögen)</h3>
             <div class="dropzone" data-zone="asset_fixed"></div>
           </section>
           <section class="zone-shell">
@@ -292,43 +292,43 @@
     </section>
 
     <div class="controls">
-      <button type="button" class="btn-primary" id="checkBtn">Antworten pruefen</button>
-      <button type="button" class="btn-neutral" id="resetBtn">Naechste Uebung (neue Konten)</button>
-      <button type="button" class="btn-neutral" id="solveBtn">Loesung anzeigen</button>
-      <span class="status" id="progress">Uebung 0: 0/0 zugeordnet</span>
+      <button type="button" class="btn-primary" id="checkBtn">Antworten prüfen</button>
+      <button type="button" class="btn-neutral" id="resetBtn">Nächste Übung (neue Konten)</button>
+      <button type="button" class="btn-neutral" id="solveBtn">Lösung anzeigen</button>
+      <span class="status" id="progress">Übung 0: 0/0 zugeordnet</span>
     </div>
 
     <p class="meta">
       Feedback bei richtiger Zuordnung: kurze fachliche Einordnung. Bei falscher Zuordnung: Hinweis auf den Unterschied zwischen Mittelverwendung (Aktiven) und Mittelherkunft (Passiven).
-      Bei jeder naechsten Uebung werden neue Konten aus dem KMU-Kontenplan gemischt.
+      Bei jeder nächsten Übung werden neue Konten aus dem KMU-Kontenplan gemischt.
     </p>
 
     <section class="feedback" id="feedback">
-      Starte mit Drag-and-Drop und klicke danach auf <strong>Antworten pruefen</strong>.
+      Starte mit Drag-and-Drop und klicke danach auf <strong>Antworten prüfen</strong>.
     </section>
   </main>
 
   <script>
     const zoneConfig = {
       asset_current: {
-        title: "Aktiven (Umlaufvermoegen)",
-        explanation: "Richtig: Diese Position gehoert im KMU-Kontenplan zur Klasse 1 (Umlaufvermoegen).",
-        hint: "Pruefe, ob es sich um einen kurzfristigen Vermoegenswert handelt (Mittelverwendung)."
+        title: "Aktiven (Umlaufvermögen)",
+        explanation: "Richtig: Diese Position gehört im KMU-Kontenplan zur Klasse 1 (Umlaufvermögen).",
+        hint: "Prüfe, ob es sich um einen kurzfristigen Vermögenswert handelt (Mittelverwendung)."
       },
       asset_fixed: {
-        title: "Aktiven (Anlagevermoegen)",
-        explanation: "Richtig: Diese Position wird als langfristiger Vermoegenswert im Anlagevermoegen gefuehrt.",
-        hint: "Pruefe, ob der Vermoegenswert dem Unternehmen langfristig dient (Mittelverwendung)."
+        title: "Aktiven (Anlagevermögen)",
+        explanation: "Richtig: Diese Position wird als langfristiger Vermögenswert im Anlagevermögen geführt.",
+        hint: "Prüfe, ob der Vermögenswert dem Unternehmen langfristig dient (Mittelverwendung)."
       },
       liability_debt: {
         title: "Passiven (Fremdkapital)",
         explanation: "Richtig: Diese Position ist Fremdkapital und damit Teil der Passiven (Mittelherkunft).",
-        hint: "Besteht eine Verpflichtung gegenueber Dritten? Dann liegt oft Fremdkapital vor."
+        hint: "Besteht eine Verpflichtung gegenüber Dritten? Dann liegt oft Fremdkapital vor."
       },
       liability_equity: {
         title: "Passiven (Eigenkapital)",
-        explanation: "Richtig: Diese Position gehoert zum Eigenkapital und damit zur Passivseite.",
-        hint: "Frage dich, ob die Mittel den Eigentuemerinnen und Eigentuemern zuzurechnen sind."
+        explanation: "Richtig: Diese Position gehört zum Eigenkapital und damit zur Passivseite.",
+        hint: "Frage dich, ob die Mittel den Eigentümerinnen und Eigentümern zuzurechnen sind."
       }
     };
 
@@ -347,7 +347,7 @@
       { id: "1500", text: "1500 Maschinen und Apparate", correctZone: "asset_fixed" },
       { id: "1510", text: "1510 Mobiliar", correctZone: "asset_fixed" },
       { id: "1530", text: "1530 Fahrzeuge", correctZone: "asset_fixed" },
-      { id: "1600", text: "1600 Geschaeftsliegenschaft", correctZone: "asset_fixed" },
+      { id: "1600", text: "1600 Geschäftsliegenschaft", correctZone: "asset_fixed" },
       { id: "1700", text: "1700 Patente und Lizenzen", correctZone: "asset_fixed" },
       { id: "1770", text: "1770 Goodwill", correctZone: "asset_fixed" },
 
@@ -355,10 +355,10 @@
       { id: "2100", text: "2100 Kurzfristige Finanzverbindlichkeiten", correctZone: "liability_debt" },
       { id: "2200", text: "2200 Geschuldete MWST", correctZone: "liability_debt" },
       { id: "2300", text: "2300 Passive Rechnungsabgrenzung", correctZone: "liability_debt" },
-      { id: "2330", text: "2330 Kurzfristige Rueckstellungen", correctZone: "liability_debt" },
+      { id: "2330", text: "2330 Kurzfristige Rückstellungen", correctZone: "liability_debt" },
       { id: "2400", text: "2400 Langfristige Finanzverbindlichkeiten", correctZone: "liability_debt" },
       { id: "2450", text: "2450 Hypotheken", correctZone: "liability_debt" },
-      { id: "2600", text: "2600 Langfristige Rueckstellungen", correctZone: "liability_debt" },
+      { id: "2600", text: "2600 Langfristige Rückstellungen", correctZone: "liability_debt" },
 
       { id: "2800", text: "2800 Aktienkapital", correctZone: "liability_equity" },
       { id: "2850", text: "2850 Inhaber-/Stammkapital", correctZone: "liability_equity" },
@@ -510,7 +510,7 @@
 
     function updateProgress() {
       const assigned = getAssignedCount();
-      progressEl.textContent = `Uebung ${exerciseNumber}: ${assigned}/${currentItems.length} zugeordnet`;
+      progressEl.textContent = `Übung ${exerciseNumber}: ${assigned}/${currentItems.length} zugeordnet`;
     }
 
     function resetExercise(nextExercise = false) {
@@ -521,7 +521,7 @@
       selectedCard = null;
       clearSelection();
       clearEvaluation();
-      feedbackEl.innerHTML = "Starte mit Drag-and-Drop und klicke danach auf <strong>Antworten pruefen</strong>.";
+      feedbackEl.innerHTML = "Starte mit Drag-and-Drop und klicke danach auf <strong>Antworten prüfen</strong>.";
 
       poolEl.innerHTML = "";
       for (const zoneEl of dropzones) {
@@ -538,7 +538,7 @@
     function checkAnswers() {
       const assigned = getAssignedCount();
       if (assigned < currentItems.length) {
-        feedbackEl.innerHTML = `Noch nicht vollstaendig: <strong>${assigned}/${currentItems.length}</strong> Positionen sind zugeordnet.`;
+        feedbackEl.innerHTML = `Noch nicht vollständig: <strong>${assigned}/${currentItems.length}</strong> Positionen sind zugeordnet.`;
         return;
       }
 
@@ -579,7 +579,7 @@
       });
 
       updateProgress();
-      feedbackEl.innerHTML = "Musterloesung eingeblendet. Alle Positionen sind korrekt zugeordnet.";
+      feedbackEl.innerHTML = "Musterlösung eingeblendet. Alle Positionen sind korrekt zugeordnet.";
     }
 
     dropzones.forEach(bindDropzone);
