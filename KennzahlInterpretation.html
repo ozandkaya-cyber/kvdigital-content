@@ -36,7 +36,7 @@
     }
 
     .app {
-      max-width: 1180px;
+      max-width: 980px;
       margin: 0 auto;
       background: var(--paper);
       border: 1px solid var(--line);
@@ -73,7 +73,7 @@
 
     .layout {
       display: grid;
-      grid-template-columns: minmax(340px, 1fr) minmax(440px, 1.05fr);
+      grid-template-columns: minmax(260px, 0.95fr) minmax(340px, 1.05fr);
       gap: 16px;
       align-items: start;
     }
@@ -320,7 +320,7 @@
 
     <section class="layout">
       <article class="card">
-        <h2>Bilanzdaten (Uebungsfall)</h2>
+        <h2>Bilanzdaten (Übungsfall)</h2>
         <div class="table-wrap">
           <table>
             <thead>
@@ -349,7 +349,7 @@
         </div>
 
         <div class="question">
-          <label for="qLiq2">Liquiditaetsgrad 2 (%)</label>
+          <label for="qLiq2">Liquiditätsgrad 2 (%)</label>
           <input class="answer" type="number" step="0.1" id="qLiq2" />
         </div>
 
@@ -366,7 +366,7 @@
         <div class="question">
           <label for="qEqInterpret">Interpretation Eigenfinanzierung</label>
           <select class="answer" id="qEqInterpret">
-            <option value="">Bitte waehlen ...</option>
+            <option value="">Bitte wählen ...</option>
             <option value="solid">Solide Kapitalbasis</option>
             <option value="middle">Mittel, beobachtbar</option>
             <option value="critical">Kritische Eigenkapitalbasis</option>
@@ -374,31 +374,31 @@
         </div>
 
         <div class="question">
-          <label for="qLiqInterpret">Interpretation Liquiditaet 2</label>
+          <label for="qLiqInterpret">Interpretation Liquidität 2</label>
           <select class="answer" id="qLiqInterpret">
-            <option value="">Bitte waehlen ...</option>
-            <option value="good">Kurzfristig gut zahlungsfaehig</option>
-            <option value="tense">Angespannte kurzfristige Liquiditaet</option>
-            <option value="critical">Kritische kurzfristige Liquiditaet</option>
+            <option value="">Bitte wählen ...</option>
+            <option value="good">Kurzfristig gut zahlungsfähig</option>
+            <option value="tense">Angespannte kurzfristige Liquidität</option>
+            <option value="critical">Kritische kurzfristige Liquidität</option>
           </select>
         </div>
 
         <div class="actions">
-          <button type="button" class="btn-primary" id="checkBtn">Antworten pruefen</button>
+          <button type="button" class="btn-primary" id="checkBtn">Antworten prüfen</button>
           <button type="button" class="btn-primary" id="toggleResultsBtn" disabled>Resultate anzeigen</button>
-          <button type="button" class="btn-neutral" id="nextBtn">Naechste Uebung</button>
+          <button type="button" class="btn-neutral" id="nextBtn">Nächste Übung</button>
           <button type="button" class="btn-neutral" id="solutionBtn" disabled>Musterantwort eintragen</button>
-          <span class="progress" id="progress">Uebung 1</span>
+          <span class="progress" id="progress">Übung 1</span>
         </div>
 
         <section class="feedback" id="feedback">
-          Trage deine Antworten ein und klicke auf <strong>Antworten pruefen</strong>.
+          Trage deine Antworten ein und klicke auf <strong>Antworten prüfen</strong>.
         </section>
 
         <section class="result-box" id="resultBox">
           <strong>Berechnete Resultate:</strong>
           <div class="result-grid" id="resultGrid"></div>
-          <p class="footnote">Die Resultate werden erst nach dem ersten Pruefschritt eingeblendet.</p>
+          <p class="footnote">Die Resultate werden erst nach dem ersten Prüfschritt eingeblendet.</p>
         </section>
       </article>
     </section>
@@ -514,14 +514,14 @@
 
     function renderCase() {
       const rows = [
-        ["", "Umlaufvermoegen", "", true],
+        ["", "Umlaufvermögen", "", true],
         ["1000", "Kasse", caseData.cash],
         ["1020", "Bank", caseData.bank],
         ["1100", "Forderungen aus L+L", caseData.receivables],
         ["1200", "Vorrat Handelswaren", caseData.inventory],
-        ["", "Anlagevermoegen", "", true],
+        ["", "Anlagevermögen", "", true],
         ["1500", "Maschinen und Apparate", caseData.machines],
-        ["1600", "Geschaeftsliegenschaft", caseData.property],
+        ["1600", "Geschäftsliegenschaft", caseData.property],
         ["", "Fremdkapital", "", true],
         ["2000", "Verbindlichkeiten aus L+L", caseData.payables],
         ["2100", "Kurzfristige Finanzverbindlichkeiten", caseData.shortLoans],
@@ -567,11 +567,11 @@
     function renderResults() {
       el.resultGrid.innerHTML = `
         <div><strong>Eigenfinanzierungsgrad</strong><br>${fmtPct(kpis.eigen)}</div>
-        <div><strong>Liquiditaetsgrad 2</strong><br>${fmtPct(kpis.liq2)}</div>
+        <div><strong>Liquiditätsgrad 2</strong><br>${fmtPct(kpis.liq2)}</div>
         <div><strong>Anlagedeckungsgrad 2</strong><br>${fmtPct(kpis.anlage2)}</div>
         <div><strong>Working Capital</strong><br>${fmtChf(kpis.wc)}</div>
         <div><strong>Interpretation Eigenfinanzierung</strong><br>${eqInterpretLabel(kpis.eqInterpret)}</div>
-        <div><strong>Interpretation Liquiditaet 2</strong><br>${liqInterpretLabel(kpis.liqInterpret)}</div>
+        <div><strong>Interpretation Liquidität 2</strong><br>${liqInterpretLabel(kpis.liqInterpret)}</div>
       `;
     }
 
@@ -582,9 +582,9 @@
     }
 
     function liqInterpretLabel(code) {
-      if (code === "good") return "Kurzfristig gut zahlungsfaehig";
-      if (code === "tense") return "Angespannte kurzfristige Liquiditaet";
-      return "Kritische kurzfristige Liquiditaet";
+      if (code === "good") return "Kurzfristig gut zahlungsfähig";
+      if (code === "tense") return "Angespannte kurzfristige Liquidität";
+      return "Kritische kurzfristige Liquidität";
     }
 
     function numberHint(label, user, real, formulaHint) {
@@ -609,13 +609,13 @@
         },
         {
           key: "liq2",
-          label: "Liquiditaetsgrad 2",
+          label: "Liquiditätsgrad 2",
           field: el.qLiq2,
           userRaw: el.qLiq2.value,
           user: Number(el.qLiq2.value),
           real: kpis.liq2,
           tol: 0.2,
-          hint: "Nutze (fluessige Mittel + Forderungen) / kurzfristiges Fremdkapital x 100."
+          hint: "Nutze (flüssige Mittel + Forderungen) / kurzfristiges Fremdkapital x 100."
         },
         {
           key: "anlage2",
@@ -625,7 +625,7 @@
           user: Number(el.qAnlage2.value),
           real: kpis.anlage2,
           tol: 0.2,
-          hint: "Nutze (Eigenkapital + langfristiges Fremdkapital) / Anlagevermoegen x 100."
+          hint: "Nutze (Eigenkapital + langfristiges Fremdkapital) / Anlagevermögen x 100."
         },
         {
           key: "wc",
@@ -635,7 +635,7 @@
           user: Number(el.qWc.value),
           real: kpis.wc,
           tol: 1000,
-          hint: "Nutze Umlaufvermoegen minus kurzfristiges Fremdkapital."
+          hint: "Nutze Umlaufvermögen minus kurzfristiges Fremdkapital."
         },
         {
           key: "eqInterpret",
@@ -649,7 +649,7 @@
         },
         {
           key: "liqInterpret",
-          label: "Interpretation Liquiditaet 2",
+          label: "Interpretation Liquidität 2",
           field: el.qLiqInterpret,
           userRaw: el.qLiqInterpret.value,
           user: el.qLiqInterpret.value,
@@ -662,7 +662,7 @@
       const missing = checks.filter((c) => c.userRaw.trim() === "");
       if (missing.length > 0) {
         setUnlocked(false);
-        el.feedback.innerHTML = "Bitte alle Felder ausfuellen und erneut pruefen.";
+        el.feedback.innerHTML = "Bitte alle Felder ausfüllen und erneut prüfen.";
         return;
       }
 
@@ -717,7 +717,7 @@
 
     function toggleResults() {
       if (!unlocked) {
-        el.feedback.innerHTML = "Bitte zuerst auf <strong>Antworten pruefen</strong> klicken.";
+        el.feedback.innerHTML = "Bitte zuerst auf <strong>Antworten prüfen</strong> klicken.";
         return;
       }
 
@@ -732,7 +732,7 @@
       kpis = computeKpis(caseData);
       showResults = false;
 
-      el.progress.textContent = `Uebung ${caseNo}`;
+      el.progress.textContent = `Übung ${caseNo}`;
       renderCase();
 
       [el.qEigen, el.qLiq2, el.qAnlage2, el.qWc].forEach((input) => {
