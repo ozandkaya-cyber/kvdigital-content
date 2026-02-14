@@ -1,0 +1,1447 @@
+<!doctype html>
+<html lang="de-CH">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cashflow verstehen - Interaktiver Trainer</title>
+  <style>
+    :root {
+      --paper: #fffdf8;
+      --ink: #1f2937;
+      --muted: #5b6470;
+      --line: #e7ddd0;
+      --brand: #0d6447;
+      --brand2: #154a87;
+      --ok: #166534;
+      --ok-soft: #ecfdf3;
+      --bad: #b91c1c;
+      --bad-soft: #fef2f2;
+      --hint-soft: #fff7ed;
+      --hint-line: #fdba74;
+      --shadow: 0 14px 34px rgba(31, 41, 55, 0.08);
+      --card: #ffffff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 8%, #dcefe0 0%, transparent 30%),
+        radial-gradient(circle at 90% 16%, #dfeaff 0%, transparent 28%),
+        linear-gradient(180deg, #f8f4ed, #f1e9dd);
+      padding: 16px;
+    }
+
+    .app {
+      max-width: 980px;
+      margin: 0 auto;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 16px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid #b9dbc7;
+      background: #e8f7ef;
+      color: var(--brand);
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.2rem, 2.7vw, 1.8rem);
+      color: #143528;
+    }
+
+    .lead {
+      margin: 8px 0 14px;
+      color: var(--muted);
+      line-height: 1.42;
+      max-width: 92ch;
+      font-size: 0.94rem;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--card);
+      padding: 11px;
+      margin-bottom: 10px;
+    }
+
+    .card h2 {
+      margin: 0 0 8px;
+      font-size: 1rem;
+      color: #1b3553;
+    }
+
+    .sub {
+      margin: 0 0 8px;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .mode-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .mode-btn {
+      border: 1px solid #d4dded;
+      background: #f6f9ff;
+      color: #1f3451;
+      border-radius: 10px;
+      padding: 10px;
+      text-align: left;
+      cursor: pointer;
+      font: inherit;
+      font-size: 0.86rem;
+      line-height: 1.35;
+      transition: transform 0.12s ease, filter 0.12s ease;
+    }
+
+    .mode-btn:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.03);
+    }
+
+    .mode-btn.active {
+      border-color: #1d4ed8;
+      box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.12);
+      background: #eef4ff;
+    }
+
+    .mode-btn.done {
+      border-color: #b7e0c7;
+      background: #ecf8f1;
+    }
+
+    .topbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .tag {
+      border: 1px solid #d8e3f2;
+      border-radius: 999px;
+      padding: 5px 9px;
+      font-size: 0.81rem;
+      background: #f4f8ff;
+      color: #22344f;
+      font-weight: 700;
+    }
+
+    .tag.strong {
+      border-color: #cbe6d4;
+      background: #eff9f2;
+      color: #1b5d3c;
+    }
+
+    .context {
+      border: 1px solid #dbe4f2;
+      border-radius: 10px;
+      background: #f8fbff;
+      padding: 9px;
+      font-size: 0.88rem;
+      color: #334155;
+      margin-bottom: 10px;
+      line-height: 1.36;
+    }
+
+    .task-block {
+      border: 1px solid #ece2d5;
+      border-radius: 11px;
+      background: #fffdf8;
+      padding: 9px;
+      margin-bottom: 8px;
+    }
+
+    .task-block h3 {
+      margin: 0 0 7px;
+      font-size: 0.9rem;
+      color: #244168;
+    }
+
+    .mini {
+      margin: 0;
+      color: #596273;
+      font-size: 0.82rem;
+      line-height: 1.3;
+    }
+
+    .tx-table,
+    .calc-table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid #ddd3c5;
+      border-radius: 10px;
+      overflow: hidden;
+      font-size: 0.89rem;
+      table-layout: fixed;
+      background: #fff;
+    }
+
+    .tx-table th,
+    .tx-table td,
+    .calc-table th,
+    .calc-table td {
+      border-bottom: 1px solid #efe6da;
+      padding: 8px 8px;
+      vertical-align: top;
+    }
+
+    .tx-table th,
+    .calc-table th {
+      text-align: left;
+      background: #f8f3ea;
+      color: #4b5563;
+      font-size: 0.77rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .tx-table tr:last-child td,
+    .calc-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .amount {
+      text-align: right;
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    select,
+    input[type="number"] {
+      width: 100%;
+      border: 1px solid #d5ccc0;
+      border-radius: 8px;
+      padding: 7px 8px;
+      font: inherit;
+      background: #fff;
+    }
+
+    input[type="number"] {
+      text-align: right;
+      max-width: 220px;
+    }
+
+    select:focus,
+    input[type="number"]:focus {
+      outline: none;
+      border-color: #2b7a5b;
+      box-shadow: 0 0 0 3px rgba(43, 122, 91, 0.14);
+    }
+
+    .choice-list {
+      display: grid;
+      gap: 7px;
+      margin-top: 8px;
+    }
+
+    .choice {
+      border: 1px solid #e7ddd0;
+      border-radius: 9px;
+      background: #fff;
+      padding: 8px 9px;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 0.88rem;
+      line-height: 1.3;
+    }
+
+    .choice input {
+      margin-top: 2px;
+    }
+
+    .choice small {
+      color: #586274;
+      font-size: 0.8rem;
+    }
+
+    .inline-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 9px;
+      margin-top: 8px;
+    }
+
+    .field {
+      border: 1px solid #e7ddd0;
+      border-radius: 9px;
+      background: #fffdf8;
+      padding: 8px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: #2a3343;
+      margin-bottom: 6px;
+    }
+
+    .is-correct {
+      border-color: var(--ok) !important;
+      background: var(--ok-soft) !important;
+      box-shadow: 0 0 0 3px rgba(22, 101, 52, 0.12);
+    }
+
+    .is-wrong {
+      border-color: var(--bad) !important;
+      background: var(--bad-soft) !important;
+      box-shadow: 0 0 0 3px rgba(185, 28, 28, 0.12);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    button {
+      border: 0;
+      border-radius: 10px;
+      padding: 9px 11px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.12s ease, filter 0.12s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.03);
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+      filter: none;
+    }
+
+    .btn-main { background: var(--brand2); color: #fff; }
+
+    .btn-soft {
+      background: #f0e9de;
+      border: 1px solid #e0d4c4;
+      color: #2a313b;
+    }
+
+    .stats {
+      margin-left: auto;
+      border: 1px solid #cbdfcf;
+      background: #edf8ef;
+      color: #1d5a37;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 0.84rem;
+      font-weight: 800;
+    }
+
+    .feedback {
+      margin-top: 10px;
+      border: 1px solid #e2d7c9;
+      border-radius: 11px;
+      background: #fffdf8;
+      padding: 10px;
+      min-height: 72px;
+      font-size: 0.9rem;
+      line-height: 1.38;
+    }
+
+    .feedback ul {
+      margin: 6px 0 0;
+      padding-left: 18px;
+    }
+
+    .hint {
+      margin-top: 8px;
+      border: 1px solid var(--hint-line);
+      border-radius: 10px;
+      background: var(--hint-soft);
+      padding: 8px 9px;
+      color: #7a3e08;
+      font-size: 0.87rem;
+      line-height: 1.38;
+      display: none;
+    }
+
+    .hint.visible { display: block; }
+
+    .hint ul {
+      margin: 6px 0 0;
+      padding-left: 18px;
+    }
+
+    details.result {
+      border: 1px solid #dbe4f2;
+      border-radius: 10px;
+      background: #f8fbff;
+      padding: 7px 9px;
+      margin-top: 8px;
+    }
+
+    details.result summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: #1f3d5e;
+      font-size: 0.86rem;
+    }
+
+    .result-body {
+      margin-top: 8px;
+      border-top: 1px dashed #cfd8e8;
+      padding-top: 8px;
+    }
+
+    .bar-list {
+      display: grid;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 130px 1fr 96px;
+      gap: 7px;
+      align-items: center;
+      font-size: 0.83rem;
+    }
+
+    .track {
+      background: #e8edf6;
+      border-radius: 999px;
+      overflow: hidden;
+      height: 11px;
+      border: 1px solid #d9e0ec;
+    }
+
+    .fill {
+      height: 100%;
+    }
+
+    .fill.pos { background: #17854f; }
+    .fill.neg { background: #d63f45; }
+
+    .foot {
+      margin-top: 8px;
+      color: #5f6775;
+      font-size: 0.81rem;
+    }
+
+    @media (max-width: 820px) {
+      .mode-grid { grid-template-columns: 1fr; }
+      .inline-grid { grid-template-columns: 1fr; }
+      .bar-row { grid-template-columns: 1fr; }
+      .stats { margin-left: 0; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <span class="badge">INTERAKTIVES ELEMENT: Cashflow-Lernpfad</span>
+    <h1>Cashflow verstehen und anwenden</h1>
+    <p class="lead">
+      Erstellen Sie ein Cashflow-Verständnis in drei Schritten: Geschäftsfälle zuordnen, Cashflow berechnen
+      (indirekte Methode) und fundierte Liquiditätsentscheide treffen.
+    </p>
+
+    <section class="card">
+      <h2>Lernmodi</h2>
+      <p class="sub">Wählen Sie einen Modus. Jeder neue Fall nutzt dynamische, praxisnahe Zahlen.</p>
+      <div class="mode-grid" id="modeGrid"></div>
+    </section>
+
+    <section class="card">
+      <h2>Fall</h2>
+      <div class="topbar">
+        <span class="tag strong" id="modeTitle">Bitte Modus wählen</span>
+        <span class="tag" id="profileTag">Profil: -</span>
+        <span class="tag" id="progressTag">Keine Auswahl</span>
+      </div>
+
+      <div id="contextBox" class="context">Wählen Sie zuerst einen Modus, um zu starten.</div>
+      <div id="taskArea"></div>
+
+      <details class="result" id="resultDetails" hidden>
+        <summary>Berechnungsergebnis anzeigen (auf Wunsch)</summary>
+        <div class="result-body" id="resultBody"></div>
+      </details>
+
+      <p class="foot" id="footNote">
+        Ziel: Nicht nur rechnen, sondern Ursache-Wirkung zwischen Geschäftsvorfällen und Liquidität erkennen.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>Interaktion</h2>
+      <div class="actions">
+        <button type="button" class="btn-main" id="checkBtn">Antworten prüfen</button>
+        <button type="button" class="btn-soft" id="computeBtn">Berechnung anzeigen</button>
+        <button type="button" class="btn-soft" id="hintBtn">Hinweis</button>
+        <button type="button" class="btn-soft" id="solveBtn">Lösung zeigen</button>
+        <button type="button" class="btn-soft" id="remixBtn">Neuer Fall</button>
+        <button type="button" class="btn-soft" id="nextBtn">Nächster Modus</button>
+        <span class="stats" id="stats">Serie 0</span>
+      </div>
+      <section class="feedback" id="feedback">Wählen Sie zuerst einen Modus.</section>
+      <section class="hint" id="hintBox"></section>
+    </section>
+  </main>
+
+  <script>
+    const modes = [
+      { id: "zuordnen", title: "Modus 1: Zuordnen", desc: "Geschäftsfälle den Cashflow-Bereichen zuordnen" },
+      { id: "berechnen", title: "Modus 2: Berechnen", desc: "Cashflow indirekt berechnen und interpretieren" },
+      { id: "entscheiden", title: "Modus 3: Entscheiden", desc: "Liquiditätswirksame Massnahmen bewerten" }
+    ];
+
+    const profiles = [
+      {
+        id: "handel",
+        name: "Handel",
+        context: "Im Handel sind Forderungen und Vorräte zentrale Cashflow-Treiber.",
+        ranges: {
+          profit: [120, 520, 10],
+          depr: [40, 170, 10],
+          adjAr: [-180, 140, 10],
+          adjInv: [-220, 120, 10],
+          adjVll: [-100, 180, 10],
+          adjOther: [-70, 90, 10],
+          investOut: [120, 430, 10],
+          saleIn: [0, 120, 10],
+          loanIn: [0, 220, 10],
+          loanRepay: [40, 210, 10],
+          dividend: [0, 130, 10],
+          equityIn: [0, 90, 10]
+        }
+      },
+      {
+        id: "produktion",
+        name: "Produktion",
+        context: "Produktion zeigt oft höhere Investitionsauszahlungen und Abschreibungen.",
+        ranges: {
+          profit: [160, 620, 10],
+          depr: [90, 300, 10],
+          adjAr: [-140, 110, 10],
+          adjInv: [-260, 80, 10],
+          adjVll: [-110, 170, 10],
+          adjOther: [-80, 100, 10],
+          investOut: [240, 720, 10],
+          saleIn: [0, 180, 10],
+          loanIn: [30, 320, 10],
+          loanRepay: [60, 250, 10],
+          dividend: [0, 130, 10],
+          equityIn: [0, 120, 10]
+        }
+      },
+      {
+        id: "dienstleistung",
+        name: "Dienstleistung",
+        context: "Dienstleistung hat meist tieferen Warenbezug, aber starke Wirkung aus Debitoren und Personal.",
+        ranges: {
+          profit: [100, 480, 10],
+          depr: [20, 130, 10],
+          adjAr: [-170, 130, 10],
+          adjInv: [-40, 30, 10],
+          adjVll: [-90, 140, 10],
+          adjOther: [-90, 110, 10],
+          investOut: [60, 230, 10],
+          saleIn: [0, 80, 10],
+          loanIn: [0, 180, 10],
+          loanRepay: [20, 140, 10],
+          dividend: [0, 100, 10],
+          equityIn: [0, 110, 10]
+        }
+      },
+      {
+        id: "gastronomie",
+        name: "Gastronomie",
+        context: "Gastronomie braucht sauberes Working-Capital-Management bei oft knapper Marge.",
+        ranges: {
+          profit: [70, 360, 10],
+          depr: [30, 140, 10],
+          adjAr: [-90, 70, 10],
+          adjInv: [-120, 90, 10],
+          adjVll: [-70, 130, 10],
+          adjOther: [-70, 100, 10],
+          investOut: [90, 280, 10],
+          saleIn: [0, 90, 10],
+          loanIn: [0, 170, 10],
+          loanRepay: [20, 140, 10],
+          dividend: [0, 80, 10],
+          equityIn: [0, 70, 10]
+        }
+      }
+    ];
+
+    const txPool = {
+      operativ: [
+        { text: "Kundschaft bezahlt offene Rechnungen (Debitorenabbau).", hint: "Forderungen werden zu flüssigen Mitteln." },
+        { text: "Vorräte werden reduziert und in Verkäufe umgewandelt.", hint: "Gebundenes Umlaufvermögen wird frei." },
+        { text: "Lieferantenrechnung für Waren wird bezahlt.", hint: "Begleichung kurzfristiger Verbindlichkeiten wirkt operativ." },
+        { text: "Löhne und Sozialabgaben werden überwiesen.", hint: "Laufender Betriebsaufwand gehört zum operativen Bereich." },
+        { text: "Miete und Energie werden termingerecht bezahlt.", hint: "Wiederkehrende Betriebsauszahlungen sind operativ." },
+        { text: "Vorauszahlung eines Kunden für einen Auftrag geht ein.", hint: "Kundenanzahlungen erhöhen kurzfristig den operativen Cashflow." }
+      ],
+      investiv: [
+        { text: "Neue Maschine wird gekauft und bezahlt.", hint: "Anlagevermögen vergrössert sich durch Auszahlung." },
+        { text: "Altes Fahrzeug wird verkauft, Zahlung geht ein.", hint: "Verkauf von Anlagegut ist Investitions-Cashflow." },
+        { text: "Software-Lizenz (mehrjährig) wird aktiviert und bezahlt.", hint: "Investition in immaterielle Anlagewerte." },
+        { text: "Umbau des Ladenlokals wird bezahlt.", hint: "Bauliche Investitionen sind investiv." },
+        { text: "Beteiligung an einer anderen Firma wird erworben.", hint: "Finanzanlagen zählen ebenfalls zum investiven Bereich." }
+      ],
+      finanzierend: [
+        { text: "Bankdarlehen wird neu aufgenommen.", hint: "Mittelherkunft von Kapitalgebern ist finanzierend." },
+        { text: "Teilrückzahlung eines Darlehens erfolgt.", hint: "Rückzahlung von Fremdkapital ist finanzierender Cashflow." },
+        { text: "Dividende wird an Eigentümer ausbezahlt.", hint: "Ausschüttungen an Eigentümer sind finanzierend." },
+        { text: "Neue Aktien/Kapitalbeiträge der Eigentümer fliessen zu.", hint: "Eigenkapitalzufluss gehört zur Finanzierung." },
+        { text: "Leasingverbindlichkeit wird ausserplanmässig reduziert.", hint: "Tilgungsanteile betreffen Finanzierung." }
+      ]
+    };
+
+    const areaLabels = {
+      operativ: "Operativer Cashflow",
+      investiv: "Investitions-Cashflow",
+      finanzierend: "Finanzierungs-Cashflow"
+    };
+
+    const el = {
+      modeGrid: document.getElementById("modeGrid"),
+      modeTitle: document.getElementById("modeTitle"),
+      profileTag: document.getElementById("profileTag"),
+      progressTag: document.getElementById("progressTag"),
+      contextBox: document.getElementById("contextBox"),
+      taskArea: document.getElementById("taskArea"),
+      resultDetails: document.getElementById("resultDetails"),
+      resultBody: document.getElementById("resultBody"),
+      footNote: document.getElementById("footNote"),
+      checkBtn: document.getElementById("checkBtn"),
+      computeBtn: document.getElementById("computeBtn"),
+      hintBtn: document.getElementById("hintBtn"),
+      solveBtn: document.getElementById("solveBtn"),
+      remixBtn: document.getElementById("remixBtn"),
+      nextBtn: document.getElementById("nextBtn"),
+      stats: document.getElementById("stats"),
+      feedback: document.getElementById("feedback"),
+      hintBox: document.getElementById("hintBox")
+    };
+
+    let currentModeIndex = -1;
+    let currentProfile = null;
+    let currentTask = null;
+    let hintLevel = 0;
+    let streak = 0;
+    let checkedAtLeastOnce = false;
+    let lastCheck = null;
+    const completedModes = new Set();
+
+    function fmt(value) {
+      return new Intl.NumberFormat("de-CH").format(Math.round(value));
+    }
+
+    function fmtCHF(value) {
+      const sign = value < 0 ? "-" : "";
+      return `${sign}CHF ${fmt(Math.abs(value))}`;
+    }
+
+    function fmtAbsCHF(value) {
+      return `CHF ${fmt(Math.abs(value))}`;
+    }
+
+    function signTerm(value) {
+      return `${value >= 0 ? "+" : "-"} ${fmtAbsCHF(value)}`;
+    }
+
+    function randInt(min, max, step = 1) {
+      const n = Math.floor((max - min) / step);
+      return min + Math.floor(Math.random() * (n + 1)) * step;
+    }
+
+    function sample(arr, count) {
+      const clone = [...arr];
+      for (let i = clone.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [clone[i], clone[j]] = [clone[j], clone[i]];
+      }
+      return clone.slice(0, count);
+    }
+
+    function shuffle(arr) {
+      const clone = [...arr];
+      for (let i = clone.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [clone[i], clone[j]] = [clone[j], clone[i]];
+      }
+      return clone;
+    }
+
+    function hideHint() {
+      el.hintBox.classList.remove("visible");
+      el.hintBox.innerHTML = "";
+    }
+
+    function clearMarks() {
+      document.querySelectorAll(".checkable, .choice, .field").forEach((node) => {
+        node.classList.remove("is-correct", "is-wrong");
+      });
+    }
+
+    function mark(target, ok) {
+      const node = typeof target === "string" ? document.getElementById(target) : target;
+      if (!node) return;
+      node.classList.remove("is-correct", "is-wrong");
+      node.classList.add(ok ? "is-correct" : "is-wrong");
+    }
+
+    function bindResetListeners() {
+      document.querySelectorAll(".checkable").forEach((node) => {
+        node.addEventListener("input", () => node.classList.remove("is-correct", "is-wrong"));
+        node.addEventListener("change", () => node.classList.remove("is-correct", "is-wrong"));
+      });
+    }
+
+    function renderModes() {
+      el.modeGrid.innerHTML = modes.map((mode, idx) => {
+        const active = idx === currentModeIndex ? "active" : "";
+        const done = completedModes.has(mode.id) ? "done" : "";
+        const doneText = completedModes.has(mode.id) ? " · erledigt" : "";
+        return `<button type="button" class="mode-btn ${active} ${done}" data-index="${idx}"><strong>${mode.title}</strong><br>${mode.desc}${doneText}</button>`;
+      }).join("");
+
+      el.modeGrid.querySelectorAll("button").forEach((btn) => {
+        btn.addEventListener("click", () => loadMode(Number(btn.dataset.index)));
+      });
+    }
+
+    function setComputeVisible(show) {
+      el.computeBtn.style.display = show ? "inline-block" : "none";
+    }
+
+    function pickProfile() {
+      return profiles[randInt(0, profiles.length - 1, 1)];
+    }
+
+    function buildZuordnenTask(profile) {
+      const ops = sample(txPool.operativ, 2).map((t) => ({ ...t, area: "operativ" }));
+      const inv = sample(txPool.investiv, 2).map((t) => ({ ...t, area: "investiv" }));
+      const fin = sample(txPool.finanzierend, 2).map((t) => ({ ...t, area: "finanzierend" }));
+      const items = shuffle([...ops, ...inv, ...fin]).map((item, i) => ({ ...item, id: `tx-${i}` }));
+
+      return {
+        type: "zuordnen",
+        context: `${profile.context} Ordnen Sie die Geschäftsfälle korrekt den drei Cashflow-Bereichen zu.`,
+        items
+      };
+    }
+
+    function buildBerechnenTask(profile) {
+      const r = profile.ranges;
+
+      for (let i = 0; i < 160; i += 1) {
+        const profit = randInt(r.profit[0], r.profit[1], r.profit[2]);
+        const depr = randInt(r.depr[0], r.depr[1], r.depr[2]);
+        const adjAr = randInt(r.adjAr[0], r.adjAr[1], r.adjAr[2]);
+        const adjInv = randInt(r.adjInv[0], r.adjInv[1], r.adjInv[2]);
+        const adjVll = randInt(r.adjVll[0], r.adjVll[1], r.adjVll[2]);
+        const adjOther = randInt(r.adjOther[0], r.adjOther[1], r.adjOther[2]);
+
+        const ocf = profit + depr + adjAr + adjInv + adjVll + adjOther;
+
+        const investOut = randInt(r.investOut[0], r.investOut[1], r.investOut[2]);
+        const saleIn = randInt(r.saleIn[0], r.saleIn[1], r.saleIn[2]);
+        const icf = -investOut + saleIn;
+
+        const loanIn = randInt(r.loanIn[0], r.loanIn[1], r.loanIn[2]);
+        const loanRepay = randInt(r.loanRepay[0], r.loanRepay[1], r.loanRepay[2]);
+        const dividend = randInt(r.dividend[0], r.dividend[1], r.dividend[2]);
+        const equityIn = randInt(r.equityIn[0], r.equityIn[1], r.equityIn[2]);
+        const fincf = loanIn - loanRepay - dividend + equityIn;
+
+        const netChange = ocf + icf + fincf;
+        if (Math.abs(netChange) < 40) continue;
+
+        const trend = netChange > 0 ? "nimmt zu" : "nimmt ab";
+
+        return {
+          type: "berechnen",
+          context: `${profile.context} Berechnen Sie die drei Cashflow-Bereiche und die Veränderung der flüssigen Mittel.`,
+          components: {
+            profit,
+            depr,
+            adjAr,
+            adjInv,
+            adjVll,
+            adjOther,
+            investOut,
+            saleIn,
+            loanIn,
+            loanRepay,
+            dividend,
+            equityIn
+          },
+          result: { ocf, icf, fincf, netChange, trend }
+        };
+      }
+
+      return {
+        type: "berechnen",
+        context: `${profile.context} Berechnen Sie die drei Cashflow-Bereiche und die Veränderung der flüssigen Mittel.`,
+        components: {
+          profit: 240,
+          depr: 120,
+          adjAr: -90,
+          adjInv: -60,
+          adjVll: 80,
+          adjOther: -10,
+          investOut: 220,
+          saleIn: 40,
+          loanIn: 140,
+          loanRepay: 90,
+          dividend: 40,
+          equityIn: 0
+        },
+        result: { ocf: 280, icf: -180, fincf: 10, netChange: 110, trend: "nimmt zu" }
+      };
+    }
+
+    function buildEntscheidenTask(profile) {
+      const baseCalc = buildBerechnenTask(profile).result;
+      const pool = shuffle([
+        {
+          id: "debitoren",
+          text: "Mahnprozess schärfen: Debitorenbestand sinkt schneller.",
+          area: "operativ",
+          effect: randInt(60, 180, 10),
+          hint: "Wenn Forderungen schneller eingehen, steigt der operative Cashflow."
+        },
+        {
+          id: "lagerabbau",
+          text: "Lagerumschlag verbessern: Vorräte gezielt abbauen.",
+          area: "operativ",
+          effect: randInt(50, 170, 10),
+          hint: "Weniger gebundenes Kapital im Lager verbessert die Liquidität."
+        },
+        {
+          id: "lieferfrist",
+          text: "Lieferantenkonditionen verhandeln: spätere Zahlung.",
+          area: "operativ",
+          effect: randInt(40, 150, 10),
+          hint: "Spätere Auszahlung erhöht kurzfristig den operativen Cashflow."
+        },
+        {
+          id: "sondertilgung",
+          text: "Zusätzliche Darlehenstilgung im laufenden Quartal.",
+          area: "finanzierend",
+          effect: -randInt(50, 180, 10),
+          hint: "Tilgung senkt die flüssigen Mittel im finanzierenden Bereich."
+        },
+        {
+          id: "maschine",
+          text: "Zusatzinvestition in eine neue Maschine sofort auslösen.",
+          area: "investiv",
+          effect: -randInt(80, 220, 10),
+          hint: "Sofortige Investitionsauszahlung belastet den investiven Cashflow."
+        },
+        {
+          id: "sale_lease_back",
+          text: "Sale-and-Lease-Back für bestehendes Fahrzeug umsetzen.",
+          area: "investiv",
+          effect: randInt(30, 120, 10),
+          hint: "Durch Verkauf entsteht kurzfristig ein Einzahlungseffekt."
+        }
+      ]);
+
+      const options = pool.slice(0, 3);
+      const ranked = [...options].sort((a, b) => b.effect - a.effect);
+      if (ranked[0].effect === ranked[1].effect) {
+        ranked[0].effect += 10;
+      }
+      const best = options.reduce((acc, item) => (item.effect > acc.effect ? item : acc), options[0]);
+
+      return {
+        type: "entscheiden",
+        context: `${profile.context} Welche Massnahme verbessert die Liquidität in den nächsten 3 Monaten am stärksten?`,
+        base: {
+          ocf: baseCalc.ocf,
+          icf: baseCalc.icf,
+          fincf: baseCalc.fincf,
+          netChange: baseCalc.netChange
+        },
+        options,
+        bestId: best.id,
+        bestEffect: best.effect,
+        bestArea: best.area,
+        bestNewNet: baseCalc.netChange + best.effect
+      };
+    }
+
+    function buildTask(mode, profile) {
+      if (mode.id === "zuordnen") return buildZuordnenTask(profile);
+      if (mode.id === "berechnen") return buildBerechnenTask(profile);
+      return buildEntscheidenTask(profile);
+    }
+
+    function renderZuordnen(task) {
+      const rows = task.items.map((item, idx) => `
+        <tr>
+          <td>${idx + 1}. ${item.text}</td>
+          <td>
+            <select id="${item.id}" class="checkable">
+              <option value="">Bitte wählen ...</option>
+              <option value="operativ">Operativer Cashflow</option>
+              <option value="investiv">Investitions-Cashflow</option>
+              <option value="finanzierend">Finanzierungs-Cashflow</option>
+            </select>
+          </td>
+        </tr>
+      `).join("");
+
+      el.taskArea.innerHTML = `
+        <div class="task-block">
+          <h3>Aufgabe</h3>
+          <p class="mini">Ordnen Sie jeden Geschäftsfall dem richtigen Cashflow-Bereich zu (KMU-Praxis).</p>
+        </div>
+        <table class="tx-table">
+          <thead>
+            <tr>
+              <th>Geschäftsfall</th>
+              <th>Zuordnung</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+
+      el.resultDetails.hidden = true;
+      el.footNote.textContent = "Tipp: Operativ = laufender Betrieb, Investiv = Anlagevermögen, Finanzierend = Kapitalstruktur.";
+    }
+
+    function renderBerechnen(task) {
+      const c = task.components;
+      const rowsOp = [
+        ["Jahresgewinn", c.profit],
+        ["+ Abschreibungen", c.depr],
+        ["+/- Veränderung Forderungen (cashwirksam)", c.adjAr],
+        ["+/- Veränderung Vorräte (cashwirksam)", c.adjInv],
+        ["+/- Veränderung Verbindlichkeiten L+L (cashwirksam)", c.adjVll],
+        ["+/- Übrige kurzfristige Positionen (cashwirksam)", c.adjOther]
+      ];
+
+      const rowsInv = [
+        ["- Investitionen ins Anlagevermögen", -c.investOut],
+        ["+ Verkaufserlös aus Anlagevermögen", c.saleIn]
+      ];
+
+      const rowsFin = [
+        ["+ Darlehen aufgenommen", c.loanIn],
+        ["- Darlehen zurückbezahlt", -c.loanRepay],
+        ["- Dividende ausbezahlt", -c.dividend],
+        ["+ Kapitaleinlage", c.equityIn]
+      ];
+
+      const toRows = (rows) => rows.map(([label, value]) => `
+        <tr><td>${label}</td><td class="amount">${fmtCHF(value)}</td></tr>
+      `).join("");
+
+      el.taskArea.innerHTML = `
+        <div class="task-block">
+          <h3>Aufgabe</h3>
+          <p class="mini">Mini-Check zuerst: Antworten prüfen. Die Berechnungsergebnisse werden erst im zweiten Schritt sichtbar.</p>
+        </div>
+        <div class="task-block">
+          <h3>Operativer Bereich (indirekte Methode)</h3>
+          <table class="calc-table">
+            <thead><tr><th>Position</th><th class="amount">Betrag</th></tr></thead>
+            <tbody>${toRows(rowsOp)}</tbody>
+          </table>
+        </div>
+        <div class="inline-grid">
+          <div class="task-block">
+            <h3>Investitionsbereich</h3>
+            <table class="calc-table">
+              <thead><tr><th>Position</th><th class="amount">Betrag</th></tr></thead>
+              <tbody>${toRows(rowsInv)}</tbody>
+            </table>
+          </div>
+          <div class="task-block">
+            <h3>Finanzierungsbereich</h3>
+            <table class="calc-table">
+              <thead><tr><th>Position</th><th class="amount">Betrag</th></tr></thead>
+              <tbody>${toRows(rowsFin)}</tbody>
+            </table>
+          </div>
+        </div>
+        <div class="inline-grid">
+          <div class="field" id="field-ocf"><label for="in-ocf">Operativer Cashflow</label><input class="checkable" id="in-ocf" type="number" step="1" /></div>
+          <div class="field" id="field-icf"><label for="in-icf">Investitions-Cashflow</label><input class="checkable" id="in-icf" type="number" step="1" /></div>
+          <div class="field" id="field-fincf"><label for="in-fincf">Finanzierungs-Cashflow</label><input class="checkable" id="in-fincf" type="number" step="1" /></div>
+          <div class="field" id="field-net"><label for="in-net">Veränderung flüssige Mittel</label><input class="checkable" id="in-net" type="number" step="1" /></div>
+          <div class="field"><label for="trend">Liquidität insgesamt</label>
+            <select id="trend" class="checkable">
+              <option value="">Bitte wählen ...</option>
+              <option value="nimmt zu">nimmt zu</option>
+              <option value="nimmt ab">nimmt ab</option>
+            </select>
+          </div>
+        </div>
+      `;
+
+      el.resultDetails.hidden = false;
+      el.resultDetails.open = false;
+      el.resultBody.innerHTML = "";
+      el.footNote.textContent = "Logik: OCF + ICF + FCF = Veränderung der flüssigen Mittel.";
+    }
+
+    function renderEntscheiden(task) {
+      const options = task.options.map((opt) => `
+        <label class="choice" id="opt-${opt.id}">
+          <input class="checkable" type="radio" name="decision" value="${opt.id}" />
+          <span>
+            ${opt.text}<br>
+            <small>Erwartete Zusatzwirkung: <strong>${fmtCHF(opt.effect)}</strong> auf ${areaLabels[opt.area]}</small>
+          </span>
+        </label>
+      `).join("");
+
+      el.taskArea.innerHTML = `
+        <div class="task-block">
+          <h3>Ausgangslage (3 Monate)</h3>
+          <table class="calc-table">
+            <thead><tr><th>Bereich</th><th class="amount">Aktueller Wert</th></tr></thead>
+            <tbody>
+              <tr><td>Operativer Cashflow</td><td class="amount">${fmtCHF(task.base.ocf)}</td></tr>
+              <tr><td>Investitions-Cashflow</td><td class="amount">${fmtCHF(task.base.icf)}</td></tr>
+              <tr><td>Finanzierungs-Cashflow</td><td class="amount">${fmtCHF(task.base.fincf)}</td></tr>
+              <tr><td><strong>Veränderung flüssige Mittel</strong></td><td class="amount"><strong>${fmtCHF(task.base.netChange)}</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="task-block">
+          <h3>Aufgabe</h3>
+          <p class="mini">Wählen Sie die wirksamste Massnahme. Bestimmen Sie danach (1) die Verbesserung und (2) die neue Netto-Veränderung der flüssigen Mittel.</p>
+          <div class="choice-list">${options}</div>
+        </div>
+        <div class="inline-grid">
+          <div class="field" id="field-effect">
+            <label for="best-effect">Verbesserung ggü. Ausgangslage (CHF)</label>
+            <input class="checkable" id="best-effect" type="number" step="1" />
+          </div>
+          <div class="field" id="field-new-net">
+            <label for="best-new-net">Neue Veränderung flüssige Mittel (CHF)</label>
+            <input class="checkable" id="best-new-net" type="number" step="1" />
+          </div>
+          <div class="field" id="field-area">
+            <label for="best-area">Primär betroffener Bereich</label>
+            <select id="best-area" class="checkable">
+              <option value="">Bitte wählen ...</option>
+              <option value="operativ">Operativer Cashflow</option>
+              <option value="investiv">Investitions-Cashflow</option>
+              <option value="finanzierend">Finanzierungs-Cashflow</option>
+            </select>
+          </div>
+        </div>
+      `;
+
+      el.resultDetails.hidden = true;
+      el.footNote.textContent = "Basis: Neue Liquidität = aktuelle Netto-Veränderung + Zusatzwirkung der gewählten Massnahme.";
+    }
+
+    function renderTask(task) {
+      if (task.type === "zuordnen") renderZuordnen(task);
+      else if (task.type === "berechnen") renderBerechnen(task);
+      else renderEntscheiden(task);
+      bindResetListeners();
+    }
+
+    function setModeMeta(mode, profile) {
+      el.modeTitle.textContent = `${mode.title}`;
+      el.profileTag.textContent = `Profil: ${profile.name}`;
+      el.progressTag.textContent = `Modus ${currentModeIndex + 1} von ${modes.length}`;
+      el.contextBox.textContent = currentTask.context;
+    }
+
+    function loadMode(index) {
+      currentModeIndex = index;
+      currentProfile = pickProfile();
+      currentTask = buildTask(modes[index], currentProfile);
+      hintLevel = 0;
+      checkedAtLeastOnce = false;
+      lastCheck = null;
+      hideHint();
+      clearMarks();
+      setModeMeta(modes[index], currentProfile);
+      renderTask(currentTask);
+      renderModes();
+      setComputeVisible(currentTask.type === "berechnen");
+      el.feedback.textContent = "Bearbeiten Sie die Aufgabe und klicken Sie auf Antworten prüfen.";
+    }
+
+    function checkZuordnen(task) {
+      const missing = task.items.some((item) => !document.getElementById(item.id).value);
+      if (missing) {
+        el.feedback.textContent = "Bitte alle Geschäftsfälle zuordnen.";
+        return { ok: false, total: task.items.length, wrongCount: task.items.length, hints: [] };
+      }
+
+      let wrongCount = 0;
+      const hints = [];
+
+      task.items.forEach((item) => {
+        const field = document.getElementById(item.id);
+        const ok = field.value === item.area;
+        mark(field, ok);
+        if (!ok) {
+          wrongCount += 1;
+          hints.push(item.hint);
+        }
+      });
+
+      return { ok: wrongCount === 0, total: task.items.length, wrongCount, hints };
+    }
+
+    function checkBerechnen(task) {
+      const ids = ["in-ocf", "in-icf", "in-fincf", "in-net", "trend"];
+      const missing = ids.some((id) => String(document.getElementById(id).value).trim() === "");
+      if (missing) {
+        el.feedback.textContent = "Bitte alle Felder ausfüllen.";
+        return { ok: false, total: 5, wrongCount: 5, hints: [] };
+      }
+
+      let wrongCount = 0;
+      const hints = [];
+      const expect = task.result;
+
+      const checks = [
+        ["in-ocf", expect.ocf, "Operativer Cashflow: Summe aller operativen Komponenten (inkl. Working Capital).", "field-ocf"],
+        ["in-icf", expect.icf, "Investitions-Cashflow: Investitionen sind negativ, Verkäufe positiv.", "field-icf"],
+        ["in-fincf", expect.fincf, "Finanzierungs-Cashflow: Mittelaufnahme minus Rückzahlungen und Ausschüttungen.", "field-fincf"],
+        ["in-net", expect.netChange, "Veränderung flüssige Mittel: OCF + ICF + FCF.", "field-net"]
+      ];
+
+      checks.forEach(([id, value, hint, wrapId]) => {
+        const field = document.getElementById(id);
+        const ok = Number(field.value) === value;
+        mark(field, ok);
+        mark(wrapId, ok);
+        if (!ok) {
+          wrongCount += 1;
+          hints.push(hint);
+        }
+      });
+
+      const trend = document.getElementById("trend");
+      const trendOk = trend.value === expect.trend;
+      mark(trend, trendOk);
+      if (!trendOk) {
+        wrongCount += 1;
+        hints.push("Trend aus Vorzeichen ableiten: positives Total = nimmt zu, negatives Total = nimmt ab.");
+      }
+
+      return { ok: wrongCount === 0, total: 5, wrongCount, hints };
+    }
+
+    function checkEntscheiden(task) {
+      const selected = document.querySelector('input[name="decision"]:checked');
+      const effectField = document.getElementById("best-effect");
+      const newNetField = document.getElementById("best-new-net");
+      const areaField = document.getElementById("best-area");
+
+      if (!selected || String(effectField.value).trim() === "" || String(newNetField.value).trim() === "" || String(areaField.value).trim() === "") {
+        el.feedback.textContent = "Bitte Massnahme, Verbesserung, neue Netto-Veränderung und Bereich vollständig angeben.";
+        return { ok: false, total: 4, wrongCount: 4, hints: [] };
+      }
+
+      let wrongCount = 0;
+      const hints = [];
+
+      task.options.forEach((opt) => {
+        const wrap = document.getElementById(`opt-${opt.id}`);
+        const chosen = selected.value === opt.id;
+        if (chosen) {
+          const ok = opt.id === task.bestId;
+          mark(wrap, ok);
+          if (!ok) {
+            wrongCount += 1;
+            hints.push("Vergleichen Sie die direkte CHF-Wirkung aller Optionen auf die flüssigen Mittel.");
+          }
+        } else {
+          wrap.classList.remove("is-correct", "is-wrong");
+        }
+      });
+
+      const effectOk = Number(effectField.value) === task.bestEffect;
+      mark(effectField, effectOk);
+      mark("field-effect", effectOk);
+      if (!effectOk) {
+        wrongCount += 1;
+        hints.push("Die Verbesserung ist die ausgewiesene Zusatzwirkung der besten Option.");
+      }
+
+      const newNetOk = Number(newNetField.value) === task.bestNewNet;
+      mark(newNetField, newNetOk);
+      mark("field-new-net", newNetOk);
+      if (!newNetOk) {
+        wrongCount += 1;
+        hints.push("Neue Netto-Veränderung = Ausgangslage (Netto) + Verbesserung.");
+      }
+
+      const areaOk = areaField.value === task.bestArea;
+      mark(areaField, areaOk);
+      mark("field-area", areaOk);
+      if (!areaOk) {
+        wrongCount += 1;
+        hints.push("Ordnen Sie die beste Option dem primär betroffenen Cashflow-Bereich zu.");
+      }
+
+      return { ok: wrongCount === 0, total: 4, wrongCount, hints };
+    }
+
+    function renderFeedback(result) {
+      if (result.ok) {
+        streak += 1;
+        completedModes.add(modes[currentModeIndex].id);
+        el.stats.textContent = `Serie ${streak}`;
+        renderModes();
+        el.feedback.innerHTML = "<strong>Sehr gut: alles korrekt.</strong> Sie können einen neuen Fall starten oder den nächsten Modus wählen.";
+        return;
+      }
+
+      streak = 0;
+      el.stats.textContent = "Serie 0";
+      const score = result.total - result.wrongCount;
+      const hintList = result.hints.slice(0, 3).map((h) => `<li>${h}</li>`).join("");
+      el.feedback.innerHTML = `<strong>${score}/${result.total} korrekt.</strong> Korrigieren Sie die markierten Felder.${hintList ? `<ul>${hintList}</ul>` : ""}`;
+    }
+
+    function check() {
+      if (!currentTask) {
+        el.feedback.textContent = "Bitte zuerst einen Modus auswählen.";
+        return;
+      }
+
+      let result;
+      if (currentTask.type === "zuordnen") result = checkZuordnen(currentTask);
+      else if (currentTask.type === "berechnen") result = checkBerechnen(currentTask);
+      else result = checkEntscheiden(currentTask);
+
+      checkedAtLeastOnce = true;
+      lastCheck = result;
+      renderFeedback(result);
+    }
+
+    function renderCalculationResult(task) {
+      const r = task.result;
+      const maxAbs = Math.max(Math.abs(r.ocf), Math.abs(r.icf), Math.abs(r.fincf), Math.abs(r.netChange), 1);
+      const width = (value) => Math.max(3, Math.round((Math.abs(value) / maxAbs) * 100));
+      const bar = (label, value) => `
+        <div class="bar-row">
+          <span>${label}</span>
+          <div class="track"><div class="fill ${value >= 0 ? "pos" : "neg"}" style="width:${width(value)}%"></div></div>
+          <strong>${fmtCHF(value)}</strong>
+        </div>
+      `;
+
+      el.resultBody.innerHTML = `
+        <div class="mini">
+          Operativer Cashflow: ${fmtCHF(r.ocf)} · Investitions-Cashflow: ${fmtCHF(r.icf)} ·
+          Finanzierungs-Cashflow: ${fmtCHF(r.fincf)}
+        </div>
+        <div class="bar-list">
+          ${bar("Operativ", r.ocf)}
+          ${bar("Investiv", r.icf)}
+          ${bar("Finanzierend", r.fincf)}
+          ${bar("Netto", r.netChange)}
+        </div>
+        <div class="mini" style="margin-top:8px;">
+          Interpretation: Die Liquidität <strong>${r.trend}</strong> (${fmtCHF(r.netChange)}).
+        </div>
+      `;
+    }
+
+    function showCalculation() {
+      if (!currentTask || currentTask.type !== "berechnen") {
+        el.feedback.textContent = "Berechnung anzeigen ist nur im Modus 2 verfügbar.";
+        return;
+      }
+
+      if (!checkedAtLeastOnce) {
+        el.feedback.textContent = "Bitte zuerst Antworten prüfen.";
+        return;
+      }
+
+      if (!lastCheck || !lastCheck.ok) {
+        el.feedback.textContent = "Korrigieren Sie zuerst die markierten Felder. Danach kann die Berechnung angezeigt werden.";
+        return;
+      }
+
+      renderCalculationResult(currentTask);
+      el.resultDetails.open = true;
+      el.feedback.textContent = "Berechnung erfolgreich eingeblendet. Sie können den Fall jetzt interpretieren.";
+    }
+
+    function hint() {
+      if (!currentTask) {
+        el.feedback.textContent = "Bitte zuerst einen Modus auswählen.";
+        return;
+      }
+
+      hintLevel += 1;
+      let html = "";
+
+      if (currentTask.type === "zuordnen") {
+        if (hintLevel === 1) {
+          html = "<strong>Tipp 1 - Entscheidungsweg:</strong><br>1) Betrifft der Fall das Tagesgeschäft? → <strong>operativ</strong><br>2) Betrifft er Anlagevermögen? → <strong>investiv</strong><br>3) Betrifft er Darlehen, Kapital oder Ausschüttungen? → <strong>finanzierend</strong>";
+        } else if (hintLevel === 2) {
+          html = "<strong>Tipp 2 - Prüfung pro Fall:</strong><br>Fragen Sie immer: Ist es Mittelverwendung oder Mittelherkunft und in welchem Bereich entsteht sie?";
+        } else {
+          html = "<strong>Tipp 3 - Merksatz:</strong><br>Operativ = laufender Betrieb, Investiv = langfristige Mittelverwendung/-freisetzung, Finanzierend = Kapitalstruktur.";
+        }
+      } else if (currentTask.type === "berechnen") {
+        const c = currentTask.components;
+        const r = currentTask.result;
+
+        if (hintLevel === 1) {
+          html = "<strong>Tipp 1 - Rechenreihenfolge:</strong><br>1) OCF berechnen<br>2) ICF berechnen<br>3) FCF berechnen<br>4) Netto-Veränderung = OCF + ICF + FCF<br>5) Trend aus Vorzeichen ableiten";
+        } else if (hintLevel === 2) {
+          html = `
+            <strong>Tipp 2 - Zahlen einsetzen:</strong>
+            <ul>
+              <li>OCF = ${fmtCHF(c.profit)} + ${fmtCHF(c.depr)} ${signTerm(c.adjAr)} ${signTerm(c.adjInv)} ${signTerm(c.adjVll)} ${signTerm(c.adjOther)}</li>
+              <li>ICF = - ${fmtAbsCHF(c.investOut)} + ${fmtCHF(c.saleIn)}</li>
+              <li>FCF = + ${fmtAbsCHF(c.loanIn)} - ${fmtAbsCHF(c.loanRepay)} - ${fmtAbsCHF(c.dividend)} + ${fmtAbsCHF(c.equityIn)}</li>
+              <li>Netto = OCF + ICF + FCF</li>
+            </ul>
+          `;
+        } else {
+          html = `
+            <strong>Tipp 3 - Vollständiger Lösungsweg:</strong>
+            <ul>
+              <li>OCF = ${fmtCHF(c.profit)} + ${fmtCHF(c.depr)} ${signTerm(c.adjAr)} ${signTerm(c.adjInv)} ${signTerm(c.adjVll)} ${signTerm(c.adjOther)} = <strong>${fmtCHF(r.ocf)}</strong></li>
+              <li>ICF = - ${fmtAbsCHF(c.investOut)} + ${fmtCHF(c.saleIn)} = <strong>${fmtCHF(r.icf)}</strong></li>
+              <li>FCF = + ${fmtAbsCHF(c.loanIn)} - ${fmtAbsCHF(c.loanRepay)} - ${fmtAbsCHF(c.dividend)} + ${fmtAbsCHF(c.equityIn)} = <strong>${fmtCHF(r.fincf)}</strong></li>
+              <li>Netto = ${fmtCHF(r.ocf)} + ${fmtCHF(r.icf)} + ${fmtCHF(r.fincf)} = <strong>${fmtCHF(r.netChange)}</strong></li>
+              <li>Trend: <strong>${r.trend}</strong></li>
+            </ul>
+          `;
+        }
+      } else {
+        const baseNet = currentTask.base.netChange;
+        const optionLines = currentTask.options.map((opt) => {
+          const newNet = baseNet + opt.effect;
+          return `<li>${opt.text}<br>${fmtCHF(baseNet)} ${signTerm(opt.effect)} = <strong>${fmtCHF(newNet)}</strong></li>`;
+        }).join("");
+
+        if (hintLevel === 1) {
+          html = `<strong>Tipp 1 - Rechenweg:</strong><br>Neue Netto-Veränderung je Option = Ausgangslage (${fmtCHF(baseNet)}) + Zusatzwirkung der Option.`;
+        } else if (hintLevel === 2) {
+          html = `<strong>Tipp 2 - Pro Option rechnen:</strong><ul>${optionLines}</ul>`;
+        } else {
+          html = `
+            <strong>Tipp 3 - Ergebnislogik:</strong>
+            <ul>
+              <li>Beste Option = höchste neue Netto-Veränderung</li>
+              <li>Verbesserung ggü. Ausgangslage = <strong>${fmtCHF(currentTask.bestEffect)}</strong></li>
+              <li>Neue Netto-Veränderung = <strong>${fmtCHF(currentTask.bestNewNet)}</strong></li>
+              <li>Bereich = <strong>${areaLabels[currentTask.bestArea]}</strong></li>
+            </ul>
+          `;
+        }
+      }
+
+      el.hintBox.innerHTML = html;
+      el.hintBox.classList.add("visible");
+    }
+
+    function solve() {
+      if (!currentTask) {
+        el.feedback.textContent = "Bitte zuerst einen Modus auswählen.";
+        return;
+      }
+
+      if (currentTask.type === "zuordnen") {
+        currentTask.items.forEach((item) => {
+          const field = document.getElementById(item.id);
+          field.value = item.area;
+          mark(field, true);
+        });
+      } else if (currentTask.type === "berechnen") {
+        const r = currentTask.result;
+        document.getElementById("in-ocf").value = r.ocf;
+        document.getElementById("in-icf").value = r.icf;
+        document.getElementById("in-fincf").value = r.fincf;
+        document.getElementById("in-net").value = r.netChange;
+        document.getElementById("trend").value = r.trend;
+        ["in-ocf", "in-icf", "in-fincf", "in-net", "trend", "field-ocf", "field-icf", "field-fincf", "field-net"].forEach((id) => mark(id, true));
+        renderCalculationResult(currentTask);
+        el.resultDetails.open = true;
+      } else {
+        const best = currentTask.options.find((opt) => opt.id === currentTask.bestId);
+        const radio = document.querySelector(`input[name="decision"][value="${best.id}"]`);
+        if (radio) radio.checked = true;
+        mark(`opt-${best.id}`, true);
+        document.getElementById("best-effect").value = currentTask.bestEffect;
+        document.getElementById("best-new-net").value = currentTask.bestNewNet;
+        document.getElementById("best-area").value = currentTask.bestArea;
+        mark("best-effect", true);
+        mark("best-new-net", true);
+        mark("best-area", true);
+        mark("field-effect", true);
+        mark("field-new-net", true);
+        mark("field-area", true);
+      }
+
+      checkedAtLeastOnce = true;
+      lastCheck = { ok: true, total: 1, wrongCount: 0, hints: [] };
+      el.feedback.textContent = "Lösung eingetragen. Starten Sie jetzt einen neuen Fall oder wechseln Sie den Modus.";
+    }
+
+    function remix() {
+      if (currentModeIndex < 0) {
+        el.feedback.textContent = "Bitte zuerst einen Modus auswählen.";
+        return;
+      }
+      loadMode(currentModeIndex);
+    }
+
+    function nextMode() {
+      if (currentModeIndex < 0) {
+        el.feedback.textContent = "Bitte zuerst einen Modus auswählen.";
+        return;
+      }
+      const next = (currentModeIndex + 1) % modes.length;
+      loadMode(next);
+    }
+
+    el.checkBtn.addEventListener("click", check);
+    el.computeBtn.addEventListener("click", showCalculation);
+    el.hintBtn.addEventListener("click", hint);
+    el.solveBtn.addEventListener("click", solve);
+    el.remixBtn.addEventListener("click", remix);
+    el.nextBtn.addEventListener("click", nextMode);
+
+    renderModes();
+    setComputeVisible(false);
+  </script>
+</body>
+</html>
