@@ -1,0 +1,1728 @@
+<!doctype html>
+<html lang="de-CH">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wirtschaftskreislauf Explorer (erweitert)</title>
+  <style>
+    :root {
+      --paper: #fffdf8;
+      --ink: #1f2937;
+      --muted: #5b6470;
+      --line: #e7ddd0;
+      --brand: #0d6447;
+      --brand2: #154a87;
+      --money: #1d4ed8;
+      --money-soft: #e8efff;
+      --real: #b45309;
+      --real-soft: #fff1e6;
+      --node-a: #e9f8ef;
+      --node-b: #e8f1ff;
+      --node-c: #fff4e8;
+      --node-d: #ecfeff;
+      --node-e: #f3f4f6;
+      --active: #c2410c;
+      --ok: #166534;
+      --warn: #b45309;
+      --bad: #b91c1c;
+      --ok-soft: #ecfdf3;
+      --warn-soft: #fff7ed;
+      --bad-soft: #fef2f2;
+      --shadow: 0 14px 34px rgba(31, 41, 55, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 8%, #dcefe0 0%, transparent 30%),
+        radial-gradient(circle at 90% 16%, #dfeaff 0%, transparent 28%),
+        linear-gradient(180deg, #f8f4ed, #f1e9dd);
+      padding: 16px;
+      overflow-x: hidden;
+    }
+
+    .app {
+      max-width: 1440px;
+      margin: 0 auto;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 16px;
+      --control-pad: 7px;
+      --control-label: 0.78rem;
+      --control-input: 0.83rem;
+      --flow-grid-max: clamp(170px, 33vh, 300px);
+      --saldo-grid-max: clamp(130px, 24vh, 230px);
+      --control-col: 320px;
+    }
+
+    .app.density-compact {
+      --control-pad: 5px;
+      --control-label: 0.74rem;
+      --control-input: 0.78rem;
+      --flow-grid-max: clamp(150px, 30vh, 255px);
+      --saldo-grid-max: clamp(120px, 22vh, 190px);
+    }
+
+    .app.density-large {
+      --control-pad: 9px;
+      --control-label: 0.82rem;
+      --control-input: 0.88rem;
+      --flow-grid-max: clamp(200px, 37vh, 350px);
+      --saldo-grid-max: clamp(150px, 27vh, 250px);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid #b9dbc7;
+      background: #e8f7ef;
+      color: var(--brand);
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.2rem, 2.6vw, 1.9rem);
+      color: #143528;
+    }
+
+    .lead {
+      margin: 8px 0 0;
+      color: var(--muted);
+      line-height: 1.42;
+      max-width: 100ch;
+      font-size: 0.94rem;
+    }
+
+    .intro-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .btn-intro {
+      background: #f7f4ed;
+      border: 1px solid #e0d4c4;
+      color: #253043;
+      font-weight: 700;
+      padding: 7px 10px;
+    }
+
+    .intro-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 0;
+      max-height: 0;
+      opacity: 0;
+      overflow: hidden;
+      pointer-events: none;
+      transform: translateY(-3px);
+      transition: max-height 0.22s ease, opacity 0.16s ease, transform 0.2s ease, margin-bottom 0.2s ease;
+    }
+
+    .intro-grid.open {
+      max-height: 380px;
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+      margin-bottom: 10px;
+    }
+
+    .intro {
+      border: 1px solid #e4dbce;
+      border-radius: 10px;
+      background: #fffdf8;
+      padding: 8px;
+    }
+
+    .intro h3 {
+      margin: 0 0 5px;
+      font-size: 0.86rem;
+      color: #244168;
+    }
+
+    .mini {
+      margin: 0;
+      color: #596273;
+      font-size: 0.82rem;
+      line-height: 1.35;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, var(--control-col)) minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+    }
+
+    .layout.controls-collapsed {
+      grid-template-columns: 78px minmax(0, 1fr);
+    }
+
+    .card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .card-head h2 {
+      margin: 0;
+    }
+
+    .btn-collapse {
+      background: #ecf2ff;
+      border: 1px solid #ccdaef;
+      color: #1f3451;
+      white-space: nowrap;
+      padding: 7px 9px;
+    }
+
+    .btn-collapse:disabled {
+      opacity: 0.62;
+      cursor: not-allowed;
+      transform: none;
+      filter: none;
+    }
+
+    .control-content {
+      display: block;
+    }
+
+    .display-tools {
+      border: 1px solid #e5dcca;
+      border-radius: 9px;
+      background: #fffcf5;
+      padding: 7px;
+      margin-bottom: 8px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .display-tools .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .btn-density {
+      background: #f3f5f8;
+      border: 1px solid #d7deea;
+      color: #20334f;
+    }
+
+    .btn-density.active {
+      background: #e8efff;
+      border-color: #1d4ed8;
+      box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.11);
+    }
+
+    .width-label {
+      font-size: 0.77rem;
+      font-weight: 700;
+      color: #3b475a;
+    }
+
+    .width-value {
+      display: inline-block;
+      min-width: 48px;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      color: #1d4ed8;
+    }
+
+    .layout.controls-collapsed .control-card {
+      padding: 8px 6px;
+    }
+
+    .layout.controls-collapsed .control-card .card-head {
+      flex-direction: column;
+      align-items: stretch;
+      margin-bottom: 0;
+    }
+
+    .layout.controls-collapsed .control-card h2 {
+      font-size: 0;
+      line-height: 0;
+      height: 0;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    .layout.controls-collapsed .control-content {
+      display: none;
+    }
+
+    .layout.controls-collapsed .btn-collapse {
+      width: 100%;
+      min-height: 136px;
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      padding: 12px 5px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      padding: 10px;
+    }
+
+    .card h2 {
+      margin: 0 0 8px;
+      font-size: 1rem;
+      color: #1b3553;
+    }
+
+    .sub {
+      margin: 0 0 8px;
+      color: var(--muted);
+      font-size: 0.84rem;
+      line-height: 1.35;
+    }
+
+    .preset-row,
+    .mode-row,
+    .tools-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 10px;
+      padding: 7px 10px;
+      font: inherit;
+      font-weight: 700;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: transform 0.12s ease, filter 0.12s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.04);
+    }
+
+    .btn-main {
+      background: var(--brand2);
+      color: #fff;
+    }
+
+    .btn-soft {
+      background: #f0e9de;
+      border: 1px solid #e0d4c4;
+      color: #2a313b;
+    }
+
+    .btn-preset.active {
+      background: var(--brand2);
+      border-color: #154a87;
+      color: #fff;
+      box-shadow: 0 0 0 3px rgba(21, 74, 135, 0.15);
+    }
+
+    .btn-action.action-hit {
+      background: #e8f7ef;
+      border-color: #a9d9bf;
+      color: #0f5d43;
+      box-shadow: 0 0 0 3px rgba(13, 100, 71, 0.12);
+    }
+
+    .btn-open-controls {
+      display: none;
+      margin-left: auto;
+      background: #ecf2ff;
+      border: 1px solid #ccdaef;
+      color: #1f3451;
+      white-space: nowrap;
+    }
+
+    .layout.controls-collapsed .btn-open-controls {
+      display: inline-block;
+    }
+
+    .btn-mode {
+      background: #f6f9ff;
+      color: #1f3451;
+      border: 1px solid #d7e2f1;
+    }
+
+    .btn-mode.active {
+      border-color: #1d4ed8;
+      box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.12);
+      background: #eef4ff;
+    }
+
+    .btn-focus {
+      margin-left: auto;
+      background: #fff9dc;
+      border: 1px solid #f5d77a;
+      color: #6f5208;
+      font-weight: 800;
+    }
+
+    .btn-focus.active {
+      background: linear-gradient(180deg, #ffe86c, #ffd84d);
+      border-color: #e8bf2a;
+      box-shadow: 0 0 0 3px rgba(255, 216, 77, 0.35);
+      color: #5f4600;
+    }
+
+    .control-grid {
+      display: grid;
+      gap: 6px;
+      max-height: none;
+      overflow: visible;
+      padding-right: 0;
+    }
+
+    .control-grid.scrolling {
+      overflow: auto;
+      padding-right: 3px;
+    }
+
+    .control {
+      border: 1px solid #ebe1d3;
+      border-radius: 9px;
+      background: #fffdfa;
+      padding: var(--control-pad);
+    }
+
+    .control label {
+      display: block;
+      font-size: var(--control-label);
+      font-weight: 700;
+      color: #2a3343;
+      margin-bottom: 5px;
+      line-height: 1.24;
+    }
+
+    .control .row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 90px;
+      gap: 6px;
+      align-items: center;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: #0f6c4d;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      border: 1px solid #d5ccc0;
+      border-radius: 8px;
+      padding: 6px 7px;
+      text-align: right;
+      font: inherit;
+      font-size: var(--control-input);
+      background: #fff;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+      color: #4f5c6f;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      display: inline-block;
+      margin-right: 5px;
+      vertical-align: middle;
+    }
+
+    .dot.money { background: var(--money); }
+    .dot.real { background: var(--real); }
+
+    .canvas-wrap {
+      border: 1px solid #ddd3c5;
+      border-radius: 11px;
+      background: linear-gradient(180deg, #ffffff, #fcfbf8);
+      padding: 10px;
+      overflow: auto;
+      margin-bottom: 8px;
+    }
+
+    svg {
+      width: 100%;
+      min-width: 640px;
+      height: auto;
+      display: block;
+    }
+
+    .flow {
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      opacity: 0.78;
+      transition: opacity 0.16s ease, stroke-width 0.16s ease, filter 0.16s ease;
+    }
+
+    .flow.money {
+      stroke: var(--money);
+      stroke-dasharray: 11 9;
+      animation: flowMove 2.2s linear infinite;
+    }
+
+    .flow.real {
+      stroke: var(--real);
+      stroke-dasharray: 7 11;
+      animation: flowMoveReverse 2.9s linear infinite;
+    }
+
+    .flow.related {
+      opacity: 0.9;
+    }
+
+    .flow.faded {
+      opacity: 0.1;
+      filter: none;
+    }
+
+    .flow.active {
+      opacity: 1;
+      filter: drop-shadow(0 0 5px rgba(194, 65, 12, 0.35));
+    }
+
+    .flow-zone {
+      fill: none;
+      stroke: #eaf0fa;
+      stroke-width: 1.3;
+      stroke-dasharray: 6 8;
+    }
+
+    .flow-zone.trade {
+      stroke: #efe6d8;
+    }
+
+    .flow-zone.finance {
+      stroke: #e4edf8;
+    }
+
+    .bg-label {
+      fill: #64748b;
+      font-size: 15px;
+      font-weight: 700;
+      text-anchor: middle;
+    }
+
+    .node {
+      cursor: grab;
+    }
+
+    .node rect {
+      stroke: #90a4c4;
+      stroke-width: 1.7;
+      rx: 15;
+      filter: drop-shadow(0 2px 2px rgba(15, 23, 42, 0.08));
+    }
+
+    .node text {
+      pointer-events: none;
+      fill: #1f3451;
+      font-size: 16px;
+      font-weight: 800;
+      text-anchor: middle;
+    }
+
+    .node .subtxt {
+      font-size: 11px;
+      font-weight: 600;
+      fill: #4a607f;
+    }
+
+    .node.active rect {
+      stroke: var(--active);
+      stroke-width: 3;
+    }
+
+    .node.active text {
+      fill: #7c2d12;
+    }
+
+    .flow-badge rect {
+      fill: rgba(255, 255, 255, 0.9);
+      stroke: #d4ddeb;
+      stroke-width: 1;
+      rx: 8;
+    }
+
+    .flow-badge text {
+      fill: #334155;
+      font-size: 12px;
+      font-weight: 700;
+      text-anchor: middle;
+    }
+
+    .flow-badge.active rect {
+      fill: rgba(255, 247, 237, 0.98);
+      stroke: #c2410c;
+    }
+
+    .flow-badge.active text {
+      fill: #7c2d12;
+    }
+
+    .bottom-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) minmax(0, 1fr);
+      gap: 8px;
+    }
+
+    .info,
+    .flow-list,
+    .saldo {
+      border: 1px solid #e4dbce;
+      border-radius: 10px;
+      background: #fffdf8;
+      padding: 8px;
+      min-width: 0;
+    }
+
+    .info h3,
+    .flow-list h3,
+    .saldo h3 {
+      margin: 0 0 6px;
+      font-size: 0.9rem;
+      color: #234061;
+    }
+
+    .flow-table {
+      max-height: var(--flow-grid-max);
+      overflow: auto;
+      border: 1px solid #e6dece;
+      border-radius: 9px;
+      background: #fff;
+    }
+
+    .flow-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 7px;
+      align-items: center;
+      border-bottom: 1px solid #f0e8db;
+      padding: 6px 7px;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+
+    .flow-row:last-child {
+      border-bottom: none;
+    }
+
+    .flow-row.active {
+      background: #fff7ed;
+      outline: 1px solid #fdba74;
+    }
+
+    .flow-row.related {
+      background: #f7fbff;
+    }
+
+    .flow-row.faded {
+      opacity: 0.46;
+    }
+
+    .pill {
+      border-radius: 999px;
+      padding: 2px 7px;
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+
+    .pill.money {
+      color: #1d4ed8;
+      border: 1px solid #bfdbfe;
+      background: #eff6ff;
+    }
+
+    .pill.real {
+      color: #b45309;
+      border: 1px solid #fed7aa;
+      background: #fff7ed;
+    }
+
+    .amount {
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+      font-weight: 800;
+    }
+
+    .amount.pos { color: var(--ok); }
+    .amount.neg { color: var(--bad); }
+
+    .saldo-list {
+      display: grid;
+      gap: 5px;
+      margin-top: 5px;
+      max-height: var(--saldo-grid-max);
+      overflow: auto;
+    }
+
+    .saldo-item {
+      border: 1px solid #e7ded1;
+      border-radius: 9px;
+      background: #fff;
+      padding: 6px 7px;
+      display: grid;
+      gap: 4px;
+      font-size: 0.82rem;
+    }
+
+    .saldo-main {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .saldo-comment {
+      margin: 0;
+      color: #5b6470;
+      font-size: 0.78rem;
+      line-height: 1.3;
+    }
+
+    .status {
+      margin-top: 6px;
+      border-radius: 9px;
+      padding: 7px 8px;
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .status.ok {
+      background: var(--ok-soft);
+      border: 1px solid #b7e0c7;
+      color: var(--ok);
+    }
+
+    .status.warn {
+      background: var(--warn-soft);
+      border: 1px solid #f0c89b;
+      color: var(--warn);
+    }
+
+    .status.bad {
+      background: var(--bad-soft);
+      border: 1px solid #f3c0c0;
+      color: var(--bad);
+    }
+
+    @keyframes flowMove {
+      from { stroke-dashoffset: 0; }
+      to { stroke-dashoffset: -60; }
+    }
+
+    @keyframes flowMoveReverse {
+      from { stroke-dashoffset: 0; }
+      to { stroke-dashoffset: 60; }
+    }
+
+    @media (max-width: 760px) {
+      .control-grid {
+        max-height: none;
+      }
+
+      .intro-grid.open {
+        max-height: 620px;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .intro-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .bottom-grid {
+        grid-template-columns: 1.2fr 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .intro-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <span class="badge">INTERAKTIVES ELEMENT: Wirtschaftskreislauf</span>
+    <h1>Erweiterter Wirtschaftskreislauf Explorer</h1>
+    <div class="intro-head">
+      <p class="lead">Interaktiver Überblick zu Geld- und Güterströmen mit Salden-Kommentaren pro Sektor.</p>
+      <button type="button" class="btn-intro" id="toggleIntro" aria-expanded="false">Hinweise anzeigen</button>
+    </div>
+
+    <section class="intro-grid" id="introGrid">
+      <article class="intro">
+        <h3>1) Leselogik</h3>
+        <p class="mini">Blaue Linien sind Geldströme, orange Linien sind Güter-/Leistungsströme. Dickere Linien bedeuten grössere Beträge.</p>
+      </article>
+      <article class="intro">
+        <h3>2) Interaktion</h3>
+        <p class="mini">Klicken Sie Flüsse oder Sektoren für Erklärungen. Ziehen Sie Sektoren per Maus, um die Struktur räumlich besser zu verstehen.</p>
+      </article>
+      <article class="intro">
+        <h3>3) Interpretation</h3>
+        <p class="mini">Positiver Saldowert = Nettozufluss eines Sektors. Negativer Wert = Nettoabfluss bzw. Finanzierungsbedarf.</p>
+      </article>
+      <article class="intro">
+        <h3>4) Didaktischer Fokus</h3>
+        <p class="mini">Die Kommentare zeigen, was die aktuelle Konstellation konkret für Haushalte, Firmen, Staat, Banken und Ausland bedeutet.</p>
+      </article>
+    </section>
+
+    <section class="layout" id="mainLayout">
+      <article class="card control-card">
+        <div class="card-head">
+          <h2>Steuerung</h2>
+          <button type="button" class="btn-collapse" id="toggleControls" aria-expanded="true">Steuerung einklappen</button>
+        </div>
+
+        <div class="control-content" id="controlContent">
+          <p class="sub">Werte in CHF Mio. ändern, Szenarien laden oder das Layout neu ordnen.</p>
+
+          <div class="display-tools">
+            <div class="row">
+              <button type="button" class="btn-density active" data-density="normal">Normal</button>
+              <button type="button" class="btn-density" data-density="compact">Kompakt</button>
+              <button type="button" class="btn-density" data-density="large">Gross</button>
+            </div>
+            <div class="row">
+              <label class="width-label" for="controlWidth">
+                Breite Steuerung: <span class="width-value" id="controlWidthValue">320 px</span>
+              </label>
+              <input id="controlWidth" type="range" min="280" max="420" step="10" value="320" />
+            </div>
+          </div>
+
+          <div class="preset-row">
+            <button type="button" class="btn-soft btn-preset active" data-preset="balanced" id="presetBalanced">Ausgeglichen</button>
+            <button type="button" class="btn-soft btn-preset" data-preset="export" id="presetExport">Exportstark</button>
+            <button type="button" class="btn-soft btn-preset" data-preset="credit" id="presetCredit">Kreditboom</button>
+            <button type="button" class="btn-soft btn-preset" data-preset="tight" id="presetTight">Kreditklemme</button>
+          </div>
+
+          <div class="tools-row">
+            <button type="button" class="btn-soft btn-action" id="layoutReset">Layout zurücksetzen</button>
+            <button type="button" class="btn-soft btn-action" id="layoutShuffle">Layout lockern</button>
+          </div>
+
+          <div class="control-grid" id="controlGrid"></div>
+        </div>
+      </article>
+
+      <article class="card" id="diagramCard">
+        <h2>Diagramm</h2>
+        <div class="mode-row">
+          <button type="button" class="btn-mode active" data-mode="both">Beide Flusstypen</button>
+          <button type="button" class="btn-mode" data-mode="money">Nur Geldströme</button>
+          <button type="button" class="btn-mode" data-mode="real">Nur Güterströme</button>
+          <button type="button" class="btn-open-controls" id="openControlsInline">Steuerung öffnen</button>
+          <button type="button" class="btn-focus active" id="focusToggle" aria-pressed="true">Fokus: Ein</button>
+        </div>
+        <div class="legend">
+          <span><span class="dot money"></span>Geldströme</span>
+          <span><span class="dot real"></span>Güter-/Leistungsströme</span>
+        </div>
+
+        <div class="canvas-wrap">
+          <svg id="cycleSvg" viewBox="0 0 1460 860" aria-label="Erweiterter Wirtschaftskreislauf"></svg>
+        </div>
+
+        <div class="bottom-grid">
+          <section class="info">
+            <h3 id="infoTitle">Interaktiver Hinweis</h3>
+            <div id="infoText"><p class="mini">Klicken Sie auf eine Linie oder auf einen Sektor.</p></div>
+          </section>
+
+          <section class="flow-list">
+            <h3>Flussliste</h3>
+            <div class="flow-table" id="flowTable"></div>
+          </section>
+
+          <section class="saldo">
+            <h3>Saldenübersicht</h3>
+            <div class="saldo-list" id="saldoList"></div>
+            <div class="status warn" id="systemStatus">Systemsaldo wird berechnet ...</div>
+            <p class="mini" id="saldoComment" style="margin-top:6px;">Kommentar wird berechnet ...</p>
+          </section>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const VIEW_W = 1460;
+    const VIEW_H = 860;
+
+    const controls = [
+      { key: "loehne", label: "Löhne (Unternehmen -> Haushalte)", min: 200, max: 1500, step: 10 },
+      { key: "konsum", label: "Konsumausgaben (Haushalte -> Unternehmen)", min: 120, max: 1400, step: 10 },
+      { key: "steuern_h", label: "Steuern Haushalte (Haushalte -> Staat)", min: 10, max: 400, step: 5 },
+      { key: "steuern_u", label: "Steuern Unternehmen (Unternehmen -> Staat)", min: 10, max: 350, step: 5 },
+      { key: "transfers", label: "Transfers (Staat -> Haushalte)", min: 0, max: 420, step: 5 },
+      { key: "staatsauftraege", label: "Staatsaufträge (Staat -> Unternehmen)", min: 0, max: 500, step: 5 },
+      { key: "sparen", label: "Sparen/Einlagen (Haushalte -> Banken)", min: 0, max: 420, step: 5 },
+      { key: "kredite", label: "Kredite (Banken -> Unternehmen)", min: 0, max: 520, step: 5 },
+      { key: "exporte", label: "Exporteinnahmen (Ausland -> Unternehmen)", min: 0, max: 700, step: 10 },
+      { key: "importe", label: "Importzahlungen (Unternehmen -> Ausland)", min: 0, max: 700, step: 10 },
+      { key: "kapitalzufluss", label: "Kapitalzufluss (Ausland -> Banken)", min: 0, max: 360, step: 5 },
+      { key: "kapitalabfluss", label: "Kapitalabfluss (Banken -> Ausland)", min: 0, max: 360, step: 5 }
+    ];
+
+    const presets = {
+      balanced: {
+        loehne: 780, konsum: 640, steuern_h: 90, steuern_u: 75, transfers: 70, staatsauftraege: 160,
+        sparen: 120, kredite: 180, exporte: 220, importe: 190, kapitalzufluss: 80, kapitalabfluss: 55
+      },
+      export: {
+        loehne: 860, konsum: 700, steuern_h: 105, steuern_u: 95, transfers: 65, staatsauftraege: 150,
+        sparen: 135, kredite: 210, exporte: 430, importe: 200, kapitalzufluss: 95, kapitalabfluss: 45
+      },
+      credit: {
+        loehne: 820, konsum: 740, steuern_h: 95, steuern_u: 80, transfers: 75, staatsauftraege: 170,
+        sparen: 100, kredite: 360, exporte: 230, importe: 240, kapitalzufluss: 120, kapitalabfluss: 65
+      },
+      tight: {
+        loehne: 700, konsum: 560, steuern_h: 85, steuern_u: 65, transfers: 90, staatsauftraege: 180,
+        sparen: 150, kredite: 90, exporte: 200, importe: 210, kapitalzufluss: 50, kapitalabfluss: 70
+      }
+    };
+
+    const nodeMeta = {
+      haushalte: {
+        id: "haushalte",
+        label: "Haushalte",
+        subtitle: "Einkommen, Konsum, Sparen",
+        w: 220,
+        h: 106,
+        color: "var(--node-a)",
+        text: "Haushalte bieten Arbeit an, konsumieren Güter, zahlen Steuern und sparen bei Banken."
+      },
+      unternehmen: {
+        id: "unternehmen",
+        label: "Unternehmen",
+        subtitle: "Produktion, Löhne, Investition",
+        w: 230,
+        h: 106,
+        color: "var(--node-b)",
+        text: "Unternehmen produzieren Güter/Dienstleistungen, zahlen Löhne und finanzieren Investitionen über Banken."
+      },
+      staat: {
+        id: "staat",
+        label: "Staat",
+        subtitle: "Steuern, Transfers, Aufträge",
+        w: 210,
+        h: 96,
+        color: "var(--node-c)",
+        text: "Der Staat erhebt Steuern, verteilt Transfers und vergibt Aufträge an Unternehmen."
+      },
+      banken: {
+        id: "banken",
+        label: "Banken",
+        subtitle: "Einlagen, Kredite, Kapital",
+        w: 210,
+        h: 96,
+        color: "var(--node-d)",
+        text: "Banken transformieren Einlagen in Kredite und verbinden Inland und Ausland über Kapitalflüsse."
+      },
+      ausland: {
+        id: "ausland",
+        label: "Ausland",
+        subtitle: "Importe, Exporte, Kapital",
+        w: 215,
+        h: 106,
+        color: "var(--node-e)",
+        text: "Das Ausland bildet Export-/Importbeziehungen sowie grenzüberschreitende Kapitalbewegungen ab."
+      }
+    };
+
+    const defaultLayout = {
+      haushalte: { x: 110, y: 376 },
+      unternehmen: { x: 620, y: 372 },
+      staat: { x: 620, y: 116 },
+      banken: { x: 620, y: 646 },
+      ausland: { x: 1140, y: 368 }
+    };
+
+    const flowInfos = {
+      loehne: "Löhne sind Primäreinkommen der Haushalte und Kern des Einkommenskreislaufs.",
+      konsum: "Konsumausgaben der Haushalte sind eine zentrale Nachfragekomponente.",
+      steuern_h: "Steuern der Haushalte finanzieren staatliche Leistungen.",
+      steuern_u: "Unternehmenssteuern beeinflussen den staatlichen Finanzierungssaldo.",
+      transfers: "Transfers erhöhen das verfügbare Einkommen der Haushalte.",
+      staatsauftraege: "Staatsaufträge stützen die Nachfrage bei Unternehmen.",
+      sparen: "Sparen entzieht kurzfristig Kaufkraft, schafft aber Finanzierungsbasis bei Banken.",
+      kredite: "Bankkredite ermöglichen Investitionen und Produktionsausweitung.",
+      zinsen_einlagen: "Banken vergüten Einlagenzinsen an Haushalte.",
+      zinsen_kredite: "Unternehmen zahlen Kreditzinsen an Banken.",
+      exporteinnahmen: "Exporterlöse sind Geldzuflüsse aus dem Ausland.",
+      importzahlungen: "Importzahlungen sind Geldabflüsse ins Ausland.",
+      kapitalzufluss: "Kapitalzuflüsse erhöhen inländische Finanzierungskapazität.",
+      kapitalabfluss: "Kapitalabflüsse reduzieren kurzfristig inländische Finanzierungsmittel.",
+      gueter_hh: "Realer Güterfluss von Unternehmen zu Haushalten als Gegenstück zum Konsum.",
+      gueter_staat: "Leistungsfluss an den Staat als Gegenstück zu Staatsaufträgen.",
+      export_gueter: "Realer Exportstrom vom Inland ins Ausland.",
+      import_gueter: "Realer Importstrom vom Ausland ins Inland."
+    };
+
+    const state = {
+      values: { ...presets.balanced },
+      mode: "both",
+      selected: { type: "node", id: "unternehmen" },
+      nodePos: JSON.parse(JSON.stringify(defaultLayout)),
+      dragging: null,
+      focusSelection: true,
+      controlsCollapsed: false,
+      introOpen: false,
+      density: "normal",
+      controlWidth: 320,
+      activePreset: "balanced"
+    };
+
+    const el = {
+      app: document.querySelector(".app"),
+      introGrid: document.getElementById("introGrid"),
+      toggleIntro: document.getElementById("toggleIntro"),
+      mainLayout: document.getElementById("mainLayout"),
+      diagramCard: document.getElementById("diagramCard"),
+      controlGrid: document.getElementById("controlGrid"),
+      toggleControls: document.getElementById("toggleControls"),
+      openControlsInline: document.getElementById("openControlsInline"),
+      controlWidth: document.getElementById("controlWidth"),
+      controlWidthValue: document.getElementById("controlWidthValue"),
+      svg: document.getElementById("cycleSvg"),
+      infoTitle: document.getElementById("infoTitle"),
+      infoText: document.getElementById("infoText"),
+      flowTable: document.getElementById("flowTable"),
+      saldoList: document.getElementById("saldoList"),
+      systemStatus: document.getElementById("systemStatus"),
+      saldoComment: document.getElementById("saldoComment"),
+      focusToggle: document.getElementById("focusToggle")
+    };
+
+    function fmt(v) {
+      return new Intl.NumberFormat("de-CH").format(Math.round(v));
+    }
+
+    function fmtMoney(v) {
+      const sign = v < 0 ? "-" : "";
+      return `${sign}CHF ${fmt(Math.abs(v))} Mio.`;
+    }
+
+    function clamp(v, min, max) {
+      return Math.max(min, Math.min(max, v));
+    }
+
+    function setPreset(name) {
+      state.values = { ...presets[name] };
+      state.activePreset = name;
+      syncPresetButtons();
+      renderControls();
+      update();
+    }
+
+    function resetLayout() {
+      state.nodePos = JSON.parse(JSON.stringify(defaultLayout));
+      renderDiagram();
+    }
+
+    function shuffleLayout() {
+      Object.keys(state.nodePos).forEach((id) => {
+        const meta = nodeMeta[id];
+        state.nodePos[id].x = clamp(state.nodePos[id].x + (Math.random() * 2 - 1) * 70, 40, VIEW_W - meta.w - 40);
+        state.nodePos[id].y = clamp(state.nodePos[id].y + (Math.random() * 2 - 1) * 60, 40, VIEW_H - meta.h - 40);
+      });
+      renderDiagram();
+    }
+
+    function derived(values) {
+      const zinsen_einlagen = Math.round(values.sparen * 0.03);
+      const zinsen_kredite = Math.round(values.kredite * 0.05);
+      return { ...values, zinsen_einlagen, zinsen_kredite };
+    }
+
+    function getFlows(v) {
+      const d = derived(v);
+
+      const money = [
+        { id: "loehne", type: "money", label: "Löhne", value: d.loehne, from: "unternehmen", to: "haushalte", lane: -2 },
+        { id: "konsum", type: "money", label: "Konsum", value: d.konsum, from: "haushalte", to: "unternehmen", lane: 2 },
+        { id: "steuern_h", type: "money", label: "Steuern H", value: d.steuern_h, from: "haushalte", to: "staat", lane: -2 },
+        { id: "steuern_u", type: "money", label: "Steuern U", value: d.steuern_u, from: "unternehmen", to: "staat", lane: -1 },
+        { id: "transfers", type: "money", label: "Transfers", value: d.transfers, from: "staat", to: "haushalte", lane: 2 },
+        { id: "staatsauftraege", type: "money", label: "Staatsaufträge", value: d.staatsauftraege, from: "staat", to: "unternehmen", lane: 1 },
+        { id: "sparen", type: "money", label: "Sparen", value: d.sparen, from: "haushalte", to: "banken", lane: -2 },
+        { id: "kredite", type: "money", label: "Kredite", value: d.kredite, from: "banken", to: "unternehmen", lane: 2 },
+        { id: "zinsen_einlagen", type: "money", label: "Einlagenzinsen", value: d.zinsen_einlagen, from: "banken", to: "haushalte", lane: 1 },
+        { id: "zinsen_kredite", type: "money", label: "Kreditzinsen", value: d.zinsen_kredite, from: "unternehmen", to: "banken", lane: -1 },
+        { id: "exporteinnahmen", type: "money", label: "Exporteinnahmen", value: d.exporte, from: "ausland", to: "unternehmen", lane: -1 },
+        { id: "importzahlungen", type: "money", label: "Importzahlungen", value: d.importe, from: "unternehmen", to: "ausland", lane: 2 },
+        { id: "kapitalzufluss", type: "money", label: "Kapitalzufluss", value: d.kapitalzufluss, from: "ausland", to: "banken", lane: 2 },
+        { id: "kapitalabfluss", type: "money", label: "Kapitalabfluss", value: d.kapitalabfluss, from: "banken", to: "ausland", lane: -2 }
+      ];
+
+      const real = [
+        { id: "gueter_hh", type: "real", label: "Konsumgüter", value: d.konsum, from: "unternehmen", to: "haushalte", lane: 0 },
+        { id: "gueter_staat", type: "real", label: "Leistung an Staat", value: d.staatsauftraege, from: "unternehmen", to: "staat", lane: 0 },
+        { id: "export_gueter", type: "real", label: "Exporte", value: d.exporte, from: "unternehmen", to: "ausland", lane: -2 },
+        { id: "import_gueter", type: "real", label: "Importe", value: d.importe, from: "ausland", to: "unternehmen", lane: 1 }
+      ];
+
+      if (state.mode === "money") return money;
+      if (state.mode === "real") return real;
+      return [...money, ...real];
+    }
+
+    function renderControls() {
+      el.controlGrid.innerHTML = controls.map((c) => `
+        <div class="control">
+          <label for="r-${c.key}">${c.label}</label>
+          <div class="row">
+            <input id="r-${c.key}" type="range" min="${c.min}" max="${c.max}" step="${c.step}" value="${state.values[c.key]}" />
+            <input id="n-${c.key}" type="number" min="${c.min}" max="${c.max}" step="${c.step}" value="${state.values[c.key]}" />
+          </div>
+        </div>
+      `).join("");
+
+      controls.forEach((c) => {
+        const r = document.getElementById(`r-${c.key}`);
+        const n = document.getElementById(`n-${c.key}`);
+        const apply = (raw) => {
+          const val = clamp(Number(raw) || 0, c.min, c.max);
+          state.values[c.key] = val;
+          r.value = val;
+          n.value = val;
+          update();
+        };
+        r.addEventListener("input", () => apply(r.value));
+        n.addEventListener("change", () => apply(n.value));
+      });
+    }
+
+    function create(tag, attrs = {}) {
+      const e = document.createElementNS("http://www.w3.org/2000/svg", tag);
+      Object.entries(attrs).forEach(([k, v]) => e.setAttribute(k, String(v)));
+      return e;
+    }
+
+    function nodeCenter(nodeId) {
+      const pos = state.nodePos[nodeId];
+      const meta = nodeMeta[nodeId];
+      return { x: pos.x + meta.w / 2, y: pos.y + meta.h / 2 };
+    }
+
+    function pairHash(...parts) {
+      const str = parts.join("|");
+      let h = 0;
+      for (let i = 0; i < str.length; i += 1) h = (h * 31 + str.charCodeAt(i)) % 997;
+      return h;
+    }
+
+    function cubicPoint(p0, p1, p2, p3, t) {
+      const mt = 1 - t;
+      const x = (mt ** 3) * p0.x + 3 * (mt ** 2) * t * p1.x + 3 * mt * (t ** 2) * p2.x + (t ** 3) * p3.x;
+      const y = (mt ** 3) * p0.y + 3 * (mt ** 2) * t * p1.y + 3 * mt * (t ** 2) * p2.y + (t ** 3) * p3.y;
+      return { x, y };
+    }
+
+    function edgePoint(nodeId, otherId, lane = 0) {
+      const pos = state.nodePos[nodeId];
+      const meta = nodeMeta[nodeId];
+      const c1 = nodeCenter(nodeId);
+      const c2 = nodeCenter(otherId);
+      const dx = c2.x - c1.x;
+      const dy = c2.y - c1.y;
+      const laneShift = clamp(lane * 8, -28, 28);
+
+      if (Math.abs(dx) >= Math.abs(dy)) {
+        return {
+          x: dx >= 0 ? pos.x + meta.w : pos.x,
+          y: pos.y + meta.h / 2 + laneShift
+        };
+      }
+
+      return {
+        x: pos.x + meta.w / 2 + laneShift,
+        y: dy >= 0 ? pos.y + meta.h : pos.y
+      };
+    }
+
+    function pathFor(flow) {
+      const lane = flow.lane || 0;
+      const a = edgePoint(flow.from, flow.to, lane);
+      const b = edgePoint(flow.to, flow.from, -lane);
+      const dx = b.x - a.x;
+      const dy = b.y - a.y;
+      const dist = Math.hypot(dx, dy) || 1;
+
+      const ux = dx / dist;
+      const uy = dy / dist;
+      const nx = -uy;
+      const ny = ux;
+
+      const jitter = (pairHash(flow.id, flow.from, flow.to) % 11) - 5;
+      const typeBias = flow.type === "money" ? 9 : -10;
+      const laneOffset = lane * 24 + jitter * 2.2 + typeBias;
+      const arm = clamp(dist * 0.34, 80, 250);
+
+      const cp1 = {
+        x: a.x + ux * arm + nx * laneOffset,
+        y: a.y + uy * arm + ny * laneOffset
+      };
+      const cp2 = {
+        x: b.x - ux * arm + nx * laneOffset,
+        y: b.y - uy * arm + ny * laneOffset
+      };
+      const mid = cubicPoint(a, cp1, cp2, b, 0.5);
+
+      return {
+        d: `M ${a.x} ${a.y} C ${cp1.x} ${cp1.y}, ${cp2.x} ${cp2.y}, ${b.x} ${b.y}`,
+        lx: mid.x,
+        ly: mid.y
+      };
+    }
+
+    function isRelatedFlow(flow, nodeId) {
+      return flow.from === nodeId || flow.to === nodeId;
+    }
+
+    function flowVisualKind(flow) {
+      if (state.selected.type === "flow") {
+        return state.selected.id === flow.id ? "active" : (state.focusSelection ? "faded" : "normal");
+      }
+
+      if (state.selected.type === "node") {
+        if (isRelatedFlow(flow, state.selected.id)) return "related";
+        return state.focusSelection ? "faded" : "normal";
+      }
+
+      return "normal";
+    }
+
+    function visualPriority(kind) {
+      if (kind === "faded") return 0;
+      if (kind === "normal") return 1;
+      if (kind === "related") return 2;
+      return 3;
+    }
+
+    function widthFor(value, maxValue) {
+      if (!maxValue) return 2.4;
+      return 2.2 + (value / maxValue) * 6.2;
+    }
+
+    function renderFlowTable(visualFlows) {
+      el.flowTable.innerHTML = visualFlows
+        .slice()
+        .sort((a, b) => b.flow.value - a.flow.value)
+        .map(({ flow, kind }) => {
+          const classes = ["flow-row"];
+          if (kind === "active") classes.push("active");
+          if (kind === "related") classes.push("related");
+          if (kind === "faded") classes.push("faded");
+          return `
+            <div class="${classes.join(" ")}" data-flow="${flow.id}">
+              <span class="pill ${flow.type}">${flow.type === "money" ? "Geld" : "Real"}</span>
+              <span>${flow.label}</span>
+              <span class="amount">${fmt(flow.value)}</span>
+            </div>
+          `;
+        }).join("");
+
+      const byId = new Map(visualFlows.map((entry) => [entry.flow.id, entry.flow]));
+      el.flowTable.querySelectorAll("[data-flow]").forEach((row) => {
+        row.addEventListener("click", () => {
+          const id = row.dataset.flow;
+          const flow = byId.get(id);
+          if (flow) selectFlow(flow);
+        });
+      });
+    }
+
+    function drawBackdrop(svg) {
+      const frame = create("rect", {
+        x: 22,
+        y: 16,
+        width: VIEW_W - 44,
+        height: VIEW_H - 32,
+        rx: 28,
+        fill: "#fbfdff",
+        stroke: "#e3e9f3",
+        "stroke-width": 1.3
+      });
+      svg.appendChild(frame);
+
+      const cx = VIEW_W / 2;
+      const cy = VIEW_H / 2;
+      svg.appendChild(create("path", {
+        class: "flow-zone",
+        d: `M 170 ${cy - 214} C ${cx - 280} 84, ${cx + 280} 84, ${VIEW_W - 170} ${cy - 214}`
+      }));
+      svg.appendChild(create("path", {
+        class: "flow-zone finance",
+        d: `M 170 ${cy + 218} C ${cx - 270} ${VIEW_H - 62}, ${cx + 270} ${VIEW_H - 62}, ${VIEW_W - 170} ${cy + 218}`
+      }));
+      svg.appendChild(create("path", {
+        class: "flow-zone trade",
+        d: `M ${VIEW_W - 402} 130 C ${VIEW_W - 140} ${cy - 90}, ${VIEW_W - 140} ${cy + 90}, ${VIEW_W - 402} ${VIEW_H - 130}`
+      }));
+
+      [
+        { x: cx, y: 92, text: "Fiskalströme" },
+        { x: cx, y: VIEW_H - 58, text: "Finanzierungsströme" },
+        { x: VIEW_W - 250, y: 108, text: "Auslandsbeziehungen" }
+      ].forEach((label) => {
+        const t = create("text", { x: label.x, y: label.y, class: "bg-label" });
+        t.textContent = label.text;
+        svg.appendChild(t);
+      });
+    }
+
+    function renderDiagram() {
+      const svg = el.svg;
+      svg.innerHTML = "";
+
+      const defs = create("defs");
+      defs.innerHTML = `
+        <marker id="arrowMoney" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="${getComputedStyle(document.documentElement).getPropertyValue("--money").trim()}" />
+        </marker>
+        <marker id="arrowReal" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="${getComputedStyle(document.documentElement).getPropertyValue("--real").trim()}" />
+        </marker>
+      `;
+      svg.appendChild(defs);
+      drawBackdrop(svg);
+
+      const flows = getFlows(state.values);
+      const visualFlows = flows.map((flow) => ({ flow, kind: flowVisualKind(flow) }));
+      const maxVal = Math.max(...flows.map((f) => f.value), 1);
+      const orderedFlows = visualFlows
+        .slice()
+        .sort((a, b) => visualPriority(a.kind) - visualPriority(b.kind));
+
+      orderedFlows.forEach(({ flow, kind }) => {
+        const p = pathFor(flow);
+        const isActive = kind === "active";
+        const isRelated = kind === "related";
+        const isFaded = kind === "faded";
+
+        const path = create("path", {
+          d: p.d,
+          class: `flow ${flow.type}${isActive ? " active" : ""}${isRelated ? " related" : ""}${isFaded ? " faded" : ""}`,
+          "stroke-width": widthFor(flow.value, maxVal) + (isActive ? 1.1 : 0),
+          "marker-end": flow.type === "money" ? "url(#arrowMoney)" : "url(#arrowReal)"
+        });
+        path.addEventListener("click", () => selectFlow(flow));
+        svg.appendChild(path);
+
+        if (isActive) {
+          const g = create("g", { class: "flow-badge active" });
+          const txt = create("text", { x: p.lx, y: p.ly - 4 });
+          txt.textContent = `${flow.label} · ${fmt(flow.value)}`;
+          g.appendChild(txt);
+          svg.appendChild(g);
+          const bb = txt.getBBox();
+          const rect = create("rect", { x: bb.x - 7, y: bb.y - 4, width: bb.width + 14, height: bb.height + 8 });
+          g.insertBefore(rect, txt);
+        }
+      });
+
+      Object.values(nodeMeta).forEach((meta) => {
+        const pos = state.nodePos[meta.id];
+        const active = state.selected.type === "node" && state.selected.id === meta.id;
+        const g = create("g", { class: `node${active ? " active" : ""}`, "data-node": meta.id });
+
+        const rect = create("rect", { x: pos.x, y: pos.y, width: meta.w, height: meta.h, fill: meta.color });
+        g.appendChild(rect);
+
+        const t1 = create("text", { x: pos.x + meta.w / 2, y: pos.y + meta.h / 2 - 7 });
+        t1.textContent = meta.label;
+        g.appendChild(t1);
+
+        const t2 = create("text", { x: pos.x + meta.w / 2, y: pos.y + meta.h / 2 + 16, class: "subtxt" });
+        t2.textContent = meta.subtitle;
+        g.appendChild(t2);
+
+        g.addEventListener("click", () => selectNode(meta));
+        g.addEventListener("pointerdown", (ev) => startDrag(ev, meta.id));
+        svg.appendChild(g);
+      });
+
+      renderFlowTable(visualFlows);
+    }
+
+    function computeSalden(v) {
+      const d = derived(v);
+      const haushalte = d.loehne + d.transfers + d.zinsen_einlagen - d.konsum - d.steuern_h - d.sparen;
+      const unternehmen = d.konsum + d.staatsauftraege + d.exporte + d.kredite - d.loehne - d.steuern_u - d.zinsen_kredite - d.importe;
+      const staat = d.steuern_h + d.steuern_u - d.transfers - d.staatsauftraege;
+      const banken = d.sparen + d.zinsen_kredite + d.kapitalzufluss - d.kredite - d.zinsen_einlagen - d.kapitalabfluss;
+      const ausland = d.importe + d.kapitalabfluss - d.exporte - d.kapitalzufluss;
+      const total = haushalte + unternehmen + staat + banken + ausland;
+      return { haushalte, unternehmen, staat, banken, ausland, total };
+    }
+
+    function saldoCommentFor(actor, value) {
+      const abs = Math.abs(value);
+      if (abs < 12) return "Nahezu ausgeglichen.";
+
+      if (actor === "haushalte") return value >= 0
+        ? "Haushalte bauen netto finanzielle Mittel auf."
+        : "Haushalte haben netto Abfluss: Konsum, Steuern und Sparen sind höher als Zuflüsse.";
+      if (actor === "unternehmen") return value >= 0
+        ? "Unternehmen haben netto Finanzierungsspielraum."
+        : "Unternehmen haben Nettofinanzierungsbedarf.";
+      if (actor === "staat") return value >= 0
+        ? "Staat erzielt budgetären Überschuss."
+        : "Staat weist budgetäres Defizit aus.";
+      if (actor === "banken") return value >= 0
+        ? "Bankensektor akkumuliert netto Liquidität."
+        : "Bankensektor gibt netto mehr Mittel ab als zufliessen.";
+      return value >= 0
+        ? "Ausland erzielt netto Zufluss gegenüber Inland."
+        : "Inland erzielt netto Zufluss gegenüber Ausland.";
+    }
+
+    function systemComment(entries, total) {
+      const positives = entries.filter((e) => e.value > 0).sort((a, b) => b.value - a.value);
+      const negatives = entries.filter((e) => e.value < 0).sort((a, b) => a.value - b.value);
+      const topPos = positives[0];
+      const topNeg = negatives[0];
+
+      if (Math.abs(total) <= 10) {
+        if (!topPos || !topNeg) return "Die Sektorensalden sind insgesamt gut austariert.";
+        return `Grösster Zufluss: ${topPos.label}. Grösster Abfluss: ${topNeg.label}. Der Kreislauf liegt nahe am Gleichgewicht.`;
+      }
+
+      if (!topPos || !topNeg) return "Einseitige Saldenlage: prüfen Sie die dominanten Flüsse.";
+      return `Dominant sind ${topPos.label} als Nettozufluss und ${topNeg.label} als Nettoabfluss. Prüfen Sie gezielt deren Hauptflüsse.`;
+    }
+
+    function renderSalden() {
+      const s = computeSalden(state.values);
+      const entries = [
+        { key: "haushalte", label: "Haushalte", value: s.haushalte },
+        { key: "unternehmen", label: "Unternehmen", value: s.unternehmen },
+        { key: "staat", label: "Staat", value: s.staat },
+        { key: "banken", label: "Banken", value: s.banken },
+        { key: "ausland", label: "Ausland", value: s.ausland }
+      ];
+
+      el.saldoList.innerHTML = entries.map((entry) => `
+        <div class="saldo-item">
+          <div class="saldo-main">
+            <span>${entry.label}</span>
+            <span class="amount ${entry.value >= 0 ? "pos" : "neg"}">${fmtMoney(entry.value)}</span>
+          </div>
+          <p class="saldo-comment">${saldoCommentFor(entry.key, entry.value)}</p>
+        </div>
+      `).join("");
+
+      const absTotal = Math.abs(s.total);
+      if (absTotal <= 10) {
+        el.systemStatus.className = "status ok";
+        el.systemStatus.textContent = `Kreislauf nahezu geschlossen (Gesamtsaldo ${fmtMoney(s.total)}).`;
+      } else if (absTotal <= 40) {
+        el.systemStatus.className = "status warn";
+        el.systemStatus.textContent = `Leichte Unwucht im Modell (Gesamtsaldo ${fmtMoney(s.total)}).`;
+      } else {
+        el.systemStatus.className = "status bad";
+        el.systemStatus.textContent = `Deutliche Unwucht: Prüfen Sie große Abweichungen (Gesamtsaldo ${fmtMoney(s.total)}).`;
+      }
+
+      el.saldoComment.textContent = systemComment(entries, s.total);
+    }
+
+    function selectFlow(flow) {
+      state.selected = { type: "flow", id: flow.id };
+      el.infoTitle.textContent = `${flow.label} (${flow.type === "money" ? "Geldstrom" : "Güterstrom"})`;
+      el.infoText.innerHTML = `
+        <p class="mini">${flowInfos[flow.id]}</p>
+        <p class="mini"><strong>Aktueller Wert:</strong> ${fmtMoney(flow.value)}</p>
+        <p class="mini">Von <strong>${nodeMeta[flow.from].label}</strong> zu <strong>${nodeMeta[flow.to].label}</strong>.</p>
+      `;
+      renderDiagram();
+    }
+
+    function nodeTotals(nodeId) {
+      const flows = getFlows(state.values);
+      const inSum = flows.filter((f) => f.to === nodeId).reduce((s, f) => s + f.value, 0);
+      const outSum = flows.filter((f) => f.from === nodeId).reduce((s, f) => s + f.value, 0);
+      return { inSum, outSum, saldo: inSum - outSum };
+    }
+
+    function selectNode(meta) {
+      state.selected = { type: "node", id: meta.id };
+      const t = nodeTotals(meta.id);
+      el.infoTitle.textContent = meta.label;
+      el.infoText.innerHTML = `
+        <p class="mini">${meta.text}</p>
+        <p class="mini"><strong>Zuflüsse:</strong> ${fmtMoney(t.inSum)} · <strong>Abflüsse:</strong> ${fmtMoney(t.outSum)}</p>
+        <p class="mini"><strong>Netto für ${meta.label}:</strong> ${fmtMoney(t.saldo)}</p>
+      `;
+      renderDiagram();
+    }
+
+    function update() {
+      renderDiagram();
+      renderSalden();
+    }
+
+    function svgPointFromEvent(ev) {
+      const rect = el.svg.getBoundingClientRect();
+      return {
+        x: ((ev.clientX - rect.left) / rect.width) * VIEW_W,
+        y: ((ev.clientY - rect.top) / rect.height) * VIEW_H
+      };
+    }
+
+    function startDrag(ev, nodeId) {
+      ev.stopPropagation();
+      const p = svgPointFromEvent(ev);
+      const pos = state.nodePos[nodeId];
+      state.dragging = { id: nodeId, dx: p.x - pos.x, dy: p.y - pos.y, pointerId: ev.pointerId };
+      try { el.svg.setPointerCapture(ev.pointerId); } catch (e) { /* ignore */ }
+    }
+
+    function onPointerMove(ev) {
+      if (!state.dragging) return;
+      const p = svgPointFromEvent(ev);
+      const id = state.dragging.id;
+      const meta = nodeMeta[id];
+      state.nodePos[id].x = clamp(p.x - state.dragging.dx, 40, VIEW_W - meta.w - 40);
+      state.nodePos[id].y = clamp(p.y - state.dragging.dy, 40, VIEW_H - meta.h - 40);
+      renderDiagram();
+    }
+
+    function stopDrag(ev) {
+      if (!state.dragging) return;
+      try { el.svg.releasePointerCapture(state.dragging.pointerId); } catch (e) { /* ignore */ }
+      state.dragging = null;
+    }
+
+    function initModes() {
+      document.querySelectorAll("[data-mode]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          state.mode = btn.dataset.mode;
+          document.querySelectorAll("[data-mode]").forEach((b) => b.classList.toggle("active", b.dataset.mode === state.mode));
+          update();
+        });
+      });
+    }
+
+    function syncFocusButton() {
+      el.focusToggle.classList.toggle("active", state.focusSelection);
+      el.focusToggle.textContent = `Fokus: ${state.focusSelection ? "Ein" : "Aus"}`;
+      el.focusToggle.setAttribute("aria-pressed", state.focusSelection ? "true" : "false");
+    }
+
+    function initFocusToggle() {
+      syncFocusButton();
+      el.focusToggle.addEventListener("click", () => {
+        state.focusSelection = !state.focusSelection;
+        syncFocusButton();
+        renderDiagram();
+      });
+    }
+
+    function syncIntroToggle() {
+      el.introGrid.classList.toggle("open", state.introOpen);
+      el.toggleIntro.textContent = state.introOpen ? "Hinweise ausblenden" : "Hinweise anzeigen";
+      el.toggleIntro.setAttribute("aria-expanded", state.introOpen ? "true" : "false");
+    }
+
+    function initIntroToggle() {
+      syncIntroToggle();
+      el.toggleIntro.addEventListener("click", () => {
+        state.introOpen = !state.introOpen;
+        syncIntroToggle();
+        requestAnimationFrame(syncControlGridHeight);
+      });
+    }
+
+    function syncDensity() {
+      el.app.classList.remove("density-compact", "density-large");
+      if (state.density === "compact") el.app.classList.add("density-compact");
+      if (state.density === "large") el.app.classList.add("density-large");
+      document.querySelectorAll("[data-density]").forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.density === state.density);
+      });
+    }
+
+    function initDensity() {
+      syncDensity();
+      document.querySelectorAll("[data-density]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          state.density = btn.dataset.density;
+          syncDensity();
+          requestAnimationFrame(syncControlGridHeight);
+        });
+      });
+    }
+
+    function syncControlWidth() {
+      state.controlWidth = clamp(state.controlWidth, 280, 420);
+      el.mainLayout.style.setProperty("--control-col", `${state.controlWidth}px`);
+      el.controlWidth.value = String(state.controlWidth);
+      el.controlWidthValue.textContent = `${state.controlWidth} px`;
+    }
+
+    function initControlWidth() {
+      syncControlWidth();
+      el.controlWidth.addEventListener("input", () => {
+        state.controlWidth = Number(el.controlWidth.value) || 320;
+        syncControlWidth();
+        requestAnimationFrame(syncControlGridHeight);
+      });
+    }
+
+    function syncResponsiveLayout() {
+      const appWidth = el.app.getBoundingClientRect().width;
+      const narrowHint = appWidth < 1040;
+      el.toggleControls.disabled = false;
+      el.toggleControls.title = narrowHint
+        ? "Bei kleiner Breite kann eingeklappte Steuerung die Lesbarkeit verbessern."
+        : "";
+      syncControlCollapse();
+    }
+
+    function syncControlCollapse() {
+      el.mainLayout.classList.toggle("controls-collapsed", state.controlsCollapsed);
+      el.toggleControls.textContent = state.controlsCollapsed ? "Steuerung öffnen" : "Steuerung einklappen";
+      el.toggleControls.setAttribute("aria-expanded", state.controlsCollapsed ? "false" : "true");
+    }
+
+    function initControlCollapse() {
+      state.controlsCollapsed = false;
+      syncControlCollapse();
+      el.toggleControls.addEventListener("click", () => {
+        state.controlsCollapsed = !state.controlsCollapsed;
+        syncControlCollapse();
+        requestAnimationFrame(syncControlGridHeight);
+      });
+      el.openControlsInline.addEventListener("click", () => {
+        state.controlsCollapsed = false;
+        syncControlCollapse();
+        requestAnimationFrame(syncControlGridHeight);
+      });
+    }
+
+    function syncControlGridHeight() {
+      const grid = el.controlGrid;
+      if (!grid) return;
+
+      grid.classList.remove("scrolling");
+      grid.style.maxHeight = "none";
+
+      if (state.controlsCollapsed || !el.diagramCard) return;
+
+      const top = grid.getBoundingClientRect().top;
+      const bottom = el.diagramCard.getBoundingClientRect().bottom;
+      const available = Math.floor(bottom - top - 10);
+
+      if (available < 260) return;
+
+      grid.style.maxHeight = `${available}px`;
+      if (grid.scrollHeight > available + 2) {
+        grid.classList.add("scrolling");
+      }
+    }
+
+    function initPresets() {
+      syncPresetButtons();
+      document.querySelectorAll(".btn-preset").forEach((btn) => {
+        btn.addEventListener("click", () => setPreset(btn.dataset.preset));
+      });
+    }
+
+    function syncPresetButtons() {
+      document.querySelectorAll(".btn-preset").forEach((btn) => {
+        const active = btn.dataset.preset === state.activePreset;
+        btn.classList.toggle("active", active);
+        btn.setAttribute("aria-pressed", active ? "true" : "false");
+      });
+    }
+
+    function pulseActionButton(btn) {
+      btn.classList.remove("action-hit");
+      void btn.offsetWidth;
+      btn.classList.add("action-hit");
+      window.setTimeout(() => btn.classList.remove("action-hit"), 520);
+    }
+
+    function initLayoutTools() {
+      const layoutResetBtn = document.getElementById("layoutReset");
+      const layoutShuffleBtn = document.getElementById("layoutShuffle");
+
+      layoutResetBtn.addEventListener("click", () => {
+        resetLayout();
+        pulseActionButton(layoutResetBtn);
+      });
+
+      layoutShuffleBtn.addEventListener("click", () => {
+        shuffleLayout();
+        pulseActionButton(layoutShuffleBtn);
+      });
+    }
+
+    function initDrag() {
+      el.svg.addEventListener("pointermove", onPointerMove);
+      el.svg.addEventListener("pointerup", stopDrag);
+      el.svg.addEventListener("pointerleave", stopDrag);
+    }
+
+    function init() {
+      renderControls();
+      initIntroToggle();
+      initDensity();
+      initControlWidth();
+      initControlCollapse();
+      syncResponsiveLayout();
+      initModes();
+      initFocusToggle();
+      initPresets();
+      initLayoutTools();
+      initDrag();
+      update();
+      selectNode(nodeMeta.unternehmen);
+      syncControlGridHeight();
+      window.addEventListener("resize", () => requestAnimationFrame(() => {
+        syncResponsiveLayout();
+        syncControlGridHeight();
+      }));
+    }
+
+    init();
+  </script>
+</body>
+</html>
