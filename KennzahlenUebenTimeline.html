@@ -1,0 +1,1315 @@
+<!doctype html>
+<html lang="de-CH">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kennzahlen üben</title>
+  <style>
+    :root {
+      --bg: #eef5f2;
+      --paper: #fffdf9;
+      --line: #e3d9cb;
+      --ink: #1f2937;
+      --muted: #5f6978;
+      --brand: #0d6447;
+      --brand-2: #154a87;
+      --ok: #166534;
+      --warn: #b45309;
+      --bad: #b91c1c;
+      --ok-soft: #ecfdf3;
+      --warn-soft: #fff7ed;
+      --bad-soft: #fef2f2;
+      --shadow: 0 16px 38px rgba(31, 41, 55, 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 14% 6%, #d7ede2 0%, transparent 26%),
+        radial-gradient(circle at 88% 14%, #dce8ff 0%, transparent 28%),
+        linear-gradient(180deg, #f5f2ea, #efe6d9);
+      padding: 16px;
+    }
+
+    .app {
+      max-width: 1180px;
+      margin: 0 auto;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 16px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid #b9dbc7;
+      background: #e8f7ef;
+      color: var(--brand);
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      margin: 0;
+      color: #153728;
+      font-size: clamp(1.26rem, 2.8vw, 1.95rem);
+    }
+
+    .lead {
+      margin: 8px 0 14px;
+      color: var(--muted);
+      line-height: 1.42;
+      max-width: 90ch;
+      font-size: 0.95rem;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(200px, 250px) minmax(0, 1fr);
+      gap: 14px;
+      align-items: start;
+    }
+
+    .timeline {
+      border-radius: 16px;
+      background: linear-gradient(165deg, #2a313e, #232a35);
+      color: #e6edf8;
+      padding: 14px 12px;
+      border: 1px solid rgba(204, 219, 240, 0.16);
+      position: sticky;
+      top: 12px;
+    }
+
+    .timeline h2 {
+      margin: 0 0 10px;
+      font-size: 1rem;
+      font-weight: 800;
+      color: #f1f6ff;
+    }
+
+    .steps {
+      list-style: none;
+      margin: 0;
+      padding: 0 0 0 18px;
+      position: relative;
+      display: grid;
+      gap: 16px;
+    }
+
+    .steps::before {
+      content: "";
+      position: absolute;
+      left: 8px;
+      top: 6px;
+      bottom: 6px;
+      width: 2px;
+      background: linear-gradient(180deg, #d0d9ea, rgba(208, 217, 234, 0.2));
+    }
+
+    .steps li {
+      position: relative;
+      font-size: 0.86rem;
+      color: #d4deef;
+      line-height: 1.3;
+      padding-left: 8px;
+    }
+
+    .steps li::before {
+      content: "";
+      position: absolute;
+      left: -14px;
+      top: 2px;
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      background: #9eb0cb;
+      border: 2px solid #2b3340;
+      box-shadow: 0 0 0 2px rgba(158, 176, 203, 0.25);
+    }
+
+    .steps li.active {
+      color: #ffffff;
+      font-weight: 800;
+    }
+
+    .steps li.active::before {
+      background: #5dd6a3;
+      box-shadow: 0 0 0 2px rgba(93, 214, 163, 0.3);
+    }
+
+    .timeline-note {
+      margin-top: 12px;
+      border: 1px solid rgba(199, 219, 240, 0.25);
+      border-radius: 10px;
+      background: rgba(239, 246, 255, 0.08);
+      padding: 9px;
+      font-size: 0.79rem;
+      color: #d7e3f7;
+      line-height: 1.35;
+    }
+
+    .content {
+      display: grid;
+      gap: 12px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+      padding: 12px;
+    }
+
+    .card h2 {
+      margin: 0 0 8px;
+      font-size: 1.06rem;
+      color: #1b3553;
+    }
+
+    .sub {
+      margin: 0 0 10px;
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.35;
+    }
+
+    .value-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .value-item {
+      border: 1px solid #d9e5f4;
+      border-radius: 10px;
+      background: #f5f9ff;
+      padding: 8px;
+    }
+
+    .value-item .label {
+      display: block;
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: #2e415c;
+      margin-bottom: 3px;
+    }
+
+    .value-item .val {
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: #182f4b;
+    }
+
+    .task-table {
+      border: 1px solid #dfd5c7;
+      border-radius: 11px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .task-table table .formula-col {
+      display: none;
+    }
+
+    .task-table table.show-formulas .formula-col {
+      display: table-cell;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid #f0e8dc;
+      padding: 8px;
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    th {
+      font-size: 0.75rem;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      color: #4f5b6d;
+      background: #f8f3ea;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .kpi-row {
+      transition: background 0.15s ease;
+    }
+
+    .kpi-row.ok {
+      background: #f4fdf6;
+    }
+
+    .kpi-row.bad {
+      background: #fff7f7;
+    }
+
+    .kpi-label {
+      font-weight: 700;
+      color: #263449;
+      font-size: 0.9rem;
+    }
+
+    .input-wrap {
+      border: 1px solid #cfd9ea;
+      border-radius: 9px;
+      background: #f7fbff;
+      padding: 2px;
+      transition: border-color 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+    }
+
+    .input-wrap input {
+      width: 100%;
+      border: 0;
+      outline: none;
+      background: transparent;
+      font: inherit;
+      font-size: 0.92rem;
+      padding: 7px 8px;
+      text-align: right;
+    }
+
+    .input-wrap:focus-within {
+      border-color: #2b7a5b;
+      box-shadow: 0 0 0 3px rgba(43, 122, 91, 0.14);
+    }
+
+    .input-wrap.ok {
+      border-color: var(--ok);
+      background: var(--ok-soft);
+      box-shadow: 0 0 0 3px rgba(22, 101, 52, 0.12);
+    }
+
+    .input-wrap.bad {
+      border-color: var(--bad);
+      background: var(--bad-soft);
+      box-shadow: 0 0 0 3px rgba(185, 28, 28, 0.12);
+    }
+
+    .unit {
+      font-size: 0.86rem;
+      color: #4b5563;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .actions {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    button {
+      border: 0;
+      border-radius: 10px;
+      padding: 9px 12px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.12s ease, filter 0.12s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.03);
+    }
+
+    .btn-main {
+      background: var(--brand-2);
+      color: #fff;
+    }
+
+    .btn-soft {
+      background: #f0e9de;
+      border: 1px solid #e0d4c4;
+      color: #2a313b;
+    }
+
+    .feedback {
+      margin-top: 10px;
+      border: 1px solid #e0d6c8;
+      border-radius: 11px;
+      background: #fffdf8;
+      padding: 10px;
+      min-height: 74px;
+      font-size: 0.9rem;
+    }
+
+    .feedback ul {
+      margin: 7px 0 0;
+      padding-left: 18px;
+    }
+
+    .exercise-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .exercise-head h2 {
+      margin: 0;
+    }
+
+    .exercise-id {
+      font-size: 0.78rem;
+      font-weight: 800;
+      border-radius: 999px;
+      border: 1px solid #d7e2f2;
+      background: #f4f8ff;
+      color: #2d4666;
+      padding: 4px 9px;
+      white-space: nowrap;
+    }
+
+    .formula-text {
+      color: #35475f;
+      font-size: 0.85rem;
+      line-height: 1.3;
+    }
+
+    .stats {
+      margin-left: auto;
+      border: 1px solid #cbdfcf;
+      background: #edf8ef;
+      color: #1d5a37;
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 0.83rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .proto-details {
+      border: 1px solid #ddd3c5;
+      border-radius: 12px;
+      background: #fffdf8;
+      overflow: hidden;
+    }
+
+    .proto-summary {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      list-style: none;
+      padding: 10px 12px;
+      font-weight: 800;
+      color: #1b3553;
+      background: #f8f3ea;
+      border-bottom: 1px solid #e4d9c9;
+    }
+
+    .proto-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .proto-summary::after {
+      content: "▾";
+      font-size: 0.9rem;
+      color: #4f5b6d;
+      transition: transform 0.15s ease;
+    }
+
+    .proto-details:not([open]) .proto-summary::after {
+      transform: rotate(-90deg);
+    }
+
+    .proto-inner {
+      padding: 10px;
+    }
+
+    .proto-actions {
+      margin-top: 0;
+      margin-bottom: 8px;
+    }
+
+    .proto-wrap {
+      border: 1px solid #ddd3c5;
+      border-radius: 10px;
+      overflow: auto;
+      background: #fff;
+    }
+
+    .proto-table {
+      table-layout: auto;
+      min-width: 760px;
+    }
+
+    .proto-table th,
+    .proto-table td {
+      font-size: 0.78rem;
+      padding: 7px 8px;
+      vertical-align: top;
+    }
+
+    .empty-row {
+      color: #708092;
+      font-style: italic;
+      text-align: center;
+      padding: 10px;
+    }
+
+    .status-chip {
+      display: inline-block;
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      border: 1px solid transparent;
+    }
+
+    .status-chip.ok {
+      color: var(--ok);
+      background: var(--ok-soft);
+      border-color: #b7e0c7;
+    }
+
+    .status-chip.warn {
+      color: var(--warn);
+      background: var(--warn-soft);
+      border-color: #f0c89b;
+    }
+
+    .status-chip.bad {
+      color: var(--bad);
+      background: var(--bad-soft);
+      border-color: #f3c0c0;
+    }
+
+    .small {
+      font-size: 0.79rem;
+      color: #667182;
+    }
+
+    .tiny {
+      font-size: 0.85rem;
+      color: #667182;
+    }
+
+    @media (max-width: 980px) {
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+
+      .timeline {
+        position: static;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .value-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stats {
+        margin-left: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <span class="badge">INTERAKTIVES ELEMENT: Kennzahlen üben</span>
+    <h1>Kennzahlen berechnen</h1>
+    <p class="lead">Schlichtes Übungsformat mit Rechnen, Mini-Checks, Korrekturhinweisen und ausklappbarem Protokoll.</p>
+
+    <section class="workspace">
+      <aside class="timeline">
+        <h2>Lernpfad</h2>
+        <ol class="steps">
+          <li>Gegebene Werte lesen</li>
+          <li class="active">Rentabilität berechnen</li>
+          <li>Produktivität berechnen</li>
+          <li>Antworten prüfen</li>
+          <li>Protokoll exportieren</li>
+        </ol>
+        <p class="timeline-note">Fokus: erst rechnen, dann prüfen. Hinweise helfen beim Korrigieren, ohne die Lösung direkt preiszugeben.</p>
+      </aside>
+
+      <section class="content">
+        <article class="card">
+          <div class="exercise-head">
+            <h2 id="exerciseTitle">Gegeben: Übung 1</h2>
+            <span class="exercise-id" id="exerciseId">Case-001</span>
+          </div>
+          <p class="sub">Werte in CHF, Einheiten oder Stunden. Bei jeder neuen Übung werden die Basiswerte automatisch neu generiert.</p>
+          <div class="value-grid" id="valueGrid"></div>
+        </article>
+
+        <article class="card">
+          <h2>Aufgabe: 4 Kennzahlen berechnen</h2>
+          <p class="sub">Prozentwerte ohne %-Zeichen eingeben (z. B. <strong>16.5</strong>). Punkt oder Komma ist erlaubt.</p>
+          <div class="actions">
+            <button type="button" class="btn-soft" id="toggleFinFormulaBtn">Formeln einblenden</button>
+          </div>
+
+          <div class="task-table">
+            <table id="kpiTable">
+              <thead>
+                <tr>
+                  <th style="width:30%;">Kennzahl</th>
+                  <th class="formula-col" style="width:40%;">Formel</th>
+                  <th style="width:20%;">Dein Wert</th>
+                  <th style="width:10%;">Einheit</th>
+                </tr>
+              </thead>
+              <tbody id="kpiBody"></tbody>
+            </table>
+          </div>
+
+          <div class="actions">
+            <button type="button" class="btn-main" id="checkBtn">Antworten prüfen</button>
+            <button type="button" class="btn-soft" id="insertBtn">Lösungen einfügen</button>
+            <button type="button" class="btn-soft" id="nextBtn">Neue Übung</button>
+            <button type="button" class="btn-soft" id="resetBtn">Eingaben leeren</button>
+            <span class="stats" id="stats">Übung 1</span>
+          </div>
+
+          <section class="feedback" id="feedback">
+            Gib alle 4 Kennzahlen ein und starte dann den Mini-Check.
+          </section>
+        </article>
+
+        <article class="card">
+          <h2>Aufgabe: 4 Produktivitätskennzahlen berechnen</h2>
+          <p class="sub">Berechne die Kennzahlen auf Basis der Ausgangssituation oben. Prozentwerte ohne %-Zeichen eingeben.</p>
+          <div class="actions">
+            <button type="button" class="btn-soft" id="toggleProdFormulaBtn">Formeln einblenden</button>
+          </div>
+          <div class="task-table">
+            <table id="prodTable">
+              <thead>
+                <tr>
+                  <th style="width:30%;">Kennzahl</th>
+                  <th class="formula-col" style="width:40%;">Formel</th>
+                  <th style="width:20%;">Dein Wert</th>
+                  <th style="width:10%;">Einheit</th>
+                </tr>
+              </thead>
+              <tbody id="prodBody"></tbody>
+            </table>
+          </div>
+          <div class="actions">
+            <button type="button" class="btn-main" id="prodCheckBtn">Produktivität prüfen</button>
+            <button type="button" class="btn-soft" id="prodInsertBtn">Lösungen einfügen</button>
+            <button type="button" class="btn-soft" id="prodResetBtn">Eingaben leeren</button>
+          </div>
+          <section class="feedback" id="prodFeedback">
+            Gib alle 4 Produktivitätskennzahlen ein und starte danach die Prüfung.
+          </section>
+        </article>
+
+        <article class="card">
+          <details class="proto-details" id="protoDetails">
+            <summary class="proto-summary">
+              <span>Protokoll & CSV-Export</span>
+              <span class="small" id="protoCount">0 Einträge</span>
+            </summary>
+            <div class="proto-inner">
+              <div class="actions proto-actions">
+                <button type="button" class="btn-soft" id="exportBtn">CSV exportieren</button>
+                <button type="button" class="btn-soft" id="clearLogBtn">Protokoll leeren</button>
+              </div>
+              <div class="proto-wrap">
+                <table class="proto-table">
+                  <thead>
+                    <tr>
+                      <th>Zeit</th>
+                      <th>Übung</th>
+                      <th>Aktion</th>
+                      <th>Score</th>
+                      <th>Eingaben</th>
+                    </tr>
+                  </thead>
+                  <tbody id="protoBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </details>
+        </article>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const financeDefs = [
+      {
+        id: "roe",
+        short: "ROE",
+        label: "Eigenkapitalrendite (ROE)",
+        formula: "Jahresgewinn / Eigenkapital × 100",
+        unit: "%",
+        decimals: 1,
+        calc: (v) => (v.jahresgewinn / v.eigenkapital) * 100,
+        hint: "Jahresgewinn durch Eigenkapital teilen und mit 100 multiplizieren."
+      },
+      {
+        id: "ros",
+        short: "ROS",
+        label: "Umsatzrendite (ROS)",
+        formula: "Jahresgewinn / Umsatz × 100",
+        unit: "%",
+        decimals: 1,
+        calc: (v) => (v.jahresgewinn / v.umsatz) * 100,
+        hint: "Jahresgewinn durch Umsatz teilen und mit 100 multiplizieren."
+      },
+      {
+        id: "roi",
+        short: "ROI",
+        label: "Return on Investment (ROI)",
+        formula: "EBIT / Gesamtkapital × 100",
+        unit: "%",
+        decimals: 1,
+        calc: (v) => (v.ebit / v.gesamtkapital) * 100,
+        hint: "EBIT durch Gesamtkapital teilen und mit 100 multiplizieren."
+      },
+      {
+        id: "ebitMarge",
+        short: "EBIT-Marge",
+        label: "EBIT-Marge",
+        formula: "EBIT / Umsatz × 100",
+        unit: "%",
+        decimals: 1,
+        calc: (v) => (v.ebit / v.umsatz) * 100,
+        hint: "EBIT durch Umsatz teilen und mit 100 multiplizieren."
+      }
+    ];
+
+    const productivityDefs = [
+      {
+        id: "umsatzProMa",
+        short: "Umsatz/MA",
+        label: "Umsatz pro Mitarbeiter",
+        formula: "Umsatz / Anzahl Mitarbeitende (FTE)",
+        unit: "CHF/FTE",
+        decimals: 0,
+        calc: (v) => v.umsatz / v.fte,
+        hint: "Umsatz durch Anzahl Mitarbeitende (FTE) teilen."
+      },
+      {
+        id: "personalquote",
+        short: "Personalquote",
+        label: "Personalaufwandquote",
+        formula: "Personalaufwand / Umsatz × 100",
+        unit: "%",
+        decimals: 1,
+        calc: (v) => (v.personalaufwand / v.umsatz) * 100,
+        hint: "Personalaufwand durch Umsatz teilen und mit 100 multiplizieren."
+      },
+      {
+        id: "durchlaufzeit",
+        short: "Durchlaufzeit",
+        label: "Durchlaufzeit pro Auftrag",
+        formula: "Gesamte Durchlaufzeit / Anzahl Aufträge",
+        unit: "Std",
+        decimals: 1,
+        calc: (v) => v.gesamteDurchlaufzeit / v.anzahlAuftraege,
+        hint: "Gesamte Durchlaufzeit durch Anzahl Aufträge teilen."
+      },
+      {
+        id: "ausschussquote",
+        short: "Ausschussquote",
+        label: "Ausschussquote",
+        formula: "Fehlerhafte Einheiten / Gesamtproduktion × 100",
+        unit: "%",
+        decimals: 1,
+        calc: (v) => (v.fehlerhafteEinheiten / v.gesamtproduktion) * 100,
+        hint: "Fehlerhafte Einheiten durch Gesamtproduktion teilen und mit 100 multiplizieren."
+      }
+    ];
+
+    const el = {
+      exerciseTitle: document.getElementById("exerciseTitle"),
+      exerciseId: document.getElementById("exerciseId"),
+      stats: document.getElementById("stats"),
+      valueGrid: document.getElementById("valueGrid"),
+      kpiTable: document.getElementById("kpiTable"),
+      prodTable: document.getElementById("prodTable"),
+      kpiBody: document.getElementById("kpiBody"),
+      toggleFinFormulaBtn: document.getElementById("toggleFinFormulaBtn"),
+      toggleProdFormulaBtn: document.getElementById("toggleProdFormulaBtn"),
+      checkBtn: document.getElementById("checkBtn"),
+      insertBtn: document.getElementById("insertBtn"),
+      nextBtn: document.getElementById("nextBtn"),
+      resetBtn: document.getElementById("resetBtn"),
+      feedback: document.getElementById("feedback"),
+      prodBody: document.getElementById("prodBody"),
+      prodCheckBtn: document.getElementById("prodCheckBtn"),
+      prodInsertBtn: document.getElementById("prodInsertBtn"),
+      prodResetBtn: document.getElementById("prodResetBtn"),
+      prodFeedback: document.getElementById("prodFeedback"),
+      protoCount: document.getElementById("protoCount"),
+      protoBody: document.getElementById("protoBody"),
+      exportBtn: document.getElementById("exportBtn"),
+      clearLogBtn: document.getElementById("clearLogBtn")
+    };
+
+    const state = {
+      exerciseNo: 0,
+      current: null,
+      protocol: []
+    };
+
+    function randStep(min, max, step) {
+      const count = Math.floor((max - min) / step);
+      return min + Math.floor(Math.random() * (count + 1)) * step;
+    }
+
+    function roundTo(value, decimals) {
+      const f = 10 ** decimals;
+      return Math.round(value * f) / f;
+    }
+
+    function fmtNumber(value, decimals) {
+      return new Intl.NumberFormat("de-CH", {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals
+      }).format(value);
+    }
+
+    function fmtMoney(value) {
+      return `CHF ${fmtNumber(value, 0)}`;
+    }
+
+    function parseUserNumber(raw) {
+      if (typeof raw !== "string") return Number.NaN;
+      const cleaned = raw.trim().replace(/\s+/g, "").replace(/'/g, "").replace(/,/g, ".");
+      if (!cleaned) return Number.NaN;
+      return Number(cleaned);
+    }
+
+    function generateValues() {
+      const umsatz = randStep(2400000, 9600000, 10000);
+      const rosPct = randStep(50, 180, 1) / 10;
+      const jahresgewinn = Math.max(50000, Math.round((umsatz * rosPct / 100) / 1000) * 1000);
+
+      const ebitMargePct = rosPct + randStep(10, 90, 1) / 10;
+      let ebit = Math.round((umsatz * ebitMargePct / 100) / 1000) * 1000;
+      if (ebit <= jahresgewinn) ebit = jahresgewinn + randStep(15000, 120000, 1000);
+
+      const roePct = randStep(80, 420, 1) / 10;
+      const eigenkapital = Math.max(300000, Math.round((jahresgewinn * 100 / roePct) / 1000) * 1000);
+
+      const roiPct = randStep(70, 300, 1) / 10;
+      const minGesamtkapital = eigenkapital + randStep(150000, 1800000, 5000);
+      const kandidat = Math.round((ebit * 100 / roiPct) / 1000) * 1000;
+      const gesamtkapital = Math.max(minGesamtkapital, kandidat);
+
+      const fte = randStep(24, 160, 1);
+      const personalquotePct = randStep(140, 360, 1) / 10;
+      const personalaufwand = Math.max(200000, Math.round((umsatz * personalquotePct / 100) / 1000) * 1000);
+
+      const anzahlAuftraege = randStep(60, 280, 1);
+      const zielDurchlaufzeit = randStep(65, 280, 1) / 10;
+      const gesamteDurchlaufzeit = roundTo(anzahlAuftraege * zielDurchlaufzeit, 1);
+
+      const gesamtproduktion = randStep(18000, 120000, 100);
+      const ausschussPct = randStep(5, 90, 1) / 10;
+      const fehlerhafteEinheiten = Math.max(10, Math.round(gesamtproduktion * ausschussPct / 100));
+
+      return {
+        umsatz,
+        jahresgewinn,
+        eigenkapital,
+        gesamtkapital,
+        ebit,
+        personalaufwand,
+        fte,
+        anzahlAuftraege,
+        gesamteDurchlaufzeit,
+        gesamtproduktion,
+        fehlerhafteEinheiten
+      };
+    }
+
+    function computeExpected(defs, values) {
+      const out = {};
+      defs.forEach((m) => {
+        out[m.id] = roundTo(m.calc(values), m.decimals);
+      });
+      return out;
+    }
+
+    function renderExerciseMeta() {
+      el.exerciseTitle.textContent = `Gegeben: Übung ${state.exerciseNo}`;
+      el.exerciseId.textContent = state.current.caseId;
+      el.stats.textContent = `Übung ${state.exerciseNo}`;
+    }
+
+    function renderValues() {
+      const v = state.current.values;
+      const items = [
+        ["Umsatz", fmtMoney(v.umsatz)],
+        ["Jahresgewinn", fmtMoney(v.jahresgewinn)],
+        ["Eigenkapital", fmtMoney(v.eigenkapital)],
+        ["Gesamtkapital", fmtMoney(v.gesamtkapital)],
+        ["EBIT", fmtMoney(v.ebit)],
+        ["Personalaufwand", fmtMoney(v.personalaufwand)],
+        ["Mitarbeitende (FTE)", fmtNumber(v.fte, 0)],
+        ["Anzahl Aufträge", fmtNumber(v.anzahlAuftraege, 0)],
+        ["Gesamte Durchlaufzeit", `${fmtNumber(v.gesamteDurchlaufzeit, 1)} Std`],
+        ["Gesamtproduktion", `${fmtNumber(v.gesamtproduktion, 0)} Einheiten`],
+        ["Fehlerhafte Einheiten", `${fmtNumber(v.fehlerhafteEinheiten, 0)} Einheiten`]
+      ];
+
+      el.valueGrid.innerHTML = items.map(([label, val]) => `
+        <article class="value-item">
+          <span class="label">${label}</span>
+          <span class="val">${val}</span>
+        </article>
+      `).join("");
+    }
+
+    function renderInputRows(targetBody, defs, prefix) {
+      targetBody.innerHTML = defs.map((m) => `
+        <tr class="kpi-row" data-row="${prefix}-${m.id}">
+          <td><span class="kpi-label">${m.label}</span></td>
+          <td class="formula-col"><span class="formula-text">${m.formula}</span></td>
+          <td>
+            <div class="input-wrap" data-wrap="${prefix}-${m.id}">
+              <input type="text" inputmode="decimal" id="${prefix}_${m.id}" autocomplete="off" placeholder="${m.decimals === 0 ? "0" : "0,0"}" />
+            </div>
+          </td>
+          <td><span class="unit">${m.unit}</span></td>
+        </tr>
+      `).join("");
+
+      defs.forEach((m) => {
+        const input = document.getElementById(`${prefix}_${m.id}`);
+        input.addEventListener("input", () => clearMark(prefix, m.id));
+      });
+    }
+
+    function renderKpiInputs() {
+      renderInputRows(el.kpiBody, financeDefs, "fin");
+    }
+
+    function renderProductivityInputs() {
+      renderInputRows(el.prodBody, productivityDefs, "prod");
+    }
+
+    function setFormulaVisibility(target, visible) {
+      const map = {
+        fin: { table: el.kpiTable, btn: el.toggleFinFormulaBtn },
+        prod: { table: el.prodTable, btn: el.toggleProdFormulaBtn }
+      };
+      const cfg = map[target];
+      if (!cfg || !cfg.table || !cfg.btn) return;
+
+      cfg.table.classList.toggle("show-formulas", visible);
+      cfg.btn.textContent = visible ? "Formeln ausblenden" : "Formeln einblenden";
+      cfg.btn.setAttribute("aria-pressed", visible ? "true" : "false");
+    }
+
+    function toggleFormulaVisibility(target) {
+      const table = target === "fin" ? el.kpiTable : el.prodTable;
+      if (!table) return;
+      setFormulaVisibility(target, !table.classList.contains("show-formulas"));
+    }
+
+    function clearMark(prefix, metricId) {
+      const row = document.querySelector(`[data-row="${prefix}-${metricId}"]`);
+      const wrap = document.querySelector(`[data-wrap="${prefix}-${metricId}"]`);
+      if (row) row.classList.remove("ok", "bad");
+      if (wrap) wrap.classList.remove("ok", "bad");
+    }
+
+    function markInput(prefix, metricId, ok) {
+      const row = document.querySelector(`[data-row="${prefix}-${metricId}"]`);
+      const wrap = document.querySelector(`[data-wrap="${prefix}-${metricId}"]`);
+      if (!row || !wrap) return;
+      row.classList.remove("ok", "bad");
+      wrap.classList.remove("ok", "bad");
+      row.classList.add(ok ? "ok" : "bad");
+      wrap.classList.add(ok ? "ok" : "bad");
+    }
+
+    function readInputs(defs, prefix) {
+      const out = {};
+      defs.forEach((m) => {
+        out[m.id] = parseUserNumber(document.getElementById(`${prefix}_${m.id}`).value);
+      });
+      return out;
+    }
+
+    function clearInputs(defs, prefix) {
+      defs.forEach((m) => {
+        const input = document.getElementById(`${prefix}_${m.id}`);
+        input.value = "";
+        clearMark(prefix, m.id);
+      });
+    }
+
+    function clearFinanceInputs(showMessage = true) {
+      clearInputs(financeDefs, "fin");
+      if (showMessage) {
+        el.feedback.textContent = "Eingaben geleert. Rechne die Rentabilitätskennzahlen erneut.";
+      }
+    }
+
+    function clearProductivityInputs(showMessage = true) {
+      clearInputs(productivityDefs, "prod");
+      if (showMessage) {
+        el.prodFeedback.textContent = "Eingaben geleert. Rechne die Produktivitätskennzahlen erneut.";
+      }
+    }
+
+    function inputToText(value, decimals) {
+      return Number.isFinite(value) ? fmtNumber(value, decimals) : "–";
+    }
+
+    function collectAllInputs() {
+      return {
+        financeInputs: readInputs(financeDefs, "fin"),
+        productivityInputs: readInputs(productivityDefs, "prod")
+      };
+    }
+
+    function checkFormulaSet(defs, prefix, expected, feedbackEl, action, successText) {
+      const inputs = readInputs(defs, prefix);
+      const missing = [];
+      const wrong = [];
+      let correct = 0;
+
+      defs.forEach((m) => {
+        const value = inputs[m.id];
+        if (!Number.isFinite(value)) {
+          missing.push(m.label);
+          markInput(prefix, m.id, false);
+          return;
+        }
+
+        const tol = 0.5 * (10 ** (-m.decimals)) + 1e-9;
+        const ok = Math.abs(value - expected[m.id]) <= tol;
+        markInput(prefix, m.id, ok);
+        if (ok) correct += 1;
+        else wrong.push(m);
+      });
+
+      if (missing.length > 0) {
+        feedbackEl.innerHTML = `<strong>Bitte alle Felder ausfüllen.</strong> Noch offen: ${missing.join(", ")}.`;
+        logProtocol(action, { score: `${correct}/${defs.length}`, ...collectAllInputs() });
+        return;
+      }
+
+      if (wrong.length === 0) {
+        feedbackEl.innerHTML = successText;
+      } else {
+        const hints = wrong.map((m) => `<li><strong>${m.short}:</strong> ${m.hint}</li>`).join("");
+        feedbackEl.innerHTML = `<strong>${correct}/${defs.length} korrekt.</strong> Korrigiere die roten Felder.<ul>${hints}</ul>`;
+      }
+
+      logProtocol(action, { score: `${correct}/${defs.length}`, ...collectAllInputs() });
+    }
+
+    function insertSolutions(defs, prefix, expected, feedbackEl, action, message) {
+      defs.forEach((m) => {
+        const val = expected[m.id];
+        const input = document.getElementById(`${prefix}_${m.id}`);
+        input.value = String(val.toFixed(m.decimals)).replace(".", ",");
+        markInput(prefix, m.id, true);
+      });
+      feedbackEl.innerHTML = message;
+      logProtocol(action, { score: `${defs.length}/${defs.length}`, ...collectAllInputs() });
+    }
+
+    function checkFinance() {
+      checkFormulaSet(
+        financeDefs,
+        "fin",
+        state.current.expectedFinance,
+        el.feedback,
+        "finance_check",
+        "<strong>Sehr gut: 4/4 korrekt.</strong> Du kannst direkt eine neue Übung generieren."
+      );
+    }
+
+    function insertFinanceSolutions() {
+      insertSolutions(
+        financeDefs,
+        "fin",
+        state.current.expectedFinance,
+        el.feedback,
+        "finance_solutions_inserted",
+        "<strong>Lösungen eingefügt.</strong> Prüfe die Werte und starte danach eine neue Übung."
+      );
+    }
+
+    function checkProductivity() {
+      checkFormulaSet(
+        productivityDefs,
+        "prod",
+        state.current.expectedProductivity,
+        el.prodFeedback,
+        "productivity_check",
+        "<strong>Sehr gut: 4/4 korrekt.</strong> Die Produktivitätskennzahlen sind richtig berechnet."
+      );
+    }
+
+    function insertProductivitySolutions() {
+      insertSolutions(
+        productivityDefs,
+        "prod",
+        state.current.expectedProductivity,
+        el.prodFeedback,
+        "productivity_solutions_inserted",
+        "<strong>Lösungen eingefügt.</strong> Vergleiche deinen Rechenweg mit den Ergebnissen."
+      );
+    }
+
+    function statusClassFromScore(score) {
+      const parts = score.split("/");
+      if (parts.length !== 2) return "warn";
+      const a = Number(parts[0]);
+      const b = Number(parts[1]);
+      if (!Number.isFinite(a) || !Number.isFinite(b) || b <= 0) return "warn";
+      if (a === b) return "ok";
+      if (a >= Math.ceil(b * 0.6)) return "warn";
+      return "bad";
+    }
+
+    function actionLabel(action) {
+      if (action === "finance_check") return "Rentabilitäts-Check";
+      if (action === "productivity_check") return "Produktivitäts-Check";
+      if (action === "finance_solutions_inserted") return "Lösung Rentabilität";
+      if (action === "productivity_solutions_inserted") return "Lösung Produktivität";
+      if (action === "new_exercise") return "Neue Übung";
+      return action;
+    }
+
+    function summaryInputs(entry) {
+      if (entry.action === "productivity_check" || entry.action === "productivity_solutions_inserted") {
+        return productivityDefs.map((m) => `${m.short}: ${inputToText(entry.productivityInputs[m.id], m.decimals)}`).join(" | ");
+      }
+      if (entry.action === "new_exercise") {
+        return "Neue Ausgangswerte geladen.";
+      }
+      return financeDefs.map((m) => `${m.short}: ${inputToText(entry.financeInputs[m.id], m.decimals)}`).join(" | ");
+    }
+
+    function renderProtocol() {
+      el.protoCount.textContent = `${state.protocol.length} Einträge`;
+
+      if (state.protocol.length === 0) {
+        el.protoBody.innerHTML = `<tr><td colspan="5" class="empty-row">Noch keine Protokolleinträge.</td></tr>`;
+        return;
+      }
+
+      const rows = state.protocol.slice().reverse().slice(0, 20);
+      el.protoBody.innerHTML = rows.map((entry) => {
+        const score = entry.score;
+        const scoreHtml = score
+          ? `<span class="status-chip ${statusClassFromScore(score)}">${score}</span>`
+          : `<span class="tiny">–</span>`;
+        return `
+          <tr>
+            <td>${entry.timeLocal}</td>
+            <td>Übung ${entry.exerciseNo}</td>
+            <td>${actionLabel(entry.action)}</td>
+            <td>${scoreHtml}</td>
+            <td>${summaryInputs(entry)}</td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function logProtocol(action, payload = {}) {
+      const values = state.current.values;
+      const financeInputs = payload.financeInputs || {};
+      const productivityInputs = payload.productivityInputs || {};
+      const now = new Date();
+
+      state.protocol.push({
+        timestamp: now.toISOString(),
+        timeLocal: new Intl.DateTimeFormat("de-CH", {
+          dateStyle: "short",
+          timeStyle: "medium"
+        }).format(now),
+        exerciseNo: state.exerciseNo,
+        caseId: state.current.caseId,
+        action,
+        score: payload.score || "",
+        financeInputs,
+        productivityInputs,
+        expectedFinance: state.current.expectedFinance,
+        expectedProductivity: state.current.expectedProductivity,
+        values
+      });
+
+      renderProtocol();
+    }
+
+    function csvEscape(value) {
+      const text = String(value ?? "");
+      if (/[;"\n]/.test(text)) return `"${text.replace(/"/g, "\"\"")}"`;
+      return text;
+    }
+
+    function exportCsv() {
+      if (state.protocol.length === 0) {
+        el.feedback.textContent = "Noch kein Protokoll vorhanden. Führe zuerst mindestens einen Check aus.";
+        return;
+      }
+
+      const header = [
+        "timestamp",
+        "exercise_no",
+        "case_id",
+        "action",
+        "score",
+        "umsatz",
+        "jahresgewinn",
+        "eigenkapital",
+        "gesamtkapital",
+        "ebit",
+        "personalaufwand",
+        "fte",
+        "anzahl_auftraege",
+        "gesamte_durchlaufzeit",
+        "gesamtproduktion",
+        "fehlerhafte_einheiten",
+        "input_fin_roe",
+        "input_fin_ros",
+        "input_fin_roi",
+        "input_fin_ebit_marge",
+        "solution_fin_roe",
+        "solution_fin_ros",
+        "solution_fin_roi",
+        "solution_fin_ebit_marge",
+        "input_prod_umsatz_pro_ma",
+        "input_prod_personalquote",
+        "input_prod_durchlaufzeit",
+        "input_prod_ausschussquote",
+        "solution_prod_umsatz_pro_ma",
+        "solution_prod_personalquote",
+        "solution_prod_durchlaufzeit",
+        "solution_prod_ausschussquote"
+      ];
+
+      const lines = [header.join(";")];
+
+      state.protocol.forEach((entry) => {
+        const row = [
+          entry.timestamp,
+          entry.exerciseNo,
+          entry.caseId,
+          entry.action,
+          entry.score,
+          entry.values.umsatz,
+          entry.values.jahresgewinn,
+          entry.values.eigenkapital,
+          entry.values.gesamtkapital,
+          entry.values.ebit,
+          entry.values.personalaufwand,
+          entry.values.fte,
+          entry.values.anzahlAuftraege,
+          entry.values.gesamteDurchlaufzeit,
+          entry.values.gesamtproduktion,
+          entry.values.fehlerhafteEinheiten,
+          Number.isFinite(entry.financeInputs.roe) ? entry.financeInputs.roe : "",
+          Number.isFinite(entry.financeInputs.ros) ? entry.financeInputs.ros : "",
+          Number.isFinite(entry.financeInputs.roi) ? entry.financeInputs.roi : "",
+          Number.isFinite(entry.financeInputs.ebitMarge) ? entry.financeInputs.ebitMarge : "",
+          entry.expectedFinance.roe,
+          entry.expectedFinance.ros,
+          entry.expectedFinance.roi,
+          entry.expectedFinance.ebitMarge,
+          Number.isFinite(entry.productivityInputs.umsatzProMa) ? entry.productivityInputs.umsatzProMa : "",
+          Number.isFinite(entry.productivityInputs.personalquote) ? entry.productivityInputs.personalquote : "",
+          Number.isFinite(entry.productivityInputs.durchlaufzeit) ? entry.productivityInputs.durchlaufzeit : "",
+          Number.isFinite(entry.productivityInputs.ausschussquote) ? entry.productivityInputs.ausschussquote : "",
+          entry.expectedProductivity.umsatzProMa,
+          entry.expectedProductivity.personalquote,
+          entry.expectedProductivity.durchlaufzeit,
+          entry.expectedProductivity.ausschussquote
+        ];
+        lines.push(row.map(csvEscape).join(";"));
+      });
+
+      const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8;" });
+      const stamp = new Date().toISOString().slice(0, 19).replace(/[-:T]/g, "");
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `kennzahlen_protokoll_${stamp}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(a.href);
+    }
+
+    function clearProtocol() {
+      state.protocol = [];
+      renderProtocol();
+      el.feedback.textContent = "Protokoll wurde geleert.";
+    }
+
+    function startNewExercise() {
+      state.exerciseNo += 1;
+      const values = generateValues();
+      state.current = {
+        caseId: `Case-${String(state.exerciseNo).padStart(3, "0")}`,
+        values,
+        expectedFinance: computeExpected(financeDefs, values),
+        expectedProductivity: computeExpected(productivityDefs, values)
+      };
+
+      renderExerciseMeta();
+      renderValues();
+      clearFinanceInputs(false);
+      el.feedback.textContent = "Neue Übung geladen. Berechne die 4 Kennzahlen und prüfe danach deine Antworten.";
+      clearProductivityInputs(false);
+      el.prodFeedback.textContent = "Neue Übung geladen. Berechne die 4 Produktivitätskennzahlen und starte danach die Prüfung.";
+    }
+
+    function init() {
+      renderKpiInputs();
+      renderProductivityInputs();
+      setFormulaVisibility("fin", false);
+      setFormulaVisibility("prod", false);
+      startNewExercise();
+      renderProtocol();
+
+      el.toggleFinFormulaBtn.addEventListener("click", () => toggleFormulaVisibility("fin"));
+      el.toggleProdFormulaBtn.addEventListener("click", () => toggleFormulaVisibility("prod"));
+      el.checkBtn.addEventListener("click", checkFinance);
+      el.insertBtn.addEventListener("click", insertFinanceSolutions);
+      el.nextBtn.addEventListener("click", () => {
+        startNewExercise();
+        logProtocol("new_exercise");
+      });
+      el.resetBtn.addEventListener("click", () => clearFinanceInputs(true));
+      el.prodCheckBtn.addEventListener("click", checkProductivity);
+      el.prodInsertBtn.addEventListener("click", insertProductivitySolutions);
+      el.prodResetBtn.addEventListener("click", () => clearProductivityInputs(true));
+      el.exportBtn.addEventListener("click", exportCsv);
+      el.clearLogBtn.addEventListener("click", clearProtocol);
+    }
+
+    init();
+  </script>
+</body>
+</html>
