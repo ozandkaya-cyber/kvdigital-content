@@ -282,21 +282,21 @@
 
     .kennzahlen-grid {
       display: grid;
-      grid-template-columns: 1fr;
-      gap: 8px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 7px;
     }
 
     .kennzahl {
       border: 1px solid #dbe2e9;
       border-radius: 11px;
       background: var(--karte-innen);
-      padding: 9px;
-      min-height: 78px;
+      padding: 8px;
+      min-height: 64px;
     }
 
     .kennzahl h3 {
-      margin: 0 0 4px;
-      font-size: 0.76rem;
+      margin: 0 0 3px;
+      font-size: 0.71rem;
       letter-spacing: 0.03em;
       text-transform: uppercase;
       color: #657386;
@@ -304,7 +304,7 @@
 
     .kennzahl p {
       margin: 0;
-      font-size: 1.1rem;
+      font-size: 0.98rem;
       line-height: 1.12;
       font-weight: 800;
       color: #2f3946;
@@ -371,6 +371,10 @@
           "grafik"
           "zahlen"
           "balken" !important;
+      }
+
+      .kennzahlen-grid {
+        grid-template-columns: 1fr;
       }
     }
 
@@ -518,7 +522,7 @@
             </div>
             <div class="ebene-inhalt">
               <div class="diagramm">
-                <svg id="impactChart" viewBox="0 0 860 340" aria-label="Balkenvergleich"></svg>
+                <svg id="impactChart" viewBox="0 0 860 460" aria-label="Balkenvergleich"></svg>
               </div>
             </div>
           </section>
@@ -913,8 +917,8 @@
       clearSvg(svg);
 
       const width = 860;
-      const height = 340;
-      const margin = { top: 18, right: 22, bottom: 60, left: 86 };
+      const height = 460;
+      const margin = { top: 22, right: 22, bottom: 66, left: 84 };
       const innerW = width - margin.left - margin.right;
       const innerH = height - margin.top - margin.bottom;
 
@@ -925,12 +929,16 @@
         { name: "Ergebnis", value: m.profit, color: m.profit >= 0 ? "#15803d" : "#b91c1c" },
       ];
 
-      const maxAbs = Math.max(...rows.map((r) => Math.abs(r.value)), 1) * 1.2;
-      const yMin = -maxAbs;
-      const yMax = maxAbs;
+      const values = rows.map((r) => r.value);
+      const rawMin = Math.min(0, ...values);
+      const rawMax = Math.max(0, ...values);
+      const padTop = (Math.abs(rawMax) || 1) * 0.18;
+      const padBottom = (Math.abs(rawMin) || 1) * 0.18;
+      const yMin = rawMin - padBottom;
+      const yMax = rawMax + padTop;
       const y = (v) => margin.top + ((yMax - v) / (yMax - yMin)) * innerH;
       const xStep = innerW / rows.length;
-      const barW = Math.min(120, xStep * 0.58);
+      const barW = Math.min(146, xStep * 0.64);
       const zeroY = y(0);
 
       svg.appendChild(svgEl("rect", {
