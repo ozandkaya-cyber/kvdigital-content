@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fixkosten und variable Kosten interaktiv (Embed)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Encode+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-top: #dce8f3;
+      --bg-bottom: #edf3f7;
+      --rahmen: #cfd8e1;
+      --panel: #f4f6f8;
+      --panel-innen: #ffffff;
+      --text: #2f3a46;
+      --muted: #5f6f82;
+      --line: #d9e1e8;
+      --fix: #c43c3c;
+      --variabel: #1e3a8a;
+      --gesamt: #0f766e;
+      --akzent: #1f8f58;
+      --shadow: 0 14px 32px rgba(41, 55, 73, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Encode Sans", "Segoe UI", sans-serif;
+      color: var(--text);
+      background: transparent;
+      min-height: 0;
+      padding: 0;
+    }
+
+    .modul {
+      max-width: none;
+      margin: 0;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+      padding: 0;
+      display: grid;
+      gap: 10px;
+    }
+
+    .kopf {
+      border: 1px solid #d2dbe4;
+      border-radius: 14px;
+      background: linear-gradient(90deg, #e8edf5, #f2f6f9);
+      padding: 12px 14px;
+      display: grid;
+      gap: 5px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.25rem, 2.3vw, 1.65rem);
+      line-height: 1.1;
+      color: #2d3641;
+    }
+
+    .sub {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.35;
+      max-width: 90ch;
+    }
+
+    .steuerung {
+      border: 1px solid #d2dbe4;
+      border-radius: 14px;
+      background: var(--panel);
+      padding: 10px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .steuerung label {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #374758;
+    }
+
+    .steuerung label span {
+      color: var(--akzent);
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: #198c65;
+      cursor: pointer;
+    }
+
+    .inhalt {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(230px, 280px);
+      gap: 10px;
+      align-items: start;
+    }
+
+    .karte {
+      border: 1px solid #d2dbe4;
+      border-radius: 14px;
+      background: var(--panel);
+      padding: 10px;
+    }
+
+    .diagramm {
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: var(--panel-innen);
+      padding: 8px;
+    }
+
+    svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .legende {
+      margin-top: 8px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      color: #5d6d81;
+      font-size: 0.84rem;
+    }
+
+    .legende i {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      display: inline-block;
+      margin-right: 5px;
+      vertical-align: -1px;
+    }
+
+    .werte {
+      display: grid;
+      gap: 8px;
+    }
+
+    .wert {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--panel-innen);
+      padding: 8px;
+      display: grid;
+      gap: 2px;
+    }
+
+    .wert .label {
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: #627184;
+      font-weight: 700;
+    }
+
+    .wert .zahl {
+      font-size: 1rem;
+      font-weight: 800;
+      color: #2f3d4f;
+    }
+
+    .hinweis {
+      border: 1px dashed #d2dbe4;
+      border-radius: 10px;
+      background: #f8fafc;
+      padding: 8px;
+      color: #4f6074;
+      font-size: 0.85rem;
+      line-height: 1.35;
+    }
+
+    @media (max-width: 860px) {
+      .inhalt {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 720px) {
+      body { padding: 0; }
+      .modul { border-radius: 0; padding: 0; }
+    }
+  </style>
+</head>
+<body>
+  <section class="modul" aria-label="Fixkosten und variable Kosten interaktiv">
+    <header class="kopf">
+      <h1>Fixkosten und variable Kosten</h1>
+      <p class="sub">Schiebe die Menge und beobachte: Fixkosten bleiben konstant, variable Kosten steigen proportional, Gesamtkosten ergeben sich aus beiden.</p>
+    </header>
+
+    <section class="steuerung" aria-label="Mengensteuerung">
+      <label for="menge">
+        Produktions- oder Absatzmenge
+        <span id="mengeWert"></span>
+      </label>
+      <input id="menge" type="range" min="0" max="5000" step="50" value="1200" />
+    </section>
+
+    <section class="inhalt">
+      <article class="karte" aria-label="Kostenkurve">
+        <div class="diagramm">
+          <svg id="kostenChart" viewBox="0 0 860 420" aria-label="Kostenverlauf"></svg>
+        </div>
+        <div class="legende">
+          <span><i style="background:#c43c3c"></i>Fixkosten</span>
+          <span><i style="background:#1e3a8a"></i>Variable Kosten</span>
+          <span><i style="background:#0f766e"></i>Gesamtkosten</span>
+        </div>
+      </article>
+
+      <aside class="werte" aria-label="Werte">
+        <article class="wert">
+          <span class="label">Fixkosten (konstant)</span>
+          <span class="zahl" id="fixWert"></span>
+        </article>
+
+        <article class="wert">
+          <span class="label">Variable Kosten bei aktueller Menge</span>
+          <span class="zahl" id="varWert"></span>
+        </article>
+
+        <article class="wert">
+          <span class="label">Gesamtkosten bei aktueller Menge</span>
+          <span class="zahl" id="gesamtWert"></span>
+        </article>
+
+        <article class="wert">
+          <span class="label">Anteil variable Kosten</span>
+          <span class="zahl" id="anteilWert"></span>
+        </article>
+
+        <div class="hinweis" id="hinweisText"></div>
+      </aside>
+    </section>
+  </section>
+
+  <script>
+    const svgNS = "http://www.w3.org/2000/svg";
+    const formatCHF = new Intl.NumberFormat("de-CH", {
+      style: "currency",
+      currency: "CHF",
+      maximumFractionDigits: 0
+    });
+    const formatInt = new Intl.NumberFormat("de-CH", { maximumFractionDigits: 0 });
+    const formatPct = new Intl.NumberFormat("de-CH", { style: "percent", minimumFractionDigits: 1, maximumFractionDigits: 1 });
+
+    const modell = {
+      fixkosten: 28000,
+      variableKostenProStueck: 18,
+      maxMenge: 5000
+    };
+
+    const ui = {
+      menge: document.getElementById("menge"),
+      mengeWert: document.getElementById("mengeWert"),
+      fixWert: document.getElementById("fixWert"),
+      varWert: document.getElementById("varWert"),
+      gesamtWert: document.getElementById("gesamtWert"),
+      anteilWert: document.getElementById("anteilWert"),
+      hinweisText: document.getElementById("hinweisText"),
+      chart: document.getElementById("kostenChart")
+    };
+
+    const calc = (menge) => {
+      const fix = modell.fixkosten;
+      const variabel = modell.variableKostenProStueck * menge;
+      const gesamt = fix + variabel;
+      const anteilVariabel = gesamt > 0 ? variabel / gesamt : 0;
+      return { menge, fix, variabel, gesamt, anteilVariabel };
+    };
+
+    const clearSvg = (svg) => {
+      while (svg.firstChild) svg.removeChild(svg.firstChild);
+    };
+
+    const svgEl = (name, attrs = {}) => {
+      const el = document.createElementNS(svgNS, name);
+      Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, String(v)));
+      return el;
+    };
+
+    const drawChart = (m) => {
+      const svg = ui.chart;
+      clearSvg(svg);
+
+      const width = 860;
+      const height = 420;
+      const margin = { top: 20, right: 20, bottom: 58, left: 88 };
+      const innerW = width - margin.left - margin.right;
+      const innerH = height - margin.top - margin.bottom;
+
+      const maxY = Math.max(modell.fixkosten + modell.variableKostenProStueck * modell.maxMenge, 1) * 1.12;
+      const maxX = modell.maxMenge;
+
+      const x = (v) => margin.left + (v / maxX) * innerW;
+      const y = (v) => margin.top + innerH - (v / maxY) * innerH;
+
+      svg.appendChild(svgEl("rect", {
+        x: margin.left,
+        y: margin.top,
+        width: innerW,
+        height: innerH,
+        fill: "#ffffff",
+        stroke: "#dfe7ee"
+      }));
+
+      for (let i = 0; i <= 5; i += 1) {
+        const yy = margin.top + (innerH / 5) * i;
+        const v = maxY - (maxY / 5) * i;
+
+        svg.appendChild(svgEl("line", {
+          x1: margin.left,
+          x2: width - margin.right,
+          y1: yy,
+          y2: yy,
+          stroke: "#eef2f6"
+        }));
+
+        const t = svgEl("text", {
+          x: margin.left - 10,
+          y: yy + 4,
+          "text-anchor": "end",
+          fill: "#607083",
+          "font-size": "11"
+        });
+        t.textContent = formatCHF.format(v);
+        svg.appendChild(t);
+      }
+
+      for (let i = 0; i <= 5; i += 1) {
+        const xv = (maxX / 5) * i;
+        const xx = x(xv);
+
+        svg.appendChild(svgEl("line", {
+          x1: xx,
+          x2: xx,
+          y1: margin.top,
+          y2: height - margin.bottom,
+          stroke: "#f2f6f9"
+        }));
+
+        const t = svgEl("text", {
+          x: xx,
+          y: height - margin.bottom + 18,
+          "text-anchor": "middle",
+          fill: "#607083",
+          "font-size": "11"
+        });
+        t.textContent = formatInt.format(xv);
+        svg.appendChild(t);
+      }
+
+      const axisY = svgEl("text", {
+        x: 18,
+        y: height / 2,
+        transform: `rotate(-90 18 ${height / 2})`,
+        "text-anchor": "middle",
+        fill: "#4c5d70",
+        "font-size": "12"
+      });
+      axisY.textContent = "Kosten (CHF)";
+      svg.appendChild(axisY);
+
+      const axisX = svgEl("text", {
+        x: width / 2,
+        y: height - 12,
+        "text-anchor": "middle",
+        fill: "#4c5d70",
+        "font-size": "12"
+      });
+      axisX.textContent = "Menge (Stück)";
+      svg.appendChild(axisX);
+
+      const makePath = (fn, color, dash = "") => {
+        let d = "";
+        const steps = 80;
+        for (let i = 0; i <= steps; i += 1) {
+          const xv = (maxX / steps) * i;
+          const cmd = i === 0 ? "M" : "L";
+          d += `${cmd}${x(xv).toFixed(2)} ${y(fn(xv)).toFixed(2)} `;
+        }
+        svg.appendChild(svgEl("path", {
+          d,
+          fill: "none",
+          stroke: color,
+          "stroke-width": "2.8",
+          "stroke-linecap": "round",
+          "stroke-dasharray": dash
+        }));
+      };
+
+      makePath(() => modell.fixkosten, "#c43c3c", "6 5");
+      makePath((q) => modell.variableKostenProStueck * q, "#1e3a8a");
+      makePath((q) => modell.fixkosten + modell.variableKostenProStueck * q, "#0f766e");
+
+      const xAkt = x(m.menge);
+      svg.appendChild(svgEl("line", {
+        x1: xAkt,
+        x2: xAkt,
+        y1: margin.top,
+        y2: height - margin.bottom,
+        stroke: "#1f8f58",
+        "stroke-width": "1.4",
+        "stroke-dasharray": "4 4",
+        opacity: "0.75"
+      }));
+
+      const dotVar = svgEl("circle", {
+        cx: xAkt,
+        cy: y(m.variabel),
+        r: 4.5,
+        fill: "#1e3a8a",
+        stroke: "#ffffff",
+        "stroke-width": "1.5"
+      });
+      const dotGes = svgEl("circle", {
+        cx: xAkt,
+        cy: y(m.gesamt),
+        r: 4.5,
+        fill: "#0f766e",
+        stroke: "#ffffff",
+        "stroke-width": "1.5"
+      });
+      svg.appendChild(dotVar);
+      svg.appendChild(dotGes);
+
+      const label = svgEl("text", {
+        x: xAkt,
+        y: margin.top + 14,
+        "text-anchor": "middle",
+        fill: "#1f8f58",
+        "font-size": "11",
+        "font-weight": "700"
+      });
+      label.textContent = `Aktuell: ${formatInt.format(m.menge)} Stück`;
+      svg.appendChild(label);
+    };
+
+    const hinweisText = (m) => {
+      if (m.menge === 0) {
+        return "Bei Menge 0 entstehen nur Fixkosten. Variable Kosten sind dann null.";
+      }
+      if (m.anteilVariabel < 0.35) {
+        return "Bei niedriger Menge dominieren Fixkosten den Kostenblock.";
+      }
+      if (m.anteilVariabel < 0.6) {
+        return "Mit steigender Menge gewinnt der variable Anteil an Gewicht.";
+      }
+      return "Bei hoher Menge dominieren variable Kosten den Kostenblock.";
+    };
+
+    const render = () => {
+      const menge = Number(ui.menge.value);
+      const m = calc(menge);
+
+      ui.mengeWert.textContent = `${formatInt.format(menge)} Stück`;
+      ui.fixWert.textContent = formatCHF.format(m.fix);
+      ui.varWert.textContent = formatCHF.format(m.variabel);
+      ui.gesamtWert.textContent = formatCHF.format(m.gesamt);
+      ui.anteilWert.textContent = formatPct.format(m.anteilVariabel);
+      ui.hinweisText.textContent = hinweisText(m);
+
+      drawChart(m);
+    };
+
+    ui.menge.addEventListener("input", render);
+    render();
+  </script>
+</body>
+</html>
