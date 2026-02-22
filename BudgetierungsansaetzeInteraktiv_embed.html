@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Budgetierungsansätze interaktiv (Embed)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Encode+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-top: #dce8f3;
+      --bg-bottom: #edf3f7;
+      --rahmen: #cfd8e1;
+      --panel: #f4f6f8;
+      --panel-innen: #ffffff;
+      --text: #2f3a46;
+      --muted: #5f6f82;
+      --aktiv-bg: #e9f2fb;
+      --aktiv-border: #b8cbe0;
+      --line: #d9e1e8;
+      --shadow: 0 14px 32px rgba(41, 55, 73, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Encode Sans", "Segoe UI", sans-serif;
+      color: var(--text);
+      background: transparent;
+      min-height: 0;
+      padding: 0;
+    }
+
+    .modul {
+      max-width: none;
+      margin: 0;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+      padding: 0;
+      display: grid;
+      gap: 10px;
+    }
+
+    .kopf {
+      border: 1px solid #d2dbe4;
+      border-radius: 14px;
+      background: linear-gradient(90deg, #e8edf5, #f2f6f9);
+      padding: 12px 14px;
+      display: grid;
+      gap: 6px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.3rem, 2.5vw, 1.8rem);
+      line-height: 1.1;
+      color: #2d3641;
+    }
+
+    .sub {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.35;
+      font-size: 0.92rem;
+    }
+
+    .steuerung {
+      border: 1px solid #d2dbe4;
+      border-radius: 14px;
+      background: var(--panel);
+      padding: 10px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .gruppe {
+      display: grid;
+      gap: 6px;
+    }
+
+    .label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: #627184;
+      font-weight: 700;
+    }
+
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .tab-btn {
+      border: 1px solid #d1dbe5;
+      background: #fbfcfd;
+      color: #354454;
+      border-radius: 10px;
+      padding: 7px 12px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .tab-btn:hover { background: #f2f6fa; }
+
+    .tab-btn.aktiv {
+      border-color: var(--aktiv-border);
+      background: var(--aktiv-bg);
+      color: #20364d;
+      font-weight: 700;
+    }
+
+    .inhalt {
+      border: 1px solid #d2dbe4;
+      border-radius: 14px;
+      background: var(--panel);
+      padding: 10px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .karte {
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: var(--panel-innen);
+      padding: 12px;
+      display: grid;
+      gap: 8px;
+      min-height: 220px;
+    }
+
+    .karte h2 {
+      margin: 0;
+      font-size: 1.08rem;
+      color: #314150;
+      line-height: 1.2;
+    }
+
+    .karte p {
+      margin: 0;
+      font-size: 0.95rem;
+      line-height: 1.42;
+      color: #435264;
+    }
+
+    .karte ul {
+      margin: 0;
+      padding-left: 1.05rem;
+      display: grid;
+      gap: 6px;
+      color: #435264;
+      font-size: 0.95rem;
+      line-height: 1.38;
+    }
+
+    .kontext {
+      font-size: 0.84rem;
+      color: #627184;
+      border-top: 1px solid #e3e9ef;
+      padding-top: 7px;
+    }
+
+    @media (max-width: 720px) {
+      body { padding: 0; }
+      .modul { border-radius: 0; padding: 0; }
+      .karte { min-height: 180px; }
+    }
+  </style>
+</head>
+<body>
+  <section class="modul" aria-label="Interaktive Budgetierungsansätze">
+    <header class="kopf">
+      <h1>Budgetierungsansätze im Überblick</h1>
+      <p class="sub">Klarer Vergleich ohne Zusatzmodule: Ansatz wählen, Thema anklicken, Inhalt lesen.</p>
+    </header>
+
+    <section class="steuerung" aria-label="Steuerung">
+      <div class="gruppe">
+        <span class="label">Ansatz</span>
+        <div class="tabs" id="ansatzTabs"></div>
+      </div>
+
+      <div class="gruppe">
+        <span class="label">Thema</span>
+        <div class="tabs" id="themaTabs"></div>
+      </div>
+    </section>
+
+    <section class="inhalt" aria-label="Inhalt">
+      <article class="karte" id="inhaltKarte"></article>
+    </section>
+  </section>
+
+  <script>
+    const daten = {
+      topDown: {
+        name: "Top-Down",
+        kurz: "Zentrale Budgetvorgabe durch die Geschäftsleitung.",
+        ablauf: "Die Geschäftsleitung gibt die Gesamtbudgets vor und verteilt sie auf die Bereiche.",
+        vorteile: [
+          "Schnell in der Umsetzung",
+          "Strategisch konsistent",
+          "Klare Vorgaben und hohe Steuerbarkeit"
+        ],
+        nachteile: [
+          "Wenig Praxisbezug in einzelnen Teams",
+          "Fehlende Akzeptanz bei Mitarbeitenden",
+          "Risiko unrealistischer Vorgaben"
+        ],
+        einordnung: "Sinnvoll bei hohem Zeitdruck und wenn eine starke zentrale Steuerung gewünscht ist."
+      },
+      bottomUp: {
+        name: "Bottom-Up",
+        kurz: "Dezentrale Bedarfsmeldung aus den Abteilungen.",
+        ablauf: "Jede Abteilung meldet ihren Bedarf an; die Budgets werden aggregiert und abgestimmt.",
+        vorteile: [
+          "Hoher Praxisbezug",
+          "Höhere Akzeptanz in den Teams",
+          "Detaillierte Planung auf operativer Ebene"
+        ],
+        nachteile: [
+          "Zeitaufwändig",
+          "Tendenz zur Budgetaufblähung",
+          "Hoher Abstimmungsbedarf"
+        ],
+        einordnung: "Sinnvoll, wenn Fachnähe und Mitwirkung wichtiger sind als schnelle zentrale Entscheidungen."
+      },
+      gegenstrom: {
+        name: "Gegenstromverfahren",
+        kurz: "Verbindet zentrale Leitplanken mit dezentraler Detailplanung.",
+        ablauf: "Die Geschäftsleitung gibt den Rahmen vor; Bereiche füllen Details aus; danach erfolgt Abstimmung.",
+        vorteile: [
+          "Vereint Vorteile beider Ansätze",
+          "Balance zwischen Strategie und Praxis",
+          "Gemeinsame Verantwortung von Leitung und Bereichen"
+        ],
+        nachteile: [
+          "Erfordert gute Kommunikation",
+          "Kann bei Konflikten länger dauern",
+          "Braucht klare Rollen und Moderation"
+        ],
+        einordnung: "In vielen Unternehmen ein robuster Standardansatz, weil strategische Führung und operatives Wissen verbunden werden."
+      }
+    };
+
+    const themen = [
+      { key: "ablauf", label: "Ablauf" },
+      { key: "vorteile", label: "Vorteile" },
+      { key: "nachteile", label: "Nachteile" },
+      { key: "einordnung", label: "Einordnung" }
+    ];
+
+    const state = {
+      ansatz: "topDown",
+      thema: "ablauf"
+    };
+
+    const elements = {
+      ansatzTabs: document.getElementById("ansatzTabs"),
+      themaTabs: document.getElementById("themaTabs"),
+      inhaltKarte: document.getElementById("inhaltKarte")
+    };
+
+    const escapeHtml = (text) =>
+      text
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+
+    const renderAnsatzTabs = () => {
+      elements.ansatzTabs.innerHTML = "";
+      Object.entries(daten).forEach(([key, modell]) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "tab-btn";
+        if (state.ansatz === key) btn.classList.add("aktiv");
+        btn.textContent = modell.name;
+        btn.addEventListener("click", () => {
+          state.ansatz = key;
+          render();
+        });
+        elements.ansatzTabs.appendChild(btn);
+      });
+    };
+
+    const renderThemaTabs = () => {
+      elements.themaTabs.innerHTML = "";
+      themen.forEach((thema) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "tab-btn";
+        if (state.thema === thema.key) btn.classList.add("aktiv");
+        btn.textContent = thema.label;
+        btn.addEventListener("click", () => {
+          state.thema = thema.key;
+          renderInhalt();
+          renderThemaTabs();
+        });
+        elements.themaTabs.appendChild(btn);
+      });
+    };
+
+    const renderInhalt = () => {
+      const modell = daten[state.ansatz];
+      const themaMeta = themen.find((t) => t.key === state.thema);
+
+      if (state.thema === "ablauf") {
+        elements.inhaltKarte.innerHTML = `
+          <h2>${escapeHtml(modell.name)}: ${escapeHtml(themaMeta.label)}</h2>
+          <p>${escapeHtml(modell.ablauf)}</p>
+          <div class="kontext">Kontext: ${escapeHtml(modell.kurz)}</div>
+        `;
+        return;
+      }
+
+      if (state.thema === "einordnung") {
+        elements.inhaltKarte.innerHTML = `
+          <h2>${escapeHtml(modell.name)}: ${escapeHtml(themaMeta.label)}</h2>
+          <p>${escapeHtml(modell.einordnung)}</p>
+          <div class="kontext">Kontext: ${escapeHtml(modell.kurz)}</div>
+        `;
+        return;
+      }
+
+      const liste = modell[state.thema];
+      elements.inhaltKarte.innerHTML = `
+        <h2>${escapeHtml(modell.name)}: ${escapeHtml(themaMeta.label)}</h2>
+        <ul>${liste.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
+        <div class="kontext">Kontext: ${escapeHtml(modell.kurz)}</div>
+      `;
+    };
+
+    const render = () => {
+      renderAnsatzTabs();
+      renderThemaTabs();
+      renderInhalt();
+    };
+
+    render();
+  </script>
+</body>
+</html>
