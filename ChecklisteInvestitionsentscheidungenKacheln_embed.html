@@ -1,0 +1,629 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checkliste Investitionsentscheidungen - Flip-Kacheln</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Encode+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-top: #dce8f3;
+      --bg-bottom: #edf3f7;
+      --rahmen: #cfd8e1;
+      --panel: #f4f6f8;
+      --panel-innen: #ffffff;
+      --text: #2f3a46;
+      --muted: #5f6f82;
+      --line: #d9e1e8;
+      --aktiv-bg: #e9f2fb;
+      --aktiv-border: #b8cbe0;
+      --ok: #1f8f58;
+      --shadow: 0 14px 32px rgba(41, 55, 73, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Encode Sans", "Segoe UI", sans-serif;
+      color: var(--text);
+      background: transparent;
+      min-height: 0;
+      padding: 0
+    }
+
+    .app {
+      max-width: none;
+      margin: 0;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+      padding: 0
+      display: grid;
+      gap: 12px;
+    }
+
+    .kopf {
+      border: 1px solid #d2dbe4;
+      border-radius: 14px;
+      background: linear-gradient(90deg, #e8edf5, #f2f6f9);
+      padding: 12px 14px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .titelzeile {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid #d2dbe4;
+      border-radius: 999px;
+      padding: 3px 10px;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      font-weight: 700;
+      color: #47586b;
+      background: #f6f9fc;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.35rem, 2.5vw, 1.95rem);
+      line-height: 1.1;
+      color: #2d3641;
+    }
+
+    .sub {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.35;
+      font-size: 0.93rem;
+      max-width: 100ch;
+    }
+
+    .schrittleiste-wrap {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--panel-innen);
+      padding: 8px;
+    }
+
+    .schrittleiste {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .schritt {
+      border: 1px solid #d7e0e9;
+      border-radius: 10px;
+      background: #fbfdff;
+      padding: 8px;
+      display: grid;
+      gap: 5px;
+      text-align: left;
+      cursor: pointer;
+      color: #3c4e60;
+      font-family: inherit;
+      font-size: 0.84rem;
+      font-weight: 600;
+      transition: background 0.2s ease, border-color 0.2s ease;
+    }
+
+    .schritt:hover {
+      background: #f3f8fd;
+    }
+
+    .schritt.aktiv {
+      border-color: var(--aktiv-border);
+      background: var(--aktiv-bg);
+    }
+
+    .schritt.gesehen {
+      border-color: #bdd9c9;
+      background: #eff9f3;
+    }
+
+    .schrittkopf {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .punkt {
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      display: inline-grid;
+      place-items: center;
+      font-size: 0.78rem;
+      font-weight: 800;
+      border: 1px solid #cdd8e3;
+      background: #ffffff;
+      color: #3e5164;
+      flex: 0 0 auto;
+    }
+
+    .schritt.gesehen .punkt {
+      border-color: #a8cfba;
+      color: #1f8f58;
+    }
+
+    .kachelraster {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .kachel {
+      position: relative;
+      min-height: 320px;
+      perspective: 1200px;
+      cursor: pointer;
+      outline: none;
+      border-radius: 16px;
+    }
+
+    .kachel:focus-visible {
+      box-shadow: 0 0 0 2px #2563eb;
+    }
+
+    .kachel-inner {
+      position: relative;
+      width: 100%;
+      min-height: 320px;
+      height: 100%;
+      transform-style: preserve-3d;
+      transition: transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+    }
+
+    .kachel.is-flipped .kachel-inner {
+      transform: rotateY(180deg);
+    }
+
+    .face {
+      position: absolute;
+      inset: 0;
+      border: 1px solid #cdd9e6;
+      border-top: 4px solid var(--akzent, #3b82f6);
+      border-radius: 14px;
+      background: var(--panel-innen);
+      padding: 12px;
+      box-shadow: 0 10px 22px rgba(41, 55, 73, 0.1);
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      overflow: hidden;
+    }
+
+    .front {
+      background: linear-gradient(180deg, #ffffff, #f7fafc);
+    }
+
+    .back {
+      transform: rotateY(180deg);
+      background: linear-gradient(180deg, #fafdff, #f1f6fb);
+    }
+
+    .kachel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: nowrap;
+    }
+
+    .nummer {
+      display: inline-grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      font-size: 0.86rem;
+      font-weight: 800;
+      color: #244463;
+      background: #ecf4fc;
+      border: 1px solid #cadef2;
+      flex: 0 0 auto;
+    }
+
+    .zustand {
+      font-size: 0.73rem;
+      font-weight: 700;
+      color: #607083;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      text-align: right;
+    }
+
+    .titel {
+      margin: 0;
+      font-size: 1.17rem;
+      line-height: 1.2;
+      color: #304051;
+    }
+
+    .kurz,
+    .erklaerung {
+      margin: 0;
+      color: #445567;
+      line-height: 1.35;
+      font-size: 0.94rem;
+    }
+
+    .fragen {
+      margin: 2px 0 0;
+      padding-left: 1.1rem;
+      color: #435365;
+      font-size: 0.88rem;
+      line-height: 1.34;
+      display: grid;
+      gap: 4px;
+      overflow: auto;
+      scrollbar-width: thin;
+    }
+
+    .hinweis {
+      margin-top: auto;
+      font-size: 0.78rem;
+      color: #5f6f82;
+      font-weight: 700;
+      border-top: 1px solid #e6edf4;
+      padding-top: 8px;
+    }
+
+    .status {
+      border: 1px solid #d2dbe4;
+      border-radius: 12px;
+      background: #f6f9fc;
+      padding: 9px 10px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .statuskopf {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .status-text {
+      font-size: 0.88rem;
+      color: #4d5e71;
+      font-weight: 600;
+    }
+
+    .btn-reset {
+      border: 1px solid #cfd9e4;
+      border-radius: 10px;
+      background: #ffffff;
+      color: #334557;
+      padding: 6px 10px;
+      font-family: inherit;
+      font-size: 0.84rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-reset:hover {
+      background: #f2f6fa;
+    }
+
+    .fortschritt {
+      border-radius: 999px;
+      height: 10px;
+      overflow: hidden;
+      background: #e5edf4;
+    }
+
+    .fortschritt > div {
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, #1f8f58, #29b06d);
+      transition: width 0.2s ease;
+    }
+
+    @media (max-width: 1340px) {
+      .schrittleiste {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .kachelraster {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 980px) {
+      .schrittleiste {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .kachelraster {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 700px) {
+      body {
+        padding: 10px;
+      }
+
+      .app {
+        border-radius: 12px;
+        padding: 10px;
+      }
+
+      .schrittleiste,
+      .kachelraster {
+        grid-template-columns: 1fr;
+      }
+
+      .kachel,
+      .kachel-inner {
+        min-height: 280px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <section class="app" aria-label="Interaktive Checkliste für Investitionsentscheidungen">
+    <header class="kopf">
+      <div class="titelzeile">
+        <span class="chip">Interaktion</span>
+        <h1>Checkliste für Investitionsentscheidungen</h1>
+      </div>
+      <p class="sub">Die Reihenfolge 1 bis 5 ist als Leitfaden sichtbar. Du kannst die Kacheln trotzdem frei anklicken.</p>
+      <div class="schrittleiste-wrap">
+        <div class="schrittleiste" id="schrittleiste" aria-label="Empfohlene Reihenfolge"></div>
+      </div>
+    </header>
+
+    <section class="kachelraster" id="kachelraster" aria-label="Fünf interaktive Kriterien"></section>
+
+    <section class="status" aria-label="Arbeitsstand">
+      <div class="statuskopf">
+        <span class="status-text" id="statusText">0 von 5 Kacheln geöffnet</span>
+        <button type="button" class="btn-reset" id="resetBtn">Alle Kacheln zurücksetzen</button>
+      </div>
+      <div class="fortschritt"><div id="fortschrittFill"></div></div>
+    </section>
+  </section>
+
+  <script>
+    const KRITERIEN = [
+      {
+        id: "fit",
+        nr: 1,
+        titel: "Strategischer Fit",
+        kurz: "Passt die Investition zur Ausrichtung und zum Zielbild des Unternehmens?",
+        erklaerung: "Prüfe, ob die Investition langfristige Ziele unterstützt und zu Positionierung, Portfolio und Kernkompetenzen passt.",
+        leitfragen: [
+          "Stärkt sie einen klaren Wettbewerbsvorteil?",
+          "Ist der Nutzen auch in 3 bis 5 Jahren relevant?"
+        ],
+        akzent: "#3b82f6"
+      },
+      {
+        id: "roi",
+        nr: 2,
+        titel: "ROI-Berechnung",
+        kurz: "Wie hoch ist die erwartete Rendite im Verhältnis zum eingesetzten Kapital?",
+        erklaerung: "Bewerte die Ertragskraft mit nachvollziehbaren Annahmen. Ein positiver ROI allein reicht nicht, die Qualität der Annahmen ist zentral.",
+        leitfragen: [
+          "Sind Erträge und Kosten realistisch hergeleitet?",
+          "Wurde ein konservatives Szenario mitgerechnet?"
+        ],
+        akzent: "#f97316"
+      },
+      {
+        id: "amortisation",
+        nr: 3,
+        titel: "Amortisationsdauer",
+        kurz: "Wie schnell fliesst das investierte Kapital zurück?",
+        erklaerung: "Eine kurze Amortisationsdauer reduziert Unsicherheit. Gleichzeitig muss der Rückfluss auch unter schwankenden Bedingungen tragfähig bleiben.",
+        leitfragen: [
+          "Liegt die Dauer im akzeptierten Zeitfenster?",
+          "Wie empfindlich ist sie bei Umsatzrückgang?"
+        ],
+        akzent: "#0f766e"
+      },
+      {
+        id: "liquiditaet",
+        nr: 4,
+        titel: "Liquiditätswirkung",
+        kurz: "Welche Auswirkungen hat die Investition auf die Zahlungsfähigkeit?",
+        erklaerung: "Auch rentable Vorhaben können kritisch werden, wenn der Liquiditätsabfluss zu früh oder zu stark ist. Timing und Finanzierung sind entscheidend.",
+        leitfragen: [
+          "Bleiben Reserven für den laufenden Betrieb stabil?",
+          "Sind Finanzierungsoptionen verbindlich gesichert?"
+        ],
+        akzent: "#2563eb"
+      },
+      {
+        id: "risiko",
+        nr: 5,
+        titel: "Risikobewertung",
+        kurz: "Welche Risiken bestehen und wie werden sie aktiv gesteuert?",
+        erklaerung: "Erfasse Markt-, Kosten-, Umsetzungs- und Kapazitätsrisiken. Wichtig sind konkrete Gegenmassnahmen statt allgemeine Risikohinweise.",
+        leitfragen: [
+          "Sind Eintrittswahrscheinlichkeit und Wirkung bewertet?",
+          "Gibt es klare Massnahmen und Verantwortliche?"
+        ],
+        akzent: "#7c3aed"
+      }
+    ];
+
+    const state = {
+      flipped: new Set(),
+      viewed: new Set(),
+      activeId: null
+    };
+
+    const ui = {
+      schrittleiste: document.getElementById("schrittleiste"),
+      kachelraster: document.getElementById("kachelraster"),
+      statusText: document.getElementById("statusText"),
+      fortschrittFill: document.getElementById("fortschrittFill"),
+      resetBtn: document.getElementById("resetBtn")
+    };
+
+    const renderSchritte = () => {
+      ui.schrittleiste.innerHTML = KRITERIEN.map((item) => `
+        <button type="button" class="schritt" data-id="${item.id}" aria-label="Schritt ${item.nr}: ${item.titel}">
+          <span class="schrittkopf">
+            <span class="punkt">${item.nr}</span>
+            <span>Schritt ${item.nr}</span>
+          </span>
+          <span>${item.titel}</span>
+        </button>
+      `).join("");
+    };
+
+    const renderKacheln = () => {
+      ui.kachelraster.innerHTML = KRITERIEN.map((item) => `
+        <article
+          class="kachel"
+          data-id="${item.id}"
+          style="--akzent:${item.akzent};"
+          role="button"
+          tabindex="0"
+          aria-pressed="false"
+          aria-label="Kachel ${item.nr}: ${item.titel}"
+        >
+          <div class="kachel-inner">
+            <section class="face front" aria-hidden="false">
+              <div class="kachel-head">
+                <span class="nummer">${item.nr}</span>
+                <span class="zustand">Vorderseite</span>
+              </div>
+              <h2 class="titel">${item.titel}</h2>
+              <p class="kurz">${item.kurz}</p>
+              <p class="hinweis">Klicken zum Drehen</p>
+            </section>
+
+            <section class="face back" aria-hidden="true">
+              <div class="kachel-head">
+                <span class="nummer">${item.nr}</span>
+                <span class="zustand">Rückseite</span>
+              </div>
+              <p class="erklaerung">${item.erklaerung}</p>
+              <ul class="fragen">
+                ${item.leitfragen.map((frage) => `<li>${frage}</li>`).join("")}
+              </ul>
+              <p class="hinweis">Erneut klicken zum Schliessen</p>
+            </section>
+          </div>
+        </article>
+      `).join("");
+    };
+
+    const updateStateUI = () => {
+      const stepButtons = ui.schrittleiste.querySelectorAll(".schritt");
+      const cards = ui.kachelraster.querySelectorAll(".kachel");
+
+      stepButtons.forEach((btn) => {
+        const id = btn.dataset.id;
+        btn.classList.toggle("gesehen", state.viewed.has(id));
+        btn.classList.toggle("aktiv", state.activeId === id);
+      });
+
+      cards.forEach((card) => {
+        const id = card.dataset.id;
+        const isFlipped = state.flipped.has(id);
+        card.classList.toggle("is-flipped", isFlipped);
+        card.setAttribute("aria-pressed", isFlipped ? "true" : "false");
+      });
+
+      const opened = state.flipped.size;
+      const total = KRITERIEN.length;
+      ui.statusText.textContent = `${opened} von ${total} Kacheln geöffnet`;
+      ui.fortschrittFill.style.width = `${Math.round((state.viewed.size / total) * 100)}%`;
+    };
+
+    const toggleCard = (id) => {
+      if (state.flipped.has(id)) {
+        state.flipped.delete(id);
+      } else {
+        state.flipped.add(id);
+      }
+      state.viewed.add(id);
+      state.activeId = id;
+      updateStateUI();
+    };
+
+    const openFromStep = (id) => {
+      state.viewed.add(id);
+      state.activeId = id;
+      state.flipped.add(id);
+      updateStateUI();
+
+      const card = ui.kachelraster.querySelector(`.kachel[data-id="${id}"]`);
+      if (card) {
+        card.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    };
+
+    const bindEvents = () => {
+      ui.kachelraster.addEventListener("click", (event) => {
+        const card = event.target.closest(".kachel");
+        if (!card) {
+          return;
+        }
+        toggleCard(card.dataset.id);
+      });
+
+      ui.kachelraster.addEventListener("keydown", (event) => {
+        const card = event.target.closest(".kachel");
+        if (!card) {
+          return;
+        }
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          toggleCard(card.dataset.id);
+        }
+      });
+
+      ui.schrittleiste.addEventListener("click", (event) => {
+        const step = event.target.closest(".schritt");
+        if (!step) {
+          return;
+        }
+        openFromStep(step.dataset.id);
+      });
+
+      ui.resetBtn.addEventListener("click", () => {
+        state.flipped.clear();
+        state.viewed.clear();
+        state.activeId = null;
+        updateStateUI();
+      });
+    };
+
+    const init = () => {
+      renderSchritte();
+      renderKacheln();
+      bindEvents();
+      updateStateUI();
+    };
+
+    init();
+  </script>
+</body>
+</html>
