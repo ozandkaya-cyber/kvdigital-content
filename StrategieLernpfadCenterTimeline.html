@@ -1,0 +1,1159 @@
+<!doctype html>
+<html lang="de-CH">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Strategie Lernpfad</title>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Encode+Sans:wght@400;500;600;700;800&display=swap");
+
+    :root {
+      --bg: #ecf2f6;
+      --panel: #f7f9fb;
+      --card: #ffffff;
+      --line: #d9e0e8;
+      --ink: #111722;
+      --muted: #5f6978;
+      --dark: #151c28;
+      --orange: #ff8a1d;
+      --green: #15803d;
+      --green-soft: #ecfdf3;
+      --warn: #b45309;
+      --warn-soft: #fff7ed;
+      --bad: #b91c1c;
+      --bad-soft: #fef2f2;
+      --blue-soft: #eef4ff;
+      --shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 16px;
+      font-family: "Encode Sans", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 8% 7%, #d4ece5 0%, transparent 24%),
+        radial-gradient(circle at 92% 12%, #e4e7f8 0%, transparent 28%),
+        linear-gradient(180deg, #edf2f6, #e8edf2);
+    }
+
+    .app {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      padding: 16px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .badge {
+      display: inline-block;
+      width: fit-content;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid #d4dbe5;
+      background: #f1f4f8;
+      color: #3b4758;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 0;
+      color: #101722;
+      font-size: clamp(1.28rem, 2.9vw, 2rem);
+      font-weight: 800;
+      letter-spacing: 0.01em;
+    }
+
+    .lead {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.45;
+      font-size: 0.92rem;
+      font-weight: 500;
+      max-width: 96ch;
+    }
+
+    .topbar {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #f2f5f8;
+      padding: 10px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .tab {
+      border: 1px solid #d2d9e3;
+      border-radius: 12px;
+      background: #e7ebf0;
+      color: #344255;
+      padding: 9px 8px;
+      font: inherit;
+      font-size: 0.81rem;
+      font-weight: 700;
+      cursor: pointer;
+      line-height: 1.2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: transform 0.12s ease, filter 0.12s ease;
+    }
+
+    .tab:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.02);
+    }
+
+    .tab.active {
+      border-color: var(--dark);
+      color: var(--orange);
+      background: var(--dark);
+      box-shadow: 0 0 0 2px rgba(17, 24, 39, 0.12);
+    }
+
+    .tab.done {
+      border-color: #bec8d5;
+      background: #dfe5ec;
+      color: #1f2937;
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .meta {
+      margin: 0;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #4b596d;
+    }
+
+    .meta strong {
+      font-weight: 800;
+      color: #172536;
+    }
+
+    .stage-wrap {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--card);
+      min-height: 620px;
+      overflow: hidden;
+    }
+
+    .stage {
+      padding: 14px;
+      display: grid;
+      grid-template-rows: auto auto 1fr auto;
+      gap: 12px;
+    }
+
+    .stage.leaving {
+      opacity: 0;
+      transform: translateY(10px) scale(0.992);
+      transition: opacity 0.16s ease, transform 0.16s ease;
+    }
+
+    .stage.entering {
+      animation: panel-in 0.24s ease;
+    }
+
+    @keyframes panel-in {
+      from { opacity: 0; transform: translateY(10px) scale(0.992); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .title {
+      margin: 0;
+      font-size: clamp(1.08rem, 2vw, 1.35rem);
+      font-weight: 800;
+      color: #152233;
+    }
+
+    .pill {
+      border-radius: 999px;
+      border: 1px solid #d8dee7;
+      background: #f2f5f9;
+      color: #43566f;
+      padding: 4px 10px;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    .learn {
+      margin: 0;
+      border: 1px solid #d9e0ea;
+      border-radius: 12px;
+      background: #f4f7fb;
+      padding: 10px 12px;
+      color: #3b4f68;
+      font-size: 0.87rem;
+      line-height: 1.35;
+      font-weight: 600;
+    }
+
+    .task {
+      border: 1px solid #e1e6ed;
+      border-radius: 14px;
+      background: #ffffff;
+      padding: 12px;
+      display: grid;
+      gap: 12px;
+      align-content: start;
+    }
+
+    .task-hint {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.86rem;
+      font-weight: 500;
+      line-height: 1.4;
+    }
+
+    .start-note {
+      margin: 0;
+      border: 1px solid #f3c28e;
+      border-radius: 12px;
+      background: linear-gradient(180deg, #fff8ef, #ffeed9);
+      color: #8a4d09;
+      padding: 10px 12px;
+      font-size: 0.86rem;
+      line-height: 1.35;
+      font-weight: 700;
+    }
+
+    .start-note strong {
+      color: #7a3e00;
+    }
+
+    .scenario {
+      border: 1px solid #d5dfec;
+      border-radius: 12px;
+      background: linear-gradient(180deg, #f6faff, #f2f6fc);
+      padding: 10px;
+      display: grid;
+      gap: 4px;
+    }
+
+    .scenario strong {
+      color: #1d3552;
+      font-size: 0.86rem;
+    }
+
+    .scenario p {
+      margin: 0;
+      color: #42566f;
+      font-size: 0.83rem;
+      line-height: 1.35;
+      font-weight: 500;
+    }
+
+    .cards-2,
+    .cards-3,
+    .cards-5 {
+      display: grid;
+      gap: 10px;
+    }
+
+    .cards-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .cards-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .cards-5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+
+    .card {
+      border: 1px solid #d5dfeb;
+      border-radius: 16px;
+      background: linear-gradient(180deg, #f8fbff, #eef4fb);
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+      min-height: 170px;
+      align-content: start;
+      box-shadow: 0 6px 16px rgba(26, 43, 64, 0.05);
+    }
+
+    .cards-2 .card:nth-child(4n + 1),
+    .cards-3 .card:nth-child(4n + 1) {
+      background: linear-gradient(180deg, #f7fbff, #edf4ff);
+    }
+
+    .cards-2 .card:nth-child(4n + 2),
+    .cards-3 .card:nth-child(4n + 2) {
+      background: linear-gradient(180deg, #fff9f1, #fff1df);
+    }
+
+    .cards-2 .card:nth-child(4n + 3),
+    .cards-3 .card:nth-child(4n + 3) {
+      background: linear-gradient(180deg, #f7fff8, #eaf8ee);
+    }
+
+    .cards-2 .card:nth-child(4n + 4),
+    .cards-3 .card:nth-child(4n + 4) {
+      background: linear-gradient(180deg, #f9f5ff, #f0e9ff);
+    }
+
+    .card .label {
+      margin: 0;
+      font-size: 0.94rem;
+      font-weight: 700;
+      color: #253344;
+      line-height: 1.34;
+    }
+
+    .card.ok {
+      border-color: #a8ddbf;
+      background: var(--green-soft);
+    }
+
+    .card.bad {
+      border-color: #f0c89b;
+      background: var(--warn-soft);
+    }
+
+    .hint {
+      margin: 0;
+      font-size: 0.78rem;
+      color: #5f7087;
+      line-height: 1.3;
+      font-weight: 600;
+    }
+
+    select,
+    textarea,
+    input[type="text"] {
+      width: 100%;
+      border: 1px solid #d5dce6;
+      border-radius: 9px;
+      background: #fff;
+      color: #1f2937;
+      font: inherit;
+      padding: 8px;
+      font-size: 0.84rem;
+      font-weight: 500;
+    }
+
+    select:focus,
+    textarea:focus,
+    input[type="text"]:focus {
+      outline: none;
+      border-color: var(--orange);
+      box-shadow: 0 0 0 3px rgba(255, 138, 29, 0.16);
+    }
+
+    select.ok,
+    textarea.ok,
+    input[type="text"].ok {
+      border-color: #5cb981;
+      background: #f1fff6;
+      box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.12);
+    }
+
+    select.bad,
+    textarea.bad,
+    input[type="text"].bad {
+      border-color: #e36b6b;
+      background: #fff6f6;
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+    }
+
+    .flip-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .flip-card {
+      min-height: 280px;
+      perspective: 1200px;
+    }
+
+    .flip-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      min-height: 280px;
+      transform-style: preserve-3d;
+      transition: transform 0.38s ease;
+    }
+
+    .flip-card.flipped .flip-inner {
+      transform: rotateY(180deg);
+    }
+
+    .face {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      border: 1px solid #d9e0ea;
+      border-radius: 14px;
+      padding: 12px;
+      display: grid;
+      gap: 8px;
+      align-content: start;
+      background: linear-gradient(180deg, #f5f8fd, #eef3f9);
+    }
+
+    .face.front {
+      grid-template-rows: auto auto auto auto auto 1fr;
+    }
+
+    .face.back {
+      transform: rotateY(180deg);
+      background: linear-gradient(180deg, #fdf7ed, #f7efe4);
+      border-color: #eadac3;
+    }
+
+    .force-title {
+      margin: 0;
+      min-height: 54px;
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: #1f334b;
+    }
+
+    .force-front-text {
+      min-height: 78px;
+    }
+
+    .force-text {
+      margin: 0;
+      font-size: 0.81rem;
+      line-height: 1.35;
+      color: #465b75;
+      font-weight: 500;
+    }
+
+    .mini {
+      font-size: 0.75rem;
+      color: #5d708a;
+      font-weight: 600;
+    }
+
+    .turn-btn {
+      border: 1px solid #ced8e7;
+      border-radius: 8px;
+      background: #ffffff;
+      color: #26425f;
+      font: inherit;
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 6px 8px;
+      width: 100%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--orange);
+    }
+
+    .slider-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 74px;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .val {
+      border: 1px solid #d8dde6;
+      border-radius: 8px;
+      background: #fff;
+      text-align: center;
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 6px;
+      color: #243b5a;
+    }
+
+    .val.ok {
+      border-color: #5cb981;
+      background: #f1fff6;
+      color: #17633a;
+    }
+
+    .val.bad {
+      border-color: #e36b6b;
+      background: #fff6f6;
+      color: #8a2727;
+    }
+
+    .stat {
+      border: 1px solid #d9e0ea;
+      border-radius: 12px;
+      background: #f4f7fb;
+      padding: 10px;
+      color: #2f4763;
+      font-size: 0.83rem;
+      line-height: 1.36;
+      font-weight: 600;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .left-actions,
+    .right-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .right-actions {
+      margin-left: auto;
+    }
+
+    button {
+      border: 0;
+      border-radius: 10px;
+      font: inherit;
+      padding: 9px 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.12s ease, filter 0.12s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.03);
+    }
+
+    .btn-main {
+      background: var(--orange);
+      color: #fff;
+    }
+
+    .btn-soft {
+      background: #eef1f5;
+      border: 1px solid #d5dce6;
+      color: #2a313b;
+    }
+
+    .btn-next {
+      background: var(--dark);
+      color: var(--orange);
+    }
+
+    .btn-soft:disabled,
+    .btn-main:disabled,
+    .btn-next:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none;
+      filter: none;
+    }
+
+    .feedback {
+      margin: 0;
+      border: 1px solid #d9dfe8;
+      border-radius: 10px;
+      background: #f4f7fb;
+      padding: 9px 10px;
+      color: #2f3d51;
+      line-height: 1.35;
+      font-size: 0.86rem;
+      font-weight: 600;
+      max-width: 560px;
+    }
+
+    .feedback.ok {
+      border-color: #b7e0c7;
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    .feedback.bad {
+      border-color: #f0c89b;
+      background: var(--warn-soft);
+      color: var(--warn);
+    }
+
+    @media (max-width: 1220px) {
+      .tabs { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .cards-5,
+      .flip-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .cards-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 860px) {
+      .cards-2,
+      .cards-3,
+      .cards-5,
+      .flip-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stage-wrap { min-height: 640px; }
+      .right-actions { margin-left: 0; }
+      .feedback { max-width: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <span class="badge">INTERAKTIVES ELEMENT: Strategie-Lernpfad</span>
+    <h1>Strategie lernen: auswählen, zentral bearbeiten, gezielt vertiefen</h1>
+    <p class="lead">Ohne doppelte Timeline: oben wählst du das Thema, in der Mitte erscheint eine grosse Lerninteraktion. Falsche Antworten werden markiert und erhalten konkrete Hinweise.</p>
+
+    <section class="topbar">
+      <div class="tabs" id="tabs"></div>
+      <div class="meta-row">
+        <p class="meta"><strong id="progressText">0/6</strong> Bereiche vollständig gelöst</p>
+        <p class="meta">Aktiv: <strong id="activeText">Strategie</strong></p>
+      </div>
+    </section>
+
+    <section class="stage-wrap">
+      <article class="stage" id="stage"></article>
+    </section>
+  </main>
+
+  <script>
+    const steps = [
+      { id: 1, short: "Strategie", title: "Was ist Strategie?", learn: "Unterschied zwischen operativem und strategischem Denken sauber erkennen." },
+      { id: 2, short: "Vision/Mission", title: "Vision, Mission, Leitbild", learn: "Die drei Grundelemente der Ausrichtung korrekt unterscheiden." },
+      { id: 3, short: "PESTEL", title: "PESTEL Analyse", learn: "Makroumfeldfaktoren systematisch den PESTEL-Bereichen zuordnen." },
+      { id: 4, short: "5-Forces", title: "Porters Five Forces verstehen", learn: "Die fünf Wettbewerbskräfte und ihre Intensität anhand einer Ausgangslage beurteilen." },
+      { id: 5, short: "SWOT", title: "SWOT Analyse", learn: "Stärken, Schwächen, Chancen und Risiken präzise trennen." },
+      { id: 6, short: "BSC", title: "Strategieumsetzung mit BSC", learn: "Ziele den vier Perspektiven der Balanced Scorecard zuordnen." }
+    ];
+
+    const state = {
+      current: 1,
+      done: {},
+      feedback: {}
+    };
+
+    const el = {
+      tabs: document.getElementById("tabs"),
+      progressText: document.getElementById("progressText"),
+      activeText: document.getElementById("activeText"),
+      stage: document.getElementById("stage")
+    };
+
+    function esc(s) {
+      return String(s)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function updateMeta() {
+      const doneCount = Object.values(state.done).filter(Boolean).length;
+      el.progressText.textContent = `${doneCount}/${steps.length}`;
+      const step = steps.find((s) => s.id === state.current);
+      el.activeText.textContent = step.short;
+    }
+
+    function renderTabs() {
+      el.tabs.innerHTML = steps.map((s) => {
+        const cls = ["tab", state.current === s.id ? "active" : "", state.done[s.id] ? "done" : ""].filter(Boolean).join(" ");
+        return `<button type="button" class="${cls}" data-step="${s.id}"><span>${esc(s.short)}</span></button>`;
+      }).join("");
+
+      Array.from(el.tabs.querySelectorAll(".tab")).forEach((btn) => {
+        btn.addEventListener("click", () => switchStep(Number(btn.dataset.step)));
+      });
+    }
+
+    function switchStep(next) {
+      if (next < 1 || next > steps.length || next === state.current) return;
+      el.stage.classList.add("leaving");
+      window.setTimeout(() => {
+        state.current = next;
+        renderCurrentStep();
+        el.stage.classList.remove("leaving");
+        el.stage.classList.add("entering");
+        window.setTimeout(() => el.stage.classList.remove("entering"), 260);
+      }, 160);
+    }
+
+    function moveStep(delta) {
+      const next = state.current + delta;
+      if (next >= 1 && next <= steps.length) switchStep(next);
+    }
+
+    function setFeedback(text, tone) {
+      const box = document.getElementById("stepFeedback");
+      if (!box) return;
+      box.classList.remove("ok", "bad");
+      if (tone) box.classList.add(tone);
+      box.textContent = text;
+      state.feedback[state.current] = { text, tone };
+    }
+
+    function setDone(score, total) {
+      const ok = score === total;
+      state.done[state.current] = ok;
+      renderTabs();
+      updateMeta();
+      return ok;
+    }
+
+    function clearStates(root) {
+      Array.from(root.querySelectorAll(".ok, .bad")).forEach((n) => n.classList.remove("ok", "bad"));
+    }
+
+    function shell(inner) {
+      const step = steps.find((s) => s.id === state.current);
+      const prevDisabled = state.current === 1 ? "disabled" : "";
+      const nextDisabled = state.current === steps.length ? "disabled" : "";
+      const fb = state.feedback[state.current];
+      const fbClass = fb?.tone ? `feedback ${fb.tone}` : "feedback";
+      const fbText = fb?.text || "Mini-Check ausführen, um Rückmeldung zu erhalten.";
+
+      el.stage.innerHTML = `
+        <header class="head">
+          <h2 class="title">${esc(step.title)}</h2>
+          <span class="pill">${state.done[step.id] ? "Abgeschlossen" : "In Bearbeitung"}</span>
+        </header>
+        <p class="learn">Lernziel: ${esc(step.learn)}</p>
+        ${inner}
+        <div class="actions">
+          <div class="left-actions">
+            <button type="button" class="btn-soft" id="prevBtn" ${prevDisabled}>Zurück</button>
+            <button type="button" class="btn-next" id="nextBtn" ${nextDisabled}>Nächster Bereich</button>
+          </div>
+          <div class="right-actions">
+            <p class="${fbClass}" id="stepFeedback">${esc(fbText)}</p>
+          </div>
+        </div>
+      `;
+
+      document.getElementById("prevBtn")?.addEventListener("click", () => moveStep(-1));
+      document.getElementById("nextBtn")?.addEventListener("click", () => moveStep(1));
+    }
+
+    function renderStep1() {
+      const rows = [
+        { text: "Schichtplan für nächste Woche anpassen", correct: "operativ", hint: "Kurzfristige Alltagssteuerung spricht für operativ." },
+        { text: "Neue Marktpositionierung für die nächsten 3 Jahre", correct: "strategisch", hint: "Langfristige Wettbewerbsrichtung ist strategisch." },
+        { text: "Rabattaktion für den nächsten Monat planen", correct: "operativ", hint: "Tages- oder Monatsmassnahmen sind operativ." },
+        { text: "Produktportfolio auf nachhaltige Linien ausrichten", correct: "strategisch", hint: "Grundsatzentscheid mit langfristiger Wirkung." }
+      ];
+
+      shell(`
+        <section class="task" id="taskRoot">
+          <p class="task-hint">Ordne jede Aussage zu. Bei Fehlern erhältst du Hinweise, ohne dass die Lösung direkt angezeigt wird.</p>
+          <div class="cards-2">
+            ${rows.map((r, i) => `
+              <article class="card" data-wrap="${i}">
+                <p class="label">${esc(r.text)}</p>
+                <select data-id="${i}">
+                  <option value="">Auswählen ...</option>
+                  <option value="operativ">Operativ</option>
+                  <option value="strategisch">Strategisch</option>
+                </select>
+                <p class="hint" data-hint="${i}"></p>
+              </article>
+            `).join("")}
+          </div>
+          <div class="actions"><button type="button" class="btn-main" id="checkBtn">Mini-Check</button></div>
+        </section>
+      `);
+
+      document.getElementById("checkBtn").addEventListener("click", () => {
+        const root = document.getElementById("taskRoot");
+        clearStates(root);
+        let score = 0;
+
+        rows.forEach((r, i) => {
+          const sel = root.querySelector(`select[data-id="${i}"]`);
+          const wrap = root.querySelector(`[data-wrap="${i}"]`);
+          const hint = root.querySelector(`[data-hint="${i}"]`);
+          const ok = sel.value === r.correct;
+          if (ok) score += 1;
+          sel.classList.add(ok ? "ok" : "bad");
+          wrap.classList.add(ok ? "ok" : "bad");
+          hint.textContent = ok ? "Richtig." : `Hinweis: ${r.hint}`;
+        });
+
+        const done = setDone(score, rows.length);
+        setFeedback(done ? "Sehr gut. Dieser Bereich ist abgeschlossen." : `${score}/${rows.length} korrekt. Überarbeite die markierten Felder.`, done ? "ok" : "bad");
+      });
+    }
+
+    function renderStep2() {
+      const rows = [
+        { text: "Wir wollen in 5 Jahren die innovativste Anbieterin im Segment sein.", correct: "vision", hint: "Vision beschreibt das Zukunftsbild." },
+        { text: "Wir entwickeln präzise Lösungen für KMU-Kunden.", correct: "mission", hint: "Mission beschreibt Auftrag und Nutzen." },
+        { text: "Wir handeln verantwortungsvoll, transparent und kundenorientiert.", correct: "leitbild", hint: "Leitbild beschreibt Werte und Prinzipien." }
+      ];
+
+      shell(`
+        <section class="task" id="taskRoot">
+          <p class="task-hint">Ordne die Aussagen Vision, Mission oder Leitbild zu.</p>
+          <div class="cards-3">
+            ${rows.map((r, i) => `
+              <article class="card" data-wrap="${i}">
+                <p class="label">${esc(r.text)}</p>
+                <select data-id="${i}">
+                  <option value="">Auswählen ...</option>
+                  <option value="vision">Vision</option>
+                  <option value="mission">Mission</option>
+                  <option value="leitbild">Leitbild</option>
+                </select>
+                <p class="hint" data-hint="${i}"></p>
+              </article>
+            `).join("")}
+          </div>
+          <div class="actions"><button type="button" class="btn-main" id="checkBtn">Mini-Check</button></div>
+        </section>
+      `);
+
+      document.getElementById("checkBtn").addEventListener("click", () => {
+        const root = document.getElementById("taskRoot");
+        clearStates(root);
+        let score = 0;
+
+        rows.forEach((r, i) => {
+          const sel = root.querySelector(`select[data-id="${i}"]`);
+          const wrap = root.querySelector(`[data-wrap="${i}"]`);
+          const hint = root.querySelector(`[data-hint="${i}"]`);
+          const ok = sel.value === r.correct;
+          if (ok) score += 1;
+          sel.classList.add(ok ? "ok" : "bad");
+          wrap.classList.add(ok ? "ok" : "bad");
+          hint.textContent = ok ? "Richtig." : `Hinweis: ${r.hint}`;
+        });
+
+        const done = setDone(score, rows.length);
+        setFeedback(done ? "Sehr gut. Vision/Mission/Leitbild sitzt." : `${score}/${rows.length} korrekt. Hinweise beachten.`, done ? "ok" : "bad");
+      });
+    }
+
+    function renderStep3() {
+      const rows = [
+        { text: "Neue Importzölle auf Rohstoffe", correct: "politisch", hint: "Politische Entscheide und Regulierung." },
+        { text: "Steigende Energiepreise", correct: "oekonomisch", hint: "Kosten, Konjunktur und Preise sind ökonomisch." },
+        { text: "Kunden achten stärker auf Regionalität", correct: "sozial", hint: "Wertewandel und Verhalten sind sozial." },
+        { text: "Durchbruch bei KI-Produktionsplanung", correct: "technologisch", hint: "Technologische Entwicklungen." },
+        { text: "CO2-Abgabe auf Transporte", correct: "oekologisch", hint: "Umweltfaktor und Nachhaltigkeitsdruck." },
+        { text: "Revidiertes Datenschutzgesetz", correct: "rechtlich", hint: "Gesetze und Rechtsnormen." }
+      ];
+
+      shell(`
+        <section class="task" id="taskRoot">
+          <p class="task-hint">Ordne die Einflüsse den PESTEL-Bereichen zu.</p>
+          <div class="cards-3">
+            ${rows.map((r, i) => `
+              <article class="card" data-wrap="${i}">
+                <p class="label">${esc(r.text)}</p>
+                <select data-id="${i}">
+                  <option value="">Auswählen ...</option>
+                  <option value="politisch">Politisch</option>
+                  <option value="oekonomisch">Ökonomisch</option>
+                  <option value="sozial">Sozial</option>
+                  <option value="technologisch">Technologisch</option>
+                  <option value="oekologisch">Ökologisch</option>
+                  <option value="rechtlich">Rechtlich</option>
+                </select>
+                <p class="hint" data-hint="${i}"></p>
+              </article>
+            `).join("")}
+          </div>
+          <div class="actions"><button type="button" class="btn-main" id="checkBtn">Mini-Check</button></div>
+        </section>
+      `);
+
+      document.getElementById("checkBtn").addEventListener("click", () => {
+        const root = document.getElementById("taskRoot");
+        clearStates(root);
+        let score = 0;
+
+        rows.forEach((r, i) => {
+          const sel = root.querySelector(`select[data-id="${i}"]`);
+          const wrap = root.querySelector(`[data-wrap="${i}"]`);
+          const hint = root.querySelector(`[data-hint="${i}"]`);
+          const ok = sel.value === r.correct;
+          if (ok) score += 1;
+          sel.classList.add(ok ? "ok" : "bad");
+          wrap.classList.add(ok ? "ok" : "bad");
+          hint.textContent = ok ? "Richtig." : `Hinweis: ${r.hint}`;
+        });
+
+        const done = setDone(score, rows.length);
+        setFeedback(done ? "Top. PESTEL-Zuordnung korrekt." : `${score}/${rows.length} korrekt. Nutze die Hinweise zur Korrektur.`, done ? "ok" : "bad");
+      });
+    }
+
+    function renderStep4() {
+      const forces = [
+        {
+          id: "rival",
+          title: "Rivalität unter Wettbewerbern",
+          front: "Wie stark kämpfen bestehende Anbieter um Marktanteile?",
+          back: "Viele ähnliche Anbieter, hoher Preisdruck und häufige Aktionen erhöhen die Rivalität.",
+          target: 5,
+          hint: "Achte auf Preiskampf und Anzahl direkter Wettbewerber."
+        },
+        {
+          id: "sup",
+          title: "Verhandlungsmacht Lieferanten",
+          front: "Wie stark können Lieferanten Preise oder Bedingungen durchsetzen?",
+          back: "Viele alternative Lieferquellen senken die Macht der Lieferanten.",
+          target: 2,
+          hint: "Viele Lieferquellen bedeuten meist tiefere Lieferantenmacht."
+        },
+        {
+          id: "cus",
+          title: "Verhandlungsmacht Kunden",
+          front: "Wie stark können Kunden Preise und Leistungen drücken?",
+          back: "Wenn Kunden leicht vergleichen und wechseln können, steigt ihre Macht.",
+          target: 4,
+          hint: "Hohe Preistransparenz stärkt die Kundenmacht."
+        },
+        {
+          id: "new",
+          title: "Bedrohung durch neue Anbieter",
+          front: "Wie leicht können neue Unternehmen eintreten?",
+          back: "Hohe Investitionen und Normen erhöhen Markteintrittsbarrieren.",
+          target: 2,
+          hint: "Bei hohen Eintrittsbarrieren bleibt die Bedrohung eher tief."
+        },
+        {
+          id: "sub",
+          title: "Bedrohung durch Ersatzprodukte",
+          front: "Wie stark können Alternativen das Angebot ersetzen?",
+          back: "Teilweise substituierbare Lösungen bedeuten mittlere Bedrohung.",
+          target: 3,
+          hint: "Wenn Alternativen existieren, aber nicht vollwertig sind, ist die Mitte plausibel."
+        }
+      ];
+
+      shell(`
+        <section class="task" id="taskRoot">
+          <p class="start-note"><strong>Start:</strong> Drehe zuerst jede Karte einmal und lies die Rückseite. Stelle danach die Intensität ein und prüfe mit Mini-Check.</p>
+          <p class="task-hint">Arbeite mit der Ausgangssituation und bewerte danach die Intensität jeder Force auf einer Skala von 1 (sehr tief) bis 5 (sehr hoch).</p>
+          <div class="scenario">
+            <strong>Ausgangssituation: Alpine MedTech AG (Schweizer Präzisionsteile)</strong>
+            <p>Im Markt gibt es viele vergleichbare Anbieter und starken Preisdruck. Kunden haben hohe Transparenz über Preise. Neue Anbieter benötigen hohe Investitionen und Zertifizierungen. Es gibt mehrere alternative Lieferanten. Teilweise existieren Ersatzprodukte mit eingeschränkter Leistungsfähigkeit.</p>
+          </div>
+
+          <div class="flip-grid" id="flipGrid">
+            ${forces.map((f) => `
+              <article class="flip-card" data-wrap="${f.id}">
+                <div class="flip-inner" id="flip-${f.id}">
+                  <section class="face front">
+                    <h4 class="force-title">${esc(f.title)}</h4>
+                    <p class="force-text force-front-text">${esc(f.front)}</p>
+                    <button type="button" class="turn-btn" data-turn="${f.id}">Karte drehen</button>
+                    <label class="mini" for="rng-${f.id}">Intensität (1 bis 5)</label>
+                    <div class="slider-row">
+                      <input type="range" id="rng-${f.id}" data-id="${f.id}" min="1" max="5" step="1" value="3" />
+                      <span class="val" id="rng-${f.id}-val">3</span>
+                    </div>
+                    <p class="hint" data-hint="${f.id}"></p>
+                  </section>
+                  <section class="face back">
+                    <h4 class="force-title">Erklärung</h4>
+                    <p class="force-text">${esc(f.back)}</p>
+                    <button type="button" class="turn-btn" data-turn="${f.id}">Zurück drehen</button>
+                    <p class="mini">Danach vorne die Intensität wählen und prüfen.</p>
+                  </section>
+                </div>
+              </article>
+            `).join("")}
+          </div>
+
+          <div class="actions"><button type="button" class="btn-main" id="checkBtn">Mini-Check</button></div>
+        </section>
+      `);
+
+      Array.from(document.querySelectorAll("[data-turn]")).forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const id = btn.dataset.turn;
+          const card = document.getElementById(`flip-${id}`)?.parentElement;
+          if (card) card.classList.toggle("flipped");
+        });
+      });
+
+      forces.forEach((f) => {
+        const rng = document.getElementById(`rng-${f.id}`);
+        const valBox = document.getElementById(`rng-${f.id}-val`);
+        rng.addEventListener("input", () => {
+          valBox.textContent = rng.value;
+        });
+      });
+
+      document.getElementById("checkBtn").addEventListener("click", () => {
+        const root = document.getElementById("taskRoot");
+        clearStates(root);
+        let score = 0;
+
+        forces.forEach((f) => {
+          const rng = document.getElementById(`rng-${f.id}`);
+          const valBox = document.getElementById(`rng-${f.id}-val`);
+          const wrap = root.querySelector(`[data-wrap="${f.id}"] .face.front`);
+          const hint = root.querySelector(`[data-hint="${f.id}"]`);
+          const val = Number(rng.value);
+          const ok = val === f.target;
+          if (ok) score += 1;
+          valBox.classList.add(ok ? "ok" : "bad");
+          wrap.classList.add(ok ? "ok" : "bad");
+          hint.textContent = ok ? "Richtig eingeordnet." : `Hinweis: ${f.hint}`;
+        });
+
+        const done = setDone(score, forces.length);
+        setFeedback(done ? "Sehr gut. Five Forces sind korrekt bewertet." : `${score}/${forces.length} korrekt. Lies die Kartenhinweise und justiere die Intensitäten.`, done ? "ok" : "bad");
+      });
+    }
+
+    function renderStep5() {
+      const rows = [
+        { text: "Hohe Fertigungsqualität", correct: "S", hint: "Interne Stärke." },
+        { text: "Veraltete IT-Landschaft", correct: "W", hint: "Interne Schwäche." },
+        { text: "Wachsender Exportmarkt", correct: "O", hint: "Externe Chance." },
+        { text: "Neue preisaggressive Konkurrenten", correct: "T", hint: "Externes Risiko." },
+        { text: "Langjährige Kundenbeziehungen", correct: "S", hint: "Interner positiver Faktor." },
+        { text: "Abhängigkeit von einem Hauptlieferanten", correct: "W", hint: "Interner negativer Faktor." }
+      ];
+
+      shell(`
+        <section class="task" id="taskRoot">
+          <p class="task-hint">Ordne die Aussagen der SWOT-Matrix zu.</p>
+          <div class="cards-3">
+            ${rows.map((r, i) => `
+              <article class="card" data-wrap="${i}">
+                <p class="label">${esc(r.text)}</p>
+                <select data-id="${i}">
+                  <option value="">Auswählen ...</option>
+                  <option value="S">S - Stärke</option>
+                  <option value="W">W - Schwäche</option>
+                  <option value="O">O - Chance</option>
+                  <option value="T">T - Risiko</option>
+                </select>
+                <p class="hint" data-hint="${i}"></p>
+              </article>
+            `).join("")}
+          </div>
+          <div class="actions"><button type="button" class="btn-main" id="checkBtn">Mini-Check</button></div>
+        </section>
+      `);
+
+      document.getElementById("checkBtn").addEventListener("click", () => {
+        const root = document.getElementById("taskRoot");
+        clearStates(root);
+        let score = 0;
+
+        rows.forEach((r, i) => {
+          const sel = root.querySelector(`select[data-id="${i}"]`);
+          const wrap = root.querySelector(`[data-wrap="${i}"]`);
+          const hint = root.querySelector(`[data-hint="${i}"]`);
+          const ok = sel.value === r.correct;
+          if (ok) score += 1;
+          sel.classList.add(ok ? "ok" : "bad");
+          wrap.classList.add(ok ? "ok" : "bad");
+          hint.textContent = ok ? "Richtig." : `Hinweis: ${r.hint}`;
+        });
+
+        const done = setDone(score, rows.length);
+        setFeedback(done ? "Sehr gut. SWOT ist stimmig." : `${score}/${rows.length} korrekt. Prüfe interne vs. externe Faktoren.`, done ? "ok" : "bad");
+      });
+    }
+
+    function renderStep6() {
+      const rows = [
+        { text: "EBIT-Marge von 10% auf 12% erhöhen", correct: "finanzen", hint: "Ergebnisziel aus der Finanzperspektive." },
+        { text: "Reklamationsquote senken und NPS erhöhen", correct: "kunden", hint: "Kundenzufriedenheit und Marktwahrnehmung." },
+        { text: "Liefertermintreue von 88% auf 95% steigern", correct: "prozesse", hint: "Interne Leistungsfähigkeit und Prozesse." },
+        { text: "Schulungsstunden pro Mitarbeitenden erhöhen", correct: "lernen", hint: "Fähigkeiten und Entwicklung der Mitarbeitenden." }
+      ];
+
+      shell(`
+        <section class="task" id="taskRoot">
+          <p class="task-hint">Ordne die Ziele den vier BSC-Perspektiven zu.</p>
+          <div class="cards-2">
+            ${rows.map((r, i) => `
+              <article class="card" data-wrap="${i}">
+                <p class="label">${esc(r.text)}</p>
+                <select data-id="${i}">
+                  <option value="">Auswählen ...</option>
+                  <option value="finanzen">Finanzen</option>
+                  <option value="kunden">Kunden</option>
+                  <option value="prozesse">Interne Prozesse</option>
+                  <option value="lernen">Lernen & Entwicklung</option>
+                </select>
+                <p class="hint" data-hint="${i}"></p>
+              </article>
+            `).join("")}
+          </div>
+          <div class="actions"><button type="button" class="btn-main" id="checkBtn">Mini-Check</button></div>
+        </section>
+      `);
+
+      document.getElementById("checkBtn").addEventListener("click", () => {
+        const root = document.getElementById("taskRoot");
+        clearStates(root);
+        let score = 0;
+
+        rows.forEach((r, i) => {
+          const sel = root.querySelector(`select[data-id="${i}"]`);
+          const wrap = root.querySelector(`[data-wrap="${i}"]`);
+          const hint = root.querySelector(`[data-hint="${i}"]`);
+          const ok = sel.value === r.correct;
+          if (ok) score += 1;
+          sel.classList.add(ok ? "ok" : "bad");
+          wrap.classList.add(ok ? "ok" : "bad");
+          hint.textContent = ok ? "Richtig." : `Hinweis: ${r.hint}`;
+        });
+
+        const done = setDone(score, rows.length);
+        setFeedback(done ? "Perfekt. BSC-Perspektiven korrekt zugeordnet." : `${score}/${rows.length} korrekt. Hinweise anschauen und korrigieren.`, done ? "ok" : "bad");
+      });
+    }
+
+    function renderCurrentStep() {
+      renderTabs();
+      updateMeta();
+      if (state.current === 1) return renderStep1();
+      if (state.current === 2) return renderStep2();
+      if (state.current === 3) return renderStep3();
+      if (state.current === 4) return renderStep4();
+      if (state.current === 5) return renderStep5();
+      return renderStep6();
+    }
+
+    function init() {
+      renderCurrentStep();
+    }
+
+    init();
+  </script>
+</body>
+</html>
