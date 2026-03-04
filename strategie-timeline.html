@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Strategie-Lernpfad</title>
+<link href="https://fonts.googleapis.com/css2?family=Encode+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --or:#e8850a;--or-h:#d17808;--or-l:#fef7ed;--or-b:#fcd9a0;
+  --g900:#111827;--g800:#1f2937;--g700:#374151;--g600:#4b5563;
+  --g500:#6b7280;--g400:#9ca3af;--g300:#d1d5db;--g200:#e5e7eb;
+  --g100:#f3f4f6;--g50:#f9fafb;--wh:#fff;
+  --gn:#059669;--gn-bg:#ecfdf5;--gn-b:#6ee7b7;
+  --rd:#dc2626;--rd-bg:#fef2f2;--rd-b:#fca5a5;
+  --pu:#7c3aed;--pu-bg:#f5f3ff;--pu-b:#c4b5fd;
+  --bl:#2563eb;--bl-bg:#eff6ff;
+  --r:14px;--r-s:10px;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Encode Sans',sans-serif;background:#f0f1f3;color:var(--g800);margin:0;min-height:100vh}
+
+/* ===== APP SHELL ===== */
+.app{max-width:920px;margin:0 auto;padding:20px 24px 60px}
+
+/* ===== STEPPER ===== */
+.stepper{display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:28px;padding:20px 0 10px}
+.step{display:flex;align-items:center;cursor:pointer;position:relative}
+.step-circle{
+  width:38px;height:38px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:.9rem;
+  border:2.5px solid var(--g300);color:var(--g400);background:var(--wh);
+  transition:all .25s;z-index:1;position:relative;flex-shrink:0;
+}
+.step.active .step-circle{border-color:var(--or);color:var(--wh);background:var(--or);box-shadow:0 0 0 4px rgba(232,133,10,.18)}
+.step.done .step-circle{border-color:var(--gn);color:var(--wh);background:var(--gn)}
+.step-line{width:36px;height:3px;background:var(--g200);transition:background .3s}
+.step.done+.step .step-line,.step.done .step-line{background:var(--gn)}
+.step-label{
+  position:absolute;top:46px;left:50%;transform:translateX(-50%);
+  font-size:.68rem;font-weight:600;color:var(--g400);white-space:nowrap;
+  transition:color .2s;
+}
+.step.active .step-label{color:var(--or);font-weight:700}
+.step.done .step-label{color:var(--gn)}
+@media(max-width:640px){
+  .step-line{width:16px}
+  .step-circle{width:32px;height:32px;font-size:.8rem}
+  .step-label{font-size:.6rem;top:40px}
+}
+
+/* ===== PANEL ===== */
+.panel{
+  background:var(--wh);border-radius:var(--r);
+  box-shadow:0 2px 12px rgba(0,0,0,.06);border:1px solid var(--g200);
+  padding:36px 40px 32px;
+  display:none;animation:panelIn .35s ease;
+}
+.panel.visible{display:block}
+@keyframes panelIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+.panel-title{font-size:1.5rem;font-weight:800;color:var(--g900);margin-bottom:4px}
+.panel-sub{font-size:.88rem;color:var(--g500);margin-bottom:20px}
+
+.lz{
+  padding:12px 18px;border-radius:var(--r-s);
+  background:var(--g50);border-left:3px solid var(--or);
+  font-size:.86rem;color:var(--g700);margin-bottom:24px;
+}
+
+.instr{font-size:.86rem;color:var(--g500);margin-bottom:20px;font-style:italic}
+
+/* ===== SLIDER CARDS (Step 1) ===== */
+.slider-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:640px){.slider-grid{grid-template-columns:1fr}}
+.s-card{
+  background:var(--g50);border:1.5px solid var(--g200);border-radius:var(--r-s);
+  padding:20px 18px;transition:border-color .2s;position:relative;
+}
+.s-card .s-text{font-size:.9rem;font-weight:600;color:var(--g800);margin-bottom:14px;line-height:1.4}
+.s-card .s-labels{display:flex;justify-content:space-between;font-size:.72rem;font-weight:700;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em}
+.s-card .s-labels span:first-child{color:var(--g500)}.s-card .s-labels span:last-child{color:var(--or)}
+.s-card input[type=range]{
+  -webkit-appearance:none;width:100%;height:6px;border-radius:99px;
+  background:linear-gradient(to right,var(--g300),var(--or));outline:none;cursor:pointer;
+}
+.s-card input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:22px;height:22px;border-radius:50%;
+  background:var(--wh);box-shadow:0 1px 4px rgba(0,0,0,.2);cursor:pointer;
+  border:2.5px solid var(--or);transition:transform .15s;
+}
+.s-card input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.15)}
+.s-card .s-val{text-align:center;font-size:.78rem;color:var(--g500);margin-top:6px;font-weight:500;min-height:18px}
+.s-card.s-locked{opacity:.85;pointer-events:none}
+.s-card.s-correct{border-color:var(--gn);background:var(--gn-bg)}
+.s-card.s-wrong{border-color:var(--rd-b);background:var(--rd-bg)}
+.s-card .s-fb{font-size:.8rem;margin-top:10px;padding:8px 12px;border-radius:6px;display:none;line-height:1.45}
+.s-card .s-fb.show{display:block}
+.s-card .s-fb.fb-ok{background:var(--gn-bg);color:#065f46;border:1px solid var(--gn-b)}
+.s-card .s-fb.fb-no{background:#fff7ed;color:#9a3412;border:1px solid #fed7aa}
+
+/* ===== DRAG & DROP ZONES (Steps 2,4,5) ===== */
+.dnd-pool{
+  display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;
+  padding:16px;background:var(--g50);border-radius:var(--r-s);min-height:52px;
+  border:1.5px dashed var(--g300);
+}
+.dnd-chip{
+  padding:8px 14px;background:var(--wh);border:2px solid var(--g300);
+  border-radius:8px;font-size:.84rem;font-weight:600;cursor:grab;
+  transition:all .15s;user-select:none;
+}
+.dnd-chip:hover{border-color:var(--or);background:var(--or-l)}
+.dnd-chip.selected{border-color:var(--or);background:var(--or-l);box-shadow:0 0 0 3px rgba(232,133,10,.15)}
+.dnd-chip.placed{opacity:.3;pointer-events:none;cursor:default}
+.dnd-chip.dragging{opacity:.5;transform:scale(.95)}
+.dnd-zone.drag-over{border-color:var(--or)!important;background:var(--or-l)!important;transform:scale(1.02)}
+.dnd-zones{display:grid;gap:12px;margin-bottom:20px}
+.dnd-zones.cols-3{grid-template-columns:repeat(3,1fr)}
+.dnd-zones.cols-2{grid-template-columns:repeat(2,1fr)}
+@media(max-width:640px){.dnd-zones.cols-3,.dnd-zones.cols-2{grid-template-columns:1fr}}
+.dnd-zone{
+  border:2px dashed var(--g300);border-radius:var(--r-s);
+  padding:14px;min-height:90px;cursor:pointer;transition:all .2s;
+}
+.dnd-zone:hover{border-color:var(--or);background:var(--or-l)}
+.dnd-zone h4{font-size:.76rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.dnd-zone .placed-item{
+  display:inline-block;padding:5px 10px;margin:3px;
+  background:var(--wh);border-radius:6px;font-size:.8rem;font-weight:600;
+  border:1.5px solid var(--g300);cursor:pointer;transition:all .15s;
+}
+.dnd-zone .placed-item:hover{border-color:var(--rd-b);text-decoration:line-through}
+.dnd-zone .placed-item.p-ok{border-color:var(--gn);background:var(--gn-bg)}
+.dnd-zone .placed-item.p-no{border-color:var(--rd-b);background:var(--rd-bg)}
+/* Zone colors for SWOT */
+.dnd-zone.z-s{background:#f0fdf4;border-color:#86efac} .dnd-zone.z-s h4{color:#166534}
+.dnd-zone.z-w{background:#fff7ed;border-color:#fdba74} .dnd-zone.z-w h4{color:#9a3412}
+.dnd-zone.z-o{background:var(--bl-bg);border-color:#93c5fd} .dnd-zone.z-o h4{color:#1e40af}
+.dnd-zone.z-t{background:#fef2f2;border-color:#fca5a5} .dnd-zone.z-t h4{color:#9f1239}
+
+/* ===== PESTEL GUESS CARDS (Step 3) ===== */
+.pestel-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:640px){.pestel-grid{grid-template-columns:1fr}}
+.p-card{
+  background:var(--g50);border:1.5px solid var(--g200);border-radius:var(--r-s);
+  padding:20px 18px;transition:all .3s;position:relative;
+}
+.p-card .p-text{font-size:.9rem;font-weight:600;color:var(--g800);margin-bottom:12px;line-height:1.4}
+.p-card select{
+  width:100%;padding:8px 12px;border:1.5px solid var(--g300);border-radius:8px;
+  font-family:'Encode Sans',sans-serif;font-size:.84rem;font-weight:500;
+  color:var(--g600);background:var(--wh);cursor:pointer;appearance:auto;
+}
+.p-card select:focus{outline:none;border-color:var(--or)}
+.p-card.p-ok{border-color:var(--gn);background:var(--gn-bg)}
+.p-card.p-ok select{border-color:var(--gn);background:var(--gn-bg);color:var(--gn)}
+.p-card.p-no{border-color:var(--rd-b);background:var(--rd-bg)}
+.p-card.p-no select{border-color:var(--rd-b);background:var(--rd-bg);color:var(--rd)}
+.p-card .p-fb{font-size:.8rem;margin-top:10px;padding:8px 12px;border-radius:6px;display:none;line-height:1.45}
+.p-card .p-fb.show{display:block}
+.p-card .p-fb.pfb-ok{background:var(--gn-bg);color:#065f46;border:1px solid var(--gn-b)}
+.p-card .p-fb.pfb-no{background:#fff7ed;color:#9a3412;border:1px solid #fed7aa}
+.p-card .p-reveal{
+  margin-top:10px;padding:10px 14px;border-radius:8px;
+  background:var(--g900);color:var(--wh);display:none;text-align:center;
+}
+.p-card .p-reveal.show{display:block;animation:fadeIn .3s ease}
+.p-card .p-reveal .p-letter{font-size:1.4rem;font-weight:900;color:var(--or)}
+.p-card .p-reveal .p-ans{font-size:.84rem;font-weight:600}
+
+/* ===== SCENARIO / OPTION CARDS (Step 6) ===== */
+.scenario{
+  background:var(--g50);border-radius:var(--r-s);
+  padding:20px 24px;margin-bottom:22px;border-left:3px solid var(--or);
+}
+.scenario h4{font-size:.76rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--or);margin-bottom:6px}
+.scenario p{font-size:.9rem;color:var(--g700);line-height:1.6}
+.opt-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:640px){.opt-grid{grid-template-columns:1fr}}
+.opt-card{
+  background:var(--wh);border:2px solid var(--g200);border-radius:var(--r-s);
+  padding:20px;cursor:pointer;transition:all .2s;text-align:left;
+}
+.opt-card:hover{border-color:var(--g400);transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.06)}
+.opt-card strong{display:block;font-size:.95rem;font-weight:700;margin-bottom:4px;color:var(--g900)}
+.opt-card span{font-size:.84rem;color:var(--g600);line-height:1.45}
+.opt-card.chosen{border-color:var(--pu);background:var(--pu-bg)}
+
+/* Reset link */
+.reset-link{
+  display:inline-block;margin-top:10px;margin-left:12px;
+  font-family:'Encode Sans',sans-serif;font-size:.82rem;font-weight:600;
+  color:var(--g500);cursor:pointer;background:none;border:none;text-decoration:underline;
+}
+.reset-link:hover{color:var(--or)}
+
+/* Scenario navigation */
+.scen-nav{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:6px}
+.scen-dot{
+  width:10px;height:10px;border-radius:50%;background:var(--g300);cursor:pointer;transition:all .15s;
+}
+.scen-dot.scen-active{background:var(--or);transform:scale(1.2)}
+.scen-dot.scen-done{background:var(--gn)}
+
+/* Benchmark */
+.bench-box{margin-top:18px;padding:18px 20px;border-radius:var(--r-s);background:var(--g50);border:1px solid var(--g200)}
+.bench-title{font-size:.82rem;font-weight:700;color:var(--g700);margin-bottom:12px}
+.bench-row{display:flex;align-items:center;gap:10px;margin-bottom:7px}
+.bench-lbl{font-size:.8rem;font-weight:600;color:var(--g600);width:140px;flex-shrink:0;text-align:right}
+.bench-track{flex:1;height:18px;background:var(--g200);border-radius:99px;overflow:hidden}
+.bench-fill{height:100%;background:var(--g400);border-radius:99px;transition:width .6s ease}
+.bench-fill.bench-you{background:var(--or)}
+.bench-pct{font-size:.78rem;font-weight:700;color:var(--g600);width:36px;text-align:right}
+@media(max-width:640px){.bench-lbl{width:100px;font-size:.72rem}}
+
+/* ===== DROPDOWN CARDS (Step 7) ===== */
+.dd-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:640px){.dd-grid{grid-template-columns:1fr}}
+.dd-card{
+  background:var(--g50);border:1.5px solid var(--g200);border-radius:var(--r-s);
+  padding:20px 18px;transition:border-color .2s;
+}
+.dd-card .dd-text{font-size:.9rem;font-weight:600;color:var(--g800);margin-bottom:12px;line-height:1.4}
+.dd-card select{
+  width:100%;padding:8px 12px;border:1.5px solid var(--g300);border-radius:8px;
+  font-family:'Encode Sans',sans-serif;font-size:.84rem;font-weight:500;
+  color:var(--g600);background:var(--wh);cursor:pointer;appearance:auto;
+}
+.dd-card select:focus{outline:none;border-color:var(--or)}
+.dd-card select.dd-ok{border-color:var(--gn);background:var(--gn-bg);color:var(--gn)}
+.dd-card select.dd-no{border-color:var(--rd-b);background:var(--rd-bg);color:var(--rd)}
+.dd-card.dc-ok{border-color:var(--gn)}
+.dd-card.dc-no{border-color:var(--rd-b)}
+.dd-card .dd-fb{font-size:.8rem;margin-top:10px;padding:8px 12px;border-radius:6px;display:none;line-height:1.45}
+.dd-card .dd-fb.show{display:block}
+.dd-card .dd-fb.dfb-ok{background:var(--gn-bg);color:#065f46;border:1px solid var(--gn-b)}
+.dd-card .dd-fb.dfb-no{background:#fff7ed;color:#9a3412;border:1px solid #fed7aa}
+
+/* ===== BUTTONS ===== */
+.btn{
+  font-family:'Encode Sans',sans-serif;font-size:.88rem;font-weight:700;
+  padding:11px 26px;border:none;border-radius:8px;cursor:pointer;transition:all .15s;
+}
+.btn-or{background:var(--or);color:var(--wh)}
+.btn-or:hover{background:var(--or-h)}
+.btn-or:disabled{opacity:.4;cursor:not-allowed}
+.btn-ghost{background:var(--g100);color:var(--g600);border:1.5px solid var(--g300)}
+.btn-ghost:hover{background:var(--g200)}
+.btn-ghost:disabled{opacity:.3;cursor:not-allowed}
+
+/* ===== BOTTOM NAV ===== */
+.bot-nav{display:flex;justify-content:space-between;align-items:center;margin-top:28px;padding-top:20px;border-top:1px solid var(--g200)}
+
+/* ===== FEEDBACK ===== */
+.ofb{
+  margin-top:20px;padding:16px 20px;border-radius:var(--r-s);
+  font-size:.9rem;line-height:1.55;display:none;
+}
+.ofb.show{display:block;animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.ofb.ofb-ok{background:var(--gn-bg);border:1px solid var(--gn-b);color:#065f46}
+.ofb.ofb-mid{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412}
+.ofb.ofb-ref{background:var(--pu-bg);border:1px solid var(--pu-b);color:#5b21b6}
+
+/* ===== MOTIVATION BANNER ===== */
+.moti{
+  text-align:center;padding:14px;margin-top:16px;
+  border-radius:var(--r-s);font-size:.88rem;font-weight:600;
+  background:linear-gradient(135deg,var(--or-l),#fef3c7);color:var(--or-h);
+  display:none;
+}
+.moti.show{display:block;animation:popIn .4s ease}
+@keyframes popIn{0%{opacity:0;transform:scale(.95)}50%{transform:scale(1.02)}100%{opacity:1;transform:scale(1)}}
+
+/* ===== QUIZ MODAL ===== */
+.overlay{display:none;position:fixed;inset:0;background:rgba(17,24,39,.5);z-index:1000;justify-content:center;align-items:center;padding:24px;backdrop-filter:blur(3px)}
+.overlay.show{display:flex}
+.modal{background:var(--wh);border-radius:var(--r);max-width:660px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 40px rgba(0,0,0,.15)}
+.modal-h{background:var(--g900);color:var(--wh);padding:22px 28px;border-radius:var(--r) var(--r) 0 0}
+.modal-h h2{font-size:1.2rem;font-weight:800;margin-bottom:2px}
+.modal-h p{font-size:.84rem;opacity:.65}
+.modal-b{padding:22px 28px 28px}
+.qdots{display:flex;gap:5px;margin-bottom:18px}
+.qdots .qd{width:30px;height:4px;border-radius:99px;background:var(--g200);transition:background .3s}
+.qdots .qd.qd-on{background:var(--or)}.qdots .qd.qd-ok{background:var(--gn)}.qdots .qd.qd-bad{background:var(--rd)}
+.qi{display:none}.qi.qi-on{display:block}
+.qi .qi-tag{font-size:.72rem;font-weight:700;color:var(--or);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
+.qi h3{font-size:.98rem;font-weight:700;margin-bottom:14px;color:var(--g900);line-height:1.4}
+.qi .qi-opts{display:grid;gap:8px}
+.qi .qi-opt{
+  background:var(--wh);border:1.5px solid var(--g200);border-radius:var(--r-s);
+  padding:12px 16px;text-align:left;cursor:pointer;font-family:'Encode Sans',sans-serif;
+  font-size:.88rem;color:var(--g800);transition:all .15s;
+}
+.qi .qi-opt:hover{border-color:var(--g400);background:var(--g50)}
+.qi .qi-opt.qo-ok{border-color:var(--gn);background:var(--gn-bg)}
+.qi .qi-opt.qo-no{border-color:var(--rd-b);background:var(--rd-bg)}
+.qi .qi-opt.qo-ref{border-color:var(--pu);background:var(--pu-bg)}
+.qfb{margin-top:12px;padding:10px 14px;border-radius:6px;font-size:.84rem;display:none;line-height:1.45}
+.qfb.show{display:block}
+.qnav{display:flex;justify-content:space-between;margin-top:18px;padding-top:14px;border-top:1px solid var(--g200)}
+.qres{text-align:center;padding:16px 0}
+.qres .qring{width:90px;height:90px;border-radius:50%;background:var(--g100);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:1.7rem;font-weight:900;color:var(--or)}
+.qres h3{font-size:1.1rem;font-weight:700;margin-bottom:4px}
+.qres p{color:var(--g500);font-size:.86rem}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- STEPPER -->
+  <div class="stepper" id="stepper"></div>
+
+  <!-- PANELS (one per step) -->
+  <div id="panels"></div>
+</div>
+
+<!-- QUIZ -->
+<div class="overlay" id="ov"><div class="modal"><div class="modal-h"><h2>Abschluss-Reflexion</h2><p>Ihr Gesamtverständnis der strategischen Steuerung</p></div><div class="modal-b" id="mb"></div></div></div>
+
+<script>
+// ========== DATA ==========
+const STEPS=[
+  {n:'Strategie',title:'Was ist Strategie?',sub:'Operatives vs. strategisches Denken',lz:'Den Unterschied zwischen operativem und strategischem Denken erkennen.'},
+  {n:'Vision',title:'Vision, Mission, Leitbild',sub:'Grundpfeiler der strategischen Ausrichtung',lz:'Vision, Mission und Leitbild korrekt unterscheiden.'},
+  {n:'PESTEL',title:'PESTEL-Analyse',sub:'Das Makroumfeld systematisch erfassen',lz:'Umweltfaktoren den sechs PESTEL-Kategorien zuordnen.'},
+  {n:'Forces',title:'Porters Five Forces',sub:'Wettbewerbskräfte analysieren',lz:'Praxisbeispiele den fünf Wettbewerbskräften zuordnen.'},
+  {n:'SWOT',title:'SWOT-Analyse',sub:'Stärken, Schwächen, Chancen, Risiken',lz:'Beispiele intern/extern und positiv/negativ einordnen.'},
+  {n:'Optionen',title:'Strategische Optionen',sub:'Wettbewerbsstrategien bewerten',lz:'Verschiedene Strategietypen kennen und situativ einschätzen.'},
+  {n:'BSC',title:'Balanced Scorecard',sub:'Strategie messbar machen',lz:'Kennzahlen den vier BSC-Perspektiven zuordnen.'},
+];
+
+// Step 1: Sliders
+const S1=[
+  {t:'Schichtplan für nächste Woche anpassen',c:'op',ok:'Schichtpläne = kurzfristiges Tagesgeschäft.',no:'Das ist operativ: kurzfristige Arbeitsorganisation.'},
+  {t:'Neue Marktpositionierung für 3 Jahre entwickeln',c:'st',ok:'Langfristige Positionierung = strategisch.',no:'3 Jahre voraus planen ist strategisches Denken.'},
+  {t:'Rabattaktion für nächsten Monat planen',c:'op',ok:'Kurzfristige Aktionen = operativ.',no:'«Nächster Monat» ist ein kurzer Zeithorizont.'},
+  {t:'Produktportfolio auf Nachhaltigkeit ausrichten',c:'st',ok:'Portfolio-Neuausrichtung = strategisch.',no:'Das verändert das Unternehmen grundlegend.'},
+  {t:'Lieferantenvertrag für Q2 verlängern',c:'op',ok:'Quartalsentscheid = operativ.',no:'Routinemässige Vertragsarbeit ist operativ.'},
+  {t:'Internationalisierung nach Südostasien prüfen',c:'st',ok:'Internationalisierung = strategische Grundsatzfrage.',no:'Neuer Kontinent = grundlegende Weichenstellung.'},
+];
+
+// Step 2: Drag & Drop – Vision/Mission/Leitbild
+const S2={
+  zones:['Vision','Mission','Leitbild'],
+  items:[
+    {t:'«Bis 2030 führend in nachhaltiger Mobilität.»',c:'Vision'},
+    {t:'«Wir entwickeln innovative Transportlösungen.»',c:'Mission'},
+    {t:'«Transparent, respektvoll, verantwortlich.»',c:'Leitbild'},
+    {t:'«In 5 Jahren erste Wahl in der DACH-Region.»',c:'Vision'},
+    {t:'«Wir ermöglichen KMU den digitalen Wandel.»',c:'Mission'},
+    {t:'«Integrität und Kundennähe leiten uns.»',c:'Leitbild'},
+  ]
+};
+
+// Step 3: PESTEL – Guess then reveal
+const S3=[
+  {t:'Neue EU-Datenschutzrichtlinie',c:'Legal',letter:'L',hint:'Gesetze und Vorschriften.',ok:'Gesetze = Legal.'},
+  {t:'Inflationsrate steigt auf 4,5 %',c:'Economic',letter:'E',hint:'Inflation ist wirtschaftlich.',ok:'Economic.'},
+  {t:'Trend zu veganer Ernährung',c:'Social',letter:'S',hint:'Gesellschaftliche Werte.',ok:'Social.'},
+  {t:'KI revolutioniert die Branche',c:'Technological',letter:'T',hint:'KI ist Technologie.',ok:'Technological.'},
+  {t:'Subventionen für E-Mobilität',c:'Political',letter:'P',hint:'Staatliche Entscheide.',ok:'Political.'},
+  {t:'CO₂-Grenzwerte verschärft',c:'Ecological',letter:'E',hint:'Umwelt.',ok:'Ecological.'},
+];
+
+// Step 4: Drag & Drop – Five Forces
+const S4={
+  zones:['Neue Anbieter','Ersatzprodukte','Lieferantenmacht','Kundenmacht','Branchenrivalität'],
+  items:[
+    {t:'Online-Riese steigt in Ihre Branche ein',c:'Neue Anbieter'},
+    {t:'3 Hauptlieferanten fusionieren',c:'Lieferantenmacht'},
+    {t:'Kunden vergleichen Preise in Echtzeit',c:'Kundenmacht'},
+    {t:'E-Scooter ersetzen kurze Taxifahrten',c:'Ersatzprodukte'},
+    {t:'3 Anbieter liefern sich Preiskampf',c:'Branchenrivalität'},
+    {t:'Einziger Chip-Lieferant weltweit',c:'Lieferantenmacht'},
+  ]
+};
+
+// Step 5: Drag & Drop – SWOT
+const S5={
+  zones:[
+    {id:'s',label:'Stärken',cls:'z-s',icon:'💪'},
+    {id:'w',label:'Schwächen',cls:'z-w',icon:'⚠️'},
+    {id:'o',label:'Chancen',cls:'z-o',icon:'🚀'},
+    {id:'t',label:'Risiken',cls:'z-t',icon:'🔥'},
+  ],
+  items:[
+    {t:'Starke Markenbekanntheit',c:'s'},{t:'Hohe Mitarbeiterfluktuation',c:'w'},
+    {t:'Wachsender Markt in Asien',c:'o'},{t:'Aggressiver neuer Konkurrent',c:'t'},
+    {t:'Patentierte Kerntechnologie',c:'s'},{t:'Veraltete IT-Infrastruktur',c:'w'},
+    {t:'Digitalisierungstrend',c:'o'},{t:'Steigende Rohstoffpreise',c:'t'},
+  ]
+};
+
+// Step 6: Scenario Options – multiple scenarios
+const S6=[
+  {
+    title:'Szenario 1: Möbelhersteller',
+    scenario:'Sie leiten einen mittelständischen Möbelhersteller. Der Markt wird von günstigen Online-Anbietern dominiert. Ihre loyale Kundenbasis schrumpft.',
+    opts:[
+      {l:'Kostenführerschaft',d:'Preise senken, Produktion optimieren',pct:15,fb:'<strong>Mutige Wahl.</strong> Online-Anbieter haben strukturelle Kostenvorteile. Können Sie Skaleneffekte erreichen, ohne Qualität einzubüssen?'},
+      {l:'Differenzierung',d:'Qualität und Design als Premium betonen',pct:44,fb:'<strong>Naheliegend.</strong> Sie nutzen Ihre Stärken. Entscheidend: Kommunizieren Sie den Mehrwert klar genug?'},
+      {l:'Nischenstrategie',d:'Fokus auf nachhaltige Luxusmöbel',pct:27,fb:'<strong>Fokussiert.</strong> Eine Nische kann profitabel sein. Frage: Ist sie gross genug?'},
+      {l:'Hybride Strategie',d:'Online-Kanal + Premium-Linie parallel',pct:14,fb:'<strong>Pragmatisch.</strong> Porter warnte vor «Stuck in the Middle». Klare Trennung ist entscheidend.'},
+    ]
+  },
+  {
+    title:'Szenario 2: Regionalbank',
+    scenario:'Sie sind CEO einer Regionalbank. Fintechs bieten günstigere, digitale Lösungen an. Ihre Stärke ist die persönliche Kundenbeziehung, aber jüngere Kunden wandern ab.',
+    opts:[
+      {l:'Digitale Transformation',d:'Eigene App entwickeln, Filialen reduzieren',pct:31,fb:'<strong>Zukunftsorientiert.</strong> Aber Vorsicht: Die persönliche Beziehung ist Ihr Alleinstellungsmerkmal. Verlieren Sie das nicht.'},
+      {l:'Beziehungsstrategie',d:'Persönliche Beratung als Premium-Service positionieren',pct:35,fb:'<strong>Differenzierung durch Service.</strong> In einer digitalen Welt kann menschliche Beratung ein echtes Premium sein.'},
+      {l:'Partnerschaft',d:'Kooperation mit einem Fintech eingehen',pct:22,fb:'<strong>Klug.</strong> «Build or buy?» – eine Partnerschaft kann schneller sein als Eigenentwicklung. Wer hat die Kontrolle?'},
+      {l:'Nische Vermögende',d:'Auf vermögende Privatkunden spezialisieren',pct:12,fb:'<strong>Fokussiert.</strong> Vermögende schätzen persönliche Betreuung. Aber: Reicht das Volumen für Ihre Kostenstruktur?'},
+    ]
+  },
+  {
+    title:'Szenario 3: Bio-Lebensmittel',
+    scenario:'Ihr Bio-Lebensmittel-Start-up wächst schnell. Grosse Detailhändler wollen exklusiv mit Ihnen zusammenarbeiten – aber das bedeutet Abhängigkeit. Gleichzeitig reichen die Kapazitäten kaum.',
+    opts:[
+      {l:'Exklusivvertrag',d:'Einen grossen Partner wählen, schnell skalieren',pct:16,fb:'<strong>Schnelles Wachstum.</strong> Aber hohe Abhängigkeit von einem Partner. Was passiert, wenn der Vertrag endet?'},
+      {l:'Diversifikation',d:'Mehrere kleinere Partner, eigener Online-Shop',pct:38,fb:'<strong>Risikominimierung.</strong> Aufwändiger, aber Sie behalten die Kontrolle. Können Sie die Logistik stemmen?'},
+      {l:'Markenaufbau',d:'Erst die Marke stärken, dann wachsen',pct:29,fb:'<strong>Langfristig gedacht.</strong> Eine starke Marke gibt Verhandlungsmacht. Aber können Sie sich das zeitlich leisten?'},
+      {l:'Kapazität zuerst',d:'Zuerst in Produktion investieren, dann expandieren',pct:17,fb:'<strong>Solide Basis.</strong> Ohne Kapazität kein Wachstum. Aber woher kommt das Kapital?'},
+    ]
+  },
+];
+
+// Step 7: Dropdown – BSC
+const S7=[
+  {t:'Umsatzwachstum 8 % p.a.',c:'Finanzen',hint:'Umsatz ist finanziell.',ok:'Finanzperspektive.'},
+  {t:'Kundenzufriedenheit > 85 %',c:'Kunden',hint:'Wessen Zufriedenheit?',ok:'Kundenperspektive.'},
+  {t:'Durchlaufzeit halbieren',c:'Interne Prozesse',hint:'Interne Abläufe.',ok:'Interne Prozessperspektive.'},
+  {t:'Weiterbildungsstunden verdoppeln',c:'Lernen & Entwicklung',hint:'Kompetenzentwicklung.',ok:'Lern- und Entwicklungsperspektive.'},
+  {t:'Net Promoter Score auf 70',c:'Kunden',hint:'Weiterempfehlung – von wem?',ok:'Kundenperspektive.'},
+  {t:'Eigenkapitalrendite > 12 %',c:'Finanzen',hint:'Rendite = finanziell.',ok:'Finanzperspektive.'},
+];
+
+// ========== STATE ==========
+let cur=0;const dn=new Set();let sel2=null,sel4=null,sel5=null;
+const att={};const motivations=[
+  '🎯 Gut gemacht! Weiter so.','👏 Stark! Ein Schritt geschafft.',
+  '🚀 Läuft! Noch {n} Themen vor dir.','💡 Klasse! Du entwickelst ein gutes Strategieverständnis.',
+  '⚡ Fast geschafft – du bist auf der Zielgeraden!','🏆 Hervorragend! Nur noch {n} übrig.',
+  '🎉 Alle 7 Bausteine gemeistert!'
+];
+
+// ========== INIT ==========
+function init(){
+  renderStepper();
+  renderPanels();
+  show(0);
+}
+
+function renderStepper(){
+  const el=document.getElementById('stepper');
+  el.innerHTML=STEPS.map((s,i)=>{
+    const line=i>0?'<div class="step-line"></div>':'';
+    return `<div class="step${i===0?' active':''}" id="st-${i}" onclick="go(${i})">
+      ${line}<div class="step-circle" id="sc-${i}">${i+1}</div>
+      <div class="step-label">${s.n}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderPanels(){
+  const el=document.getElementById('panels');
+  el.innerHTML=STEPS.map((s,i)=>`
+    <div class="panel" id="p-${i}">
+      <div class="panel-title">${s.title}</div>
+      <div class="panel-sub">${s.sub}</div>
+      <div class="lz"><strong>Lernziel:</strong> ${s.lz}</div>
+      <div id="content-${i}"></div>
+      <div class="ofb" id="ofb-${i}"></div>
+      <div class="moti" id="moti-${i}"></div>
+      <div class="bot-nav">
+        <button class="btn btn-ghost" onclick="go(${i-1})" ${i===0?'disabled':''}>← Zurück</button>
+        <button class="reset-link" onclick="resetStep(${i})">↺ Neu starten</button>
+        ${i<6?`<button class="btn btn-or" onclick="go(${i+1})">Weiter →</button>`
+             :`<button class="btn btn-or" onclick="showQuiz()">Abschluss-Quiz →</button>`}
+      </div>
+    </div>`).join('');
+  // Fill each content
+  fillStep0();fillStep1();fillStep2();fillStep3();fillStep4();fillStep5();fillStep6();
+}
+
+// ========== STEP RENDERERS ==========
+
+// Step 0: Sliders
+function fillStep0(){
+  const c=document.getElementById('content-0');
+  c.innerHTML=`<p class="instr">Bewege den Regler: Ist die Aussage eher operativ oder strategisch?</p>
+    <div class="slider-grid">${S1.map((s,i)=>`
+      <div class="s-card" id="s0c-${i}">
+        <div class="s-text">${s.t}</div>
+        <div class="s-labels"><span>Operativ</span><span>Strategisch</span></div>
+        <input type="range" min="0" max="100" value="50" id="s0r-${i}" oninput="s0val(${i})">
+        <div class="s-val" id="s0v-${i}"></div>
+        <div class="s-fb" id="s0fb-${i}"></div>
+      </div>`).join('')}</div>
+    <button class="btn btn-or" style="margin-top:20px" onclick="checkStep0()">Mini-Check</button>`;
+}
+
+function s0val(i){
+  const v=+document.getElementById('s0r-'+i).value;
+  const el=document.getElementById('s0v-'+i);
+  if(v<30) el.textContent='Eher operativ';
+  else if(v<70) el.textContent='Mitte';
+  else el.textContent='Eher strategisch';
+}
+
+function checkStep0(){
+  if(!att[0])att[0]=0;att[0]++;
+  let ok=0;
+  S1.forEach((s,i)=>{
+    const v=+document.getElementById('s0r-'+i).value;
+    const card=document.getElementById('s0c-'+i);
+    const fb=document.getElementById('s0fb-'+i);
+    const isOp=v<50, isSt=v>=50;
+    const correct=(s.c==='op'&&isOp)||(s.c==='st'&&isSt);
+    card.className='s-card s-locked '+(correct?'s-correct':'s-wrong');
+    fb.innerHTML=correct?('✓ '+s.ok):('💡 '+s.no);
+    fb.className='s-fb show '+(correct?'fb-ok':'fb-no');
+    if(correct)ok++;
+  });
+  showOFB(0,ok,S1.length);
+  if(ok===S1.length||att[0]>=2)markDone(0,ok,S1.length);
+}
+
+// Step 1: DnD – Vision/Mission/Leitbild
+function fillStep1(){
+  const c=document.getElementById('content-1');
+  c.innerHTML=`<p class="instr">Ziehe die Aussage in die passende Kategorie – oder klicke erst die Aussage, dann die Zone.</p>
+    <div class="dnd-pool" id="pool1">${S2.items.map((it,i)=>
+      `<div class="dnd-chip" draggable="true" data-i="${i}" data-c="${it.c}" onclick="selChip(this,'pool1')"
+        ondragstart="ds(event,this)" ondragend="de(this)">${it.t}</div>`
+    ).join('')}</div>
+    <div class="dnd-zones cols-3" id="zones1">${S2.zones.map(z=>
+      `<div class="dnd-zone" data-z="${z}" onclick="dropClick('${z}',this,'pool1')"
+        ondragover="dover(event)" ondragenter="denter(event,this)" ondragleave="dleave(event,this)"
+        ondrop="ddrop(event,this,'pool1')"><h4>${z}</h4><div class="zc" data-z="${z}"></div></div>`
+    ).join('')}</div>
+    <button class="btn btn-or" onclick="checkStep1()">Mini-Check</button>`;
+}
+
+// === Shared DnD handlers ===
+let dragEl=null,clickEl=null;
+function ds(e,el){dragEl=el;el.classList.add('dragging');e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain','');}
+function de(el){el.classList.remove('dragging');dragEl=null;document.querySelectorAll('.drag-over').forEach(z=>z.classList.remove('drag-over'));}
+function dover(e){e.preventDefault();e.dataTransfer.dropEffect='move';}
+function denter(e,z){e.preventDefault();document.querySelectorAll('.drag-over').forEach(el=>el.classList.remove('drag-over'));z.classList.add('drag-over');}
+function dleave(e,z){if(!z.contains(e.relatedTarget))z.classList.remove('drag-over');}
+function ddrop(e,zone,poolId){
+  e.preventDefault();zone.classList.remove('drag-over');
+  if(!dragEl)return;
+  placeChip(dragEl,zone.dataset.z,zone.querySelector('.zc'),poolId);
+  dragEl.classList.remove('dragging');dragEl=null;
+}
+function selChip(el,poolId){
+  if(el.classList.contains('placed'))return;
+  document.getElementById(poolId).querySelectorAll('.dnd-chip').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');clickEl=el;clickEl._pool=poolId;
+}
+function dropClick(zone,zoneEl,poolId){
+  if(!clickEl||clickEl._pool!==poolId)return;
+  placeChip(clickEl,zone,zoneEl.querySelector('.zc'),poolId);
+  clickEl=null;
+}
+function placeChip(chip,zone,zc,poolId){
+  const sp=document.createElement('span');
+  sp.className='placed-item';sp.textContent=chip.textContent;
+  sp.dataset.c=chip.dataset.c;sp.dataset.z=zone;sp.dataset.oi=chip.dataset.i;
+  sp.onclick=function(ev){ev.stopPropagation();remItem(sp,poolId);};
+  zc.appendChild(sp);
+  chip.classList.add('placed');chip.classList.remove('selected');
+}
+function remItem(sp,poolId){
+  const orig=document.querySelector(`#${poolId} .dnd-chip[data-i="${sp.dataset.oi}"]`);
+  if(orig)orig.classList.remove('placed');
+  sp.remove();
+}
+
+function checkStep1(){
+  if(!att[1])att[1]=0;att[1]++;
+  const all=document.querySelectorAll('#zones1 .placed-item');
+  if(all.length<S2.items.length){showOFBCustom(1,`Noch ${S2.items.length-all.length} nicht zugeordnet.`,'ofb-mid');return;}
+  let ok=0;
+  all.forEach(p=>{
+    if(p.dataset.c===p.dataset.z){p.classList.add('p-ok');p.onclick=null;ok++;}
+    else{p.classList.add('p-no');}
+  });
+  showOFB(1,ok,all.length);
+  if(ok===all.length||att[1]>=2){markDone(1,ok,all.length);}
+  else{setTimeout(()=>{document.querySelectorAll('#zones1 .placed-item.p-no').forEach(sp=>{remItem(sp,'pool1');});},2500);}
+}
+
+// Step 2: PESTEL – Dropdown-Guess
+function fillStep2(){
+  const c=document.getElementById('content-2');
+  const cats=['Auswählen …','Political','Economic','Social','Technological','Ecological','Legal'];
+  c.innerHTML=`<p class="instr">Welchem PESTEL-Faktor gehört das Beispiel? Wähle aus dem Dropdown.</p>
+    <div class="pestel-grid">${S3.map((s,i)=>`
+      <div class="p-card" id="pc-${i}">
+        <div class="p-text">${s.t}</div>
+        <select id="ps-${i}">${cats.map(o=>`<option>${o}</option>`).join('')}</select>
+        <div class="p-fb" id="pfb-${i}"></div>
+        <div class="p-reveal" id="pr-${i}"><span class="p-letter">${s.letter}</span><br><span class="p-ans">${s.c}</span></div>
+      </div>`).join('')}</div>
+    <button class="btn btn-or" style="margin-top:20px" onclick="checkStep2()">Mini-Check</button>`;
+}
+
+function checkStep2(){
+  if(!att[2])att[2]=0;att[2]++;
+  let ok=0,un=0;
+  S3.forEach((s,i)=>{
+    const sel=document.getElementById('ps-'+i);
+    const fb=document.getElementById('pfb-'+i);
+    const card=document.getElementById('pc-'+i);
+    const rev=document.getElementById('pr-'+i);
+    if(sel.disabled){ok++;return;}
+    if(sel.value==='Auswählen …'){un++;return;}
+    if(sel.value===s.c){
+      sel.disabled=true;card.classList.add('p-ok');card.classList.remove('p-no');
+      fb.innerHTML='✓ '+s.ok;fb.className='p-fb pfb-ok show';
+      rev.classList.add('show');ok++;
+    } else {
+      card.classList.add('p-no');
+      if(att[2]>=2){
+        fb.innerHTML='→ '+s.c+'. '+s.ok;fb.className='p-fb pfb-no show';
+        sel.disabled=true;rev.classList.add('show');
+      } else {
+        fb.innerHTML='💡 '+s.hint;fb.className='p-fb pfb-no show';
+        setTimeout(()=>{sel.value='Auswählen …';fb.className='p-fb';card.classList.remove('p-no');},3500);
+      }
+    }
+  });
+  if(un>0){showOFBCustom(2,`Noch ${un} offen.`,'ofb-mid');return;}
+  showOFB(2,ok,S3.length);
+  if(ok===S3.length||att[2]>=2)markDone(2,ok,S3.length);
+}
+
+// Step 3: DnD – Five Forces
+function fillStep3(){
+  const c=document.getElementById('content-3');
+  c.innerHTML=`<p class="instr">Ziehe das Beispiel zur passenden Wettbewerbskraft – oder klicke erst das Beispiel, dann die Zone.</p>
+    <div class="dnd-pool" id="pool3">${S4.items.map((it,i)=>
+      `<div class="dnd-chip" draggable="true" data-i="${i}" data-c="${it.c}" onclick="selChip(this,'pool3')"
+        ondragstart="ds(event,this)" ondragend="de(this)">${it.t}</div>`
+    ).join('')}</div>
+    <div class="dnd-zones cols-3" id="zones3">${S4.zones.map(z=>
+      `<div class="dnd-zone" data-z="${z}" onclick="dropClick('${z}',this,'pool3')"
+        ondragover="dover(event)" ondragenter="denter(event,this)" ondragleave="dleave(event,this)"
+        ondrop="ddrop(event,this,'pool3')"><h4>${z}</h4><div class="zc" data-z="${z}"></div></div>`
+    ).join('')}</div>
+    <button class="btn btn-or" onclick="checkStep3()">Mini-Check</button>`;
+}
+
+function checkStep3(){
+  if(!att[3])att[3]=0;att[3]++;
+  const all=document.querySelectorAll('#zones3 .placed-item');
+  if(all.length<S4.items.length){showOFBCustom(3,`Noch ${S4.items.length-all.length} nicht zugeordnet.`,'ofb-mid');return;}
+  let ok=0;
+  all.forEach(p=>{
+    if(p.dataset.c===p.dataset.z){p.classList.add('p-ok');p.onclick=null;ok++;}
+    else{p.classList.add('p-no');}
+  });
+  showOFB(3,ok,all.length);
+  if(ok===all.length||att[3]>=2){markDone(3,ok,all.length);}
+  else{setTimeout(()=>{document.querySelectorAll('#zones3 .placed-item.p-no').forEach(sp=>{remItem(sp,'pool3');});},2500);}
+}
+
+// Step 4: DnD – SWOT
+function fillStep4(){
+  const c=document.getElementById('content-4');
+  c.innerHTML=`<p class="instr">Ziehe die Elemente in den richtigen SWOT-Quadranten – oder klicke erst das Element, dann die Zone.</p>
+    <div class="dnd-pool" id="pool4">${S5.items.map((it,i)=>
+      `<div class="dnd-chip" draggable="true" data-i="${i}" data-c="${it.c}" onclick="selChip(this,'pool4')"
+        ondragstart="ds(event,this)" ondragend="de(this)">${it.t}</div>`
+    ).join('')}</div>
+    <div class="dnd-zones cols-2" id="zones4">${S5.zones.map(z=>
+      `<div class="dnd-zone ${z.cls}" data-z="${z.id}" onclick="dropClick('${z.id}',this,'pool4')"
+        ondragover="dover(event)" ondragenter="denter(event,this)" ondragleave="dleave(event,this)"
+        ondrop="ddrop(event,this,'pool4')"><h4>${z.icon} ${z.label}</h4><div class="zc" data-z="${z.id}"></div></div>`
+    ).join('')}</div>
+    <button class="btn btn-or" onclick="checkStep4()">Mini-Check</button>`;
+}
+
+function checkStep4(){
+  if(!att[4])att[4]=0;att[4]++;
+  const all=document.querySelectorAll('#zones4 .placed-item');
+  if(all.length<S5.items.length){showOFBCustom(4,`Noch ${S5.items.length-all.length} nicht zugeordnet.`,'ofb-mid');return;}
+  let ok=0;
+  const qn={s:'Stärken',w:'Schwächen',o:'Chancen',t:'Risiken'};
+  all.forEach(p=>{
+    if(p.dataset.c===p.dataset.z){p.classList.add('p-ok');p.onclick=null;ok++;}
+    else{p.classList.add('p-no');}
+  });
+  const ofb=document.getElementById('ofb-4');
+  if(ok===all.length){
+    ofb.innerHTML='🎉 Alle richtig! Intern (S/W) = was <strong>ihr</strong> beeinflussen könnt. Extern (O/T) = was auf <strong>euch</strong> einwirkt.';
+    ofb.className='ofb ofb-ok show';
+  } else {
+    const wrongs=[];
+    all.forEach(p=>{if(p.dataset.c!==p.dataset.z)wrongs.push(`«${p.textContent}» → ${qn[p.dataset.c]}`);});
+    ofb.innerHTML=`${ok}/${all.length} richtig. Korrekturen: ${wrongs.join(', ')}. Faustregel: S/W = intern, O/T = extern.`;
+    ofb.className='ofb ofb-mid show';
+  }
+  if(ok===all.length||att[4]>=2){markDone(4,ok,all.length);}
+  else{setTimeout(()=>{document.querySelectorAll('#zones4 .placed-item.p-no').forEach(sp=>{remItem(sp,'pool4');});},2500);}
+}
+
+// Step 5: Scenarios (multiple)
+let curScen=0;const scenDone=new Set();
+function fillStep5(){
+  const c=document.getElementById('content-5');
+  c.innerHTML=`<p class="instr">Es gibt kein richtig oder falsch – wählen Sie die Strategie, die Sie überzeugt.</p>
+    <div class="scen-nav" id="snav">
+      <button class="btn btn-ghost" id="scen-prev" onclick="goScen(curScen-1)" disabled style="padding:6px 14px;font-size:.82rem">← Zurück</button>
+      <div style="display:flex;align-items:center;gap:8px">
+        ${S6.map((_,i)=>`<div class="scen-dot${i===0?' scen-active':''}" id="sd-${i}" onclick="goScen(${i})"></div>`).join('')}
+      </div>
+      <button class="btn btn-ghost" id="scen-next" onclick="goScen(curScen+1)" style="padding:6px 14px;font-size:.82rem">Weiter →</button>
+    </div>
+    <div class="scen-label" id="scen-label" style="text-align:center;font-size:.82rem;color:var(--g500);margin-bottom:16px;font-weight:600">Szenario 1 von ${S6.length}</div>
+    <div id="scen-box"></div>`;
+  renderScen(0);
+}
+function renderScen(idx){
+  curScen=idx;
+  const s=S6[idx];
+  document.getElementById('scen-box').innerHTML=`
+    <div class="scenario"><h4>${s.title}</h4><p>${s.scenario}</p></div>
+    <div class="opt-grid" id="opts5">${s.opts.map((o,i)=>
+      `<div class="opt-card" onclick="pick5(${idx},${i},this)"><strong>${o.l}</strong><span>${o.d}</span></div>`
+    ).join('')}</div>
+    <div id="bench-${idx}" style="display:none"></div>
+    <button class="reset-link" onclick="resetScen(${idx})">↺ Zurücksetzen</button>`;
+  // Update dots + nav
+  S6.forEach((_,i)=>{
+    const d=document.getElementById('sd-'+i);
+    d.className='scen-dot';
+    if(i===idx)d.classList.add('scen-active');
+    if(scenDone.has(i))d.classList.add('scen-done');
+  });
+  document.getElementById('scen-label').textContent='Szenario '+(idx+1)+' von '+S6.length;
+  document.getElementById('scen-prev').disabled=idx===0;
+  document.getElementById('scen-next').disabled=idx===S6.length-1;
+}
+function pick5(si,oi,el){
+  document.querySelectorAll('#opts5 .opt-card').forEach(c=>{c.style.pointerEvents='none';c.classList.remove('chosen');});
+  el.classList.add('chosen');
+  showOFBCustom(5,S6[si].opts[oi].fb,'ofb-ref');
+  scenDone.add(si);
+  document.getElementById('sd-'+si).classList.add('scen-done');
+  // Show benchmark
+  const s=S6[si];
+  const sorted=[...s.opts].sort((a,b)=>b.pct-a.pct);
+  const benchEl=document.getElementById('bench-'+si);
+  benchEl.style.display='block';
+  benchEl.innerHTML=`<div class="bench-box">
+    <div class="bench-title">📊 So haben andere Teilnehmende gewählt:</div>
+    ${sorted.map(o=>`<div class="bench-row">
+      <span class="bench-lbl">${o.l}</span>
+      <div class="bench-track"><div class="bench-fill${o===s.opts[oi]?' bench-you':''}" style="width:${o.pct}%"></div></div>
+      <span class="bench-pct">${o.pct}%</span>
+    </div>`).join('')}
+    <div style="font-size:.75rem;color:var(--g400);margin-top:6px;text-align:right">n = 247 Teilnehmende</div>
+  </div>`;
+  if(scenDone.size===S6.length)markDone(5);
+}
+function goScen(idx){
+  if(idx<0||idx>=S6.length)return;
+  renderScen(idx);
+  const ofb=document.getElementById('ofb-5');ofb.className='ofb';ofb.innerHTML='';
+}
+function resetScen(idx){
+  scenDone.delete(idx);renderScen(idx);
+  const ofb=document.getElementById('ofb-5');ofb.className='ofb';ofb.innerHTML='';
+}
+
+// Step 6: Dropdowns – BSC
+function fillStep6(){
+  const c=document.getElementById('content-6');
+  const opts=['Auswählen …','Finanzen','Kunden','Interne Prozesse','Lernen & Entwicklung'];
+  c.innerHTML=`<p class="instr">Zu welcher BSC-Perspektive gehört die Kennzahl?</p>
+    <div class="dd-grid">${S7.map((s,i)=>`
+      <div class="dd-card" id="d6c-${i}">
+        <div class="dd-text">${s.t}</div>
+        <select id="d6s-${i}">${opts.map(o=>`<option>${o}</option>`).join('')}</select>
+        <div class="dd-fb" id="d6fb-${i}"></div>
+      </div>`).join('')}</div>
+    <button class="btn btn-or" style="margin-top:20px" onclick="checkStep6()">Mini-Check</button>`;
+}
+
+function checkStep6(){
+  if(!att[6])att[6]=0;att[6]++;
+  let ok=0,un=0;
+  S7.forEach((s,i)=>{
+    const sel=document.getElementById('d6s-'+i);
+    const fb=document.getElementById('d6fb-'+i);
+    const card=document.getElementById('d6c-'+i);
+    if(sel.value==='Auswählen …'){un++;return;}
+    if(sel.value===s.c){
+      sel.className='dd-ok';sel.disabled=true;card.className='dd-card dc-ok';
+      fb.innerHTML='✓ '+s.ok;fb.className='dd-fb dfb-ok show';ok++;
+    } else {
+      sel.className='dd-no';card.className='dd-card dc-no';
+      if(att[6]>=2){
+        fb.innerHTML='→ '+s.c+'. '+s.ok;fb.className='dd-fb dfb-no show';sel.disabled=true;
+      } else {
+        fb.innerHTML='💡 '+s.hint;fb.className='dd-fb dfb-no show';
+        setTimeout(()=>{sel.className='';sel.value='Auswählen …';fb.className='dd-fb';card.className='dd-card';},3500);
+      }
+    }
+  });
+  if(un>0){showOFBCustom(6,`Noch ${un} offen.`,'ofb-mid');return;}
+  showOFB(6,ok,S7.length);
+  if(ok===S7.length||att[6]>=2)markDone(6,ok,S7.length);
+}
+
+// ========== NAVIGATION ==========
+function show(i){
+  cur=i;
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('visible'));
+  document.getElementById('p-'+i).classList.add('visible');
+  document.querySelectorAll('.step').forEach((s,j)=>{
+    s.className='step';
+    if(j===i)s.classList.add('active');
+    if(dn.has(j))s.classList.add('done');
+  });
+  document.querySelectorAll('.step-circle').forEach((c,j)=>{
+    c.textContent=dn.has(j)?'✓':(j+1);
+  });
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function go(i){if(i>=0&&i<7)show(i);}
+
+function markDone(i,ok,total){
+  if(dn.has(i))return;
+  dn.add(i);
+  show(cur);// refresh stepper
+  const m=document.getElementById('moti-'+i);
+  const remaining=7-dn.size;
+  let msg;
+  if(dn.size===7){msg=motivations[6];}
+  else if(ok!==undefined && total!==undefined && ok<total){
+    msg='📌 Abschnitt abgeschlossen – '+ok+'/'+total+' richtig. Schau es dir bei Gelegenheit nochmals an.';
+  } else {
+    msg=motivations[Math.min(dn.size-1,5)].replace('{n}',remaining);
+  }
+  m.textContent=msg;m.className='moti show';
+}
+
+// ========== RESET ==========
+function resetStep(i){
+  att[i]=0;
+  document.getElementById('ofb-'+i).className='ofb';
+  document.getElementById('ofb-'+i).innerHTML='';
+  document.getElementById('moti-'+i).className='moti';
+  document.getElementById('moti-'+i).textContent='';
+  dn.delete(i);show(cur);
+  const fills=[fillStep0,fillStep1,fillStep2,fillStep3,fillStep4,fillStep5,fillStep6];
+  if(i===5){curScen=0;scenDone.clear();}
+  fills[i]();
+}
+
+// ========== FEEDBACK HELPERS ==========
+function showOFB(si,ok,total){
+  const ofb=document.getElementById('ofb-'+si);
+  if(ok===total){
+    ofb.innerHTML=`🎉 Alle ${total} richtig!`;ofb.className='ofb ofb-ok show';
+  } else {
+    ofb.innerHTML=`${ok}/${total} richtig.${att[si]>=2?' Die Lösungen wurden markiert.':' Schau dir die Hinweise an und versuche es nochmals.'}`;
+    ofb.className='ofb ofb-mid show';
+  }
+}
+function showOFBCustom(si,msg,cls){
+  const ofb=document.getElementById('ofb-'+si);
+  ofb.innerHTML=msg;ofb.className='ofb '+cls+' show';
+}
+
+// ========== QUIZ ==========
+const QZ=[
+  {q:'Strategisches Denken unterscheidet sich vom operativen vor allem durch …',o:['Zeithorizont und Perspektive','Anzahl Personen','Budget','Detailgrad'],c:0,ok:'Strategisch = langfristig + ganzheitlich.',no:'Strategie = langer Zeithorizont + ganzheitliche Perspektive.'},
+  {q:'«Bis 2030 Marktführer in Europa» – das ist eine …',o:['Mission','Vision','Leitbild','Taktik'],c:1,ok:'Vision = Zukunftsbild.',no:'Langfristiges Zukunftsbild = Vision.'},
+  {q:'Demografischer Wandel gehört zu welchem PESTEL-Faktor?',o:['Political','Social','Ecological','Economic'],c:1,ok:'Bevölkerung = Social.',no:'Demografie = Social.'},
+  {q:'Lieferdienst bietet Kaffee nach Hause. Für Ihr Café ist das …',type:'r',o:['Ersatzprodukt','Neuer Anbieter','Kundenmacht','Alle drei'],fb:['Alternativer Konsumweg = Substitut.','Neuer Wettbewerber – stimmt auch!','Mehr Auswahl = mehr Kundenmacht.','Differenziert gedacht! Kräfte wirken zusammen.']},
+  {q:'«Veraltete Maschinen» – SWOT-Quadrant?',o:['Stärke','Schwäche','Chance','Risiko'],c:1,ok:'Intern + negativ = Schwäche.',no:'Intern + negativ = Schwäche.'},
+  {q:'Welche Kennzahl gehört NICHT zur Kundenperspektive?',o:['Kundenzufriedenheit','NPS','Eigenkapitalrendite','Kundenbindung'],c:2,ok:'Eigenkapitalrendite = Finanzen.',no:'Eigenkapitalrendite = Finanzperspektive.'},
+  {q:'Ihre wichtigste Erkenntnis aus diesem Lernpfad?',type:'r',o:['Strategie braucht Werkzeuge','Umweltanalyse ist der Schlüssel','Umsetzung zählt genauso','Alles hängt zusammen'],fb:['Werkzeuge geben Struktur!','Zentral – aber interne Analyse und Umsetzung nicht vergessen.','Beste Strategie ist wertlos ohne Umsetzung.','Ganzheitlich! Alles ist verknüpft.']},
+];
+let qci=0,qans={};
+
+function showQuiz(){
+  qci=0;qans={};
+  document.getElementById('ov').classList.add('show');
+  const b=document.getElementById('mb');
+  b.innerHTML=`<div class="qdots" id="qds">${QZ.map((_,i)=>`<div class="qd" id="qd-${i}"></div>`).join('')}</div>
+    <div id="qbox">${QZ.map((q,i)=>`
+      <div class="qi${i===0?' qi-on':''}" id="qi-${i}">
+        <div class="qi-tag">Frage ${i+1}/${QZ.length}${q.type==='r'?' · Reflexion':''}</div>
+        <h3>${q.q}</h3>
+        <div class="qi-opts">${q.o.map((o,j)=>`<button class="qi-opt" onclick="qa(${i},${j},this)">${o}</button>`).join('')}</div>
+        <div class="qfb" id="qf-${i}"></div>
+      </div>`).join('')}</div>
+    <div class="qnav"><button class="btn btn-ghost" id="qp" onclick="qn(-1)" style="visibility:hidden">← Zurück</button>
+    <button class="btn btn-or" id="qnx" onclick="qn(1)" disabled>Weiter →</button></div>
+    <div class="qres" id="qr" style="display:none"></div>`;
+  document.getElementById('qd-0').classList.add('qd-on');
+}
+
+function qa(i,j,btn){
+  if(qans[i]!==undefined)return;qans[i]=j;
+  const q=QZ[i],fb=document.getElementById('qf-'+i),dot=document.getElementById('qd-'+i);
+  btn.closest('.qi-opts').querySelectorAll('.qi-opt').forEach(b=>b.style.pointerEvents='none');
+  if(q.type==='r'){
+    btn.classList.add('qo-ref');fb.innerHTML='💭 '+q.fb[j];fb.className='qfb ofb-ref show';dot.classList.replace('qd-on','qd-ok');
+  } else if(j===q.c){
+    btn.classList.add('qo-ok');fb.innerHTML='✓ '+q.ok;fb.className='qfb ofb-ok show';dot.classList.replace('qd-on','qd-ok');
+  } else {
+    btn.classList.add('qo-no');btn.closest('.qi-opts').querySelectorAll('.qi-opt')[q.c].classList.add('qo-ok');
+    fb.innerHTML='💡 '+q.no;fb.className='qfb ofb-mid show';dot.classList.replace('qd-on','qd-bad');
+  }
+  document.getElementById('qnx').disabled=false;
+}
+
+function qn(d){
+  document.getElementById('qi-'+qci).classList.remove('qi-on');qci+=d;
+  if(qci>=QZ.length){showQR();return;}
+  document.getElementById('qi-'+qci).classList.add('qi-on');
+  document.getElementById('qd-'+qci).classList.add('qd-on');
+  document.getElementById('qp').style.visibility=qci>0?'visible':'hidden';
+  document.getElementById('qnx').disabled=qans[qci]===undefined;
+  document.getElementById('qnx').textContent=qci===QZ.length-1?'Auswertung →':'Weiter →';
+}
+
+function showQR(){
+  document.querySelector('.qnav').style.display='none';
+  document.querySelector('.qdots').style.display='none';
+  document.getElementById('qbox').style.display='none';
+  let c=0,t=0;QZ.forEach((q,i)=>{if(q.type!=='r'){t++;if(qans[i]===q.c)c++;}});
+  const pct=Math.round(c/t*100);
+  const msg=pct===100?'Hervorragend!':pct>=80?'Sehr gut!':pct>=60?'Gut – einzelne Themen vertiefen.':'Themen nochmals anschauen.';
+  document.getElementById('qr').style.display='block';
+  document.getElementById('qr').innerHTML=`<div class="qring">${pct}%</div><h3>${c}/${t} Wissensfragen richtig</h3><p>${msg}</p>
+    <p style="margin-top:8px;font-size:.8rem;color:var(--g500)">Reflexionsfragen nicht bewertet.</p>
+    <button class="btn btn-ghost" style="margin-top:16px" onclick="document.getElementById('ov').classList.remove('show')">Schliessen</button>`;
+}
+
+init();
+</script>
+</body>
+</html>
