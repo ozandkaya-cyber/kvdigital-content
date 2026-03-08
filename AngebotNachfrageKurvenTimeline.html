@@ -1,0 +1,2174 @@
+<!doctype html>
+<html lang="de-CH">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Angebot und Nachfrage: Kurven verstehen</title>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Encode+Sans:wght@400;500;600;700;800&display=swap");
+
+    :root {
+      --bg: #ecf2f6;
+      --panel: #f7f9fb;
+      --card: #ffffff;
+      --line: #d9e0e8;
+      --ink: #111722;
+      --muted: #5f6978;
+      --dark: #151c28;
+      --orange: #ff8a1d;
+      --orange-soft: #fff3e5;
+      --blue: #2563eb;
+      --blue-soft: #eef4ff;
+      --green: #15803d;
+      --green-soft: #ecfdf3;
+      --warn: #b45309;
+      --warn-soft: #fff7ed;
+      --bad: #b91c1c;
+      --bad-soft: #fef2f2;
+      --shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 16px;
+      font-family: "Encode Sans", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 8% 7%, #d4ece5 0%, transparent 24%),
+        radial-gradient(circle at 92% 12%, #e4e7f8 0%, transparent 28%),
+        linear-gradient(180deg, #edf2f6, #e8edf2);
+    }
+
+    .app {
+      max-width: 1260px;
+      margin: 0 auto;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      padding: 16px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .badge {
+      display: inline-block;
+      width: fit-content;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid #d4dbe5;
+      background: #f1f4f8;
+      color: #3b4758;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 0;
+      color: #101722;
+      font-size: clamp(1.3rem, 3vw, 2.1rem);
+      font-weight: 800;
+      letter-spacing: 0.01em;
+    }
+
+    .lead {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.45;
+      font-size: 0.93rem;
+      font-weight: 500;
+      max-width: 96ch;
+    }
+
+    .topbar {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #f2f5f8;
+      padding: 10px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .tab {
+      border: 1px solid #d2d9e3;
+      border-radius: 12px;
+      background: #e7ebf0;
+      color: #344255;
+      padding: 9px 8px;
+      font: inherit;
+      font-size: 0.81rem;
+      font-weight: 700;
+      cursor: pointer;
+      line-height: 1.2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: transform 0.12s ease, filter 0.12s ease;
+    }
+
+    .tab:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.02);
+    }
+
+    .tab.active {
+      border-color: var(--dark);
+      color: var(--orange);
+      background: var(--dark);
+      box-shadow: 0 0 0 2px rgba(17, 24, 39, 0.12);
+    }
+
+    .tab.done {
+      border-color: #bec8d5;
+      background: #dfe5ec;
+      color: #1f2937;
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .meta {
+      margin: 0;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #4b596d;
+    }
+
+    .meta strong {
+      font-weight: 800;
+      color: #172536;
+    }
+
+    .stage-wrap {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--card);
+      min-height: 780px;
+      overflow: hidden;
+    }
+
+    .stage {
+      padding: 14px;
+      display: grid;
+      grid-template-rows: auto auto 1fr auto;
+      gap: 12px;
+    }
+
+    .stage.leaving {
+      opacity: 0;
+      transform: translateY(10px) scale(0.992);
+      transition: opacity 0.16s ease, transform 0.16s ease;
+    }
+
+    .stage.entering {
+      animation: panel-in 0.24s ease;
+    }
+
+    @keyframes panel-in {
+      from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.992);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .title {
+      margin: 0;
+      font-size: clamp(1.08rem, 2vw, 1.38rem);
+      font-weight: 800;
+      color: #152233;
+    }
+
+    .pill {
+      border-radius: 999px;
+      border: 1px solid #d8dee7;
+      background: #f2f5f9;
+      color: #43566f;
+      padding: 4px 10px;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    .learn {
+      margin: 0;
+      border: 1px solid #d9e0ea;
+      border-radius: 12px;
+      background: #f4f7fb;
+      padding: 10px 12px;
+      color: #3b4f68;
+      font-size: 0.87rem;
+      line-height: 1.35;
+      font-weight: 600;
+    }
+
+    .task {
+      border: 1px solid #e1e6ed;
+      border-radius: 14px;
+      background: #ffffff;
+      padding: 12px;
+      display: grid;
+      gap: 12px;
+      align-content: start;
+    }
+
+    .start-note,
+    .hint-box,
+    .info-box {
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 0.86rem;
+      line-height: 1.4;
+      font-weight: 600;
+    }
+
+    .start-note {
+      margin: 0;
+      border: 1px solid #f3c28e;
+      background: linear-gradient(180deg, #fff8ef, #ffeed9);
+      color: #8a4d09;
+    }
+
+    .hint-box {
+      border: 1px solid #cfd9e5;
+      background: #eef3f8;
+      color: #41566f;
+    }
+
+    .info-box {
+      border: 1px solid #d5dfec;
+      background: linear-gradient(180deg, #f6faff, #f2f6fc);
+      color: #42566f;
+    }
+
+    .grid-2,
+    .grid-3,
+    .cards-2,
+    .cards-3,
+    .stats-grid,
+    .effect-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .grid-2 {
+      grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+    }
+
+    .grid-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .cards-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .cards-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .stats-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .effect-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .panel,
+    .card,
+    .question-card {
+      border: 1px solid #d7e0ea;
+      border-radius: 16px;
+      background: linear-gradient(180deg, #fbfdff, #f3f7fb);
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+      align-content: start;
+      box-shadow: 0 6px 16px rgba(26, 43, 64, 0.05);
+    }
+
+    .card:nth-child(4n + 1),
+    .question-card:nth-child(4n + 1) {
+      background: linear-gradient(180deg, #f7fbff, #edf4ff);
+    }
+
+    .card:nth-child(4n + 2),
+    .question-card:nth-child(4n + 2) {
+      background: linear-gradient(180deg, #fff9f1, #fff1df);
+    }
+
+    .card:nth-child(4n + 3),
+    .question-card:nth-child(4n + 3) {
+      background: linear-gradient(180deg, #f7fff8, #eaf8ee);
+    }
+
+    .card:nth-child(4n + 4),
+    .question-card:nth-child(4n + 4) {
+      background: linear-gradient(180deg, #f9f5ff, #f0e9ff);
+    }
+
+    .card.ok,
+    .question-card.ok {
+      border-color: #a8ddbf;
+      background: var(--green-soft);
+    }
+
+    .card.bad,
+    .question-card.bad {
+      border-color: #f0c89b;
+      background: var(--warn-soft);
+    }
+
+    .panel h3,
+    .card h3,
+    .question-card h3 {
+      margin: 0;
+      font-size: 0.98rem;
+      color: #16283d;
+      line-height: 1.32;
+    }
+
+    .panel p,
+    .card p,
+    .question-card p {
+      margin: 0;
+      color: #445973;
+      font-size: 0.84rem;
+      line-height: 1.4;
+      font-weight: 500;
+    }
+
+    .scenario-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .scenario-btn {
+      border: 1px solid #d4dce7;
+      border-radius: 14px;
+      background: linear-gradient(180deg, #f8fbff, #eef4fb);
+      color: #22354d;
+      text-align: left;
+      padding: 12px;
+      display: grid;
+      gap: 4px;
+    }
+
+    .scenario-btn span {
+      font-size: 0.82rem;
+      color: #50657f;
+      font-weight: 600;
+      line-height: 1.32;
+    }
+
+    .scenario-btn strong {
+      font-size: 0.92rem;
+      line-height: 1.3;
+    }
+
+    .scenario-btn.active {
+      border-color: #ffb164;
+      background: linear-gradient(180deg, #fff8ef, #ffeed9);
+      box-shadow: 0 0 0 3px rgba(255, 138, 29, 0.14);
+    }
+
+    .graph-wrap {
+      border: 1px solid #d8e0ea;
+      border-radius: 14px;
+      background: #ffffff;
+      padding: 8px;
+    }
+
+    .graph-wrap svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .slider-block {
+      border: 1px solid #d8dee7;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.88);
+      padding: 10px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .slider-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .slider-head strong {
+      font-size: 0.86rem;
+      color: #1f334b;
+    }
+
+    .slider-head span,
+    .mini {
+      font-size: 0.78rem;
+      color: #5f7087;
+      font-weight: 700;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--orange);
+    }
+
+    .val {
+      border: 1px solid #d8dde6;
+      border-radius: 8px;
+      background: #fff;
+      text-align: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 6px;
+      color: #243b5a;
+      min-width: 66px;
+    }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tag {
+      border-radius: 999px;
+      border: 1px solid #d8dee7;
+      background: #f2f5f9;
+      color: #43566f;
+      padding: 4px 10px;
+      font-size: 0.77rem;
+      font-weight: 700;
+    }
+
+    .tag.blue {
+      border-color: #c9d9ff;
+      background: var(--blue-soft);
+      color: var(--blue);
+    }
+
+    .tag.orange {
+      border-color: #ffd0a1;
+      background: var(--orange-soft);
+      color: #b45309;
+    }
+
+    .stat,
+    .effect-chip {
+      border: 1px solid #d9e0ea;
+      border-radius: 12px;
+      background: #f4f7fb;
+      padding: 10px;
+      color: #2f4763;
+      font-size: 0.82rem;
+      line-height: 1.35;
+      font-weight: 700;
+    }
+
+    .effect-chip.up {
+      border-color: #b7e0c7;
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    .effect-chip.down {
+      border-color: #f4d1aa;
+      background: var(--warn-soft);
+      color: var(--warn);
+    }
+
+    .effect-chip.same {
+      border-color: #cfd9e5;
+      background: #eef3f8;
+      color: #41566f;
+    }
+
+    .effect-chip.ambiguous {
+      border-color: #d6dce5;
+      background: #f4f6f9;
+      color: #4b5e77;
+    }
+
+    .helper-list {
+      margin: 0;
+      padding-left: 18px;
+      color: #465b75;
+      font-size: 0.82rem;
+      line-height: 1.45;
+      font-weight: 500;
+      display: grid;
+      gap: 4px;
+    }
+
+    .answer-note {
+      margin: 0;
+      padding: 9px 10px;
+      border: 1px dashed #d8e0ea;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.7);
+      color: #42566f;
+      font-size: 0.8rem;
+      line-height: 1.36;
+      font-weight: 600;
+    }
+
+    .answer-note.ok {
+      border-color: #9fd7b7;
+      color: var(--green);
+      background: var(--green-soft);
+    }
+
+    .answer-note.bad {
+      border-color: #f4c69a;
+      color: var(--warn);
+      background: var(--warn-soft);
+    }
+
+    select {
+      width: 100%;
+      border: 1px solid #d5dce6;
+      border-radius: 9px;
+      background: #fff;
+      color: #1f2937;
+      font: inherit;
+      padding: 8px;
+      font-size: 0.84rem;
+      font-weight: 500;
+    }
+
+    select:focus {
+      outline: none;
+      border-color: var(--orange);
+      box-shadow: 0 0 0 3px rgba(255, 138, 29, 0.16);
+    }
+
+    select.ok {
+      border-color: #5cb981;
+      background: #f1fff6;
+      box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.12);
+    }
+
+    select.bad {
+      border-color: #e36b6b;
+      background: #fff6f6;
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+    }
+
+    .choice-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .choice-row {
+      border: 1px solid #d4dce8;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 10px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      cursor: pointer;
+    }
+
+    .choice-row input {
+      margin-top: 3px;
+      accent-color: var(--orange);
+    }
+
+    .choice-row.correct {
+      border-color: #9fd7b7;
+      background: var(--green-soft);
+    }
+
+    .choice-row.wrong {
+      border-color: #f4c69a;
+      background: var(--warn-soft);
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .left-actions,
+    .right-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .right-actions {
+      margin-left: auto;
+    }
+
+    button {
+      border: 0;
+      border-radius: 10px;
+      font: inherit;
+      padding: 9px 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.12s ease, filter 0.12s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.03);
+    }
+
+    .btn-main {
+      background: var(--orange);
+      color: #fff;
+    }
+
+    .btn-soft {
+      background: #eef1f5;
+      border: 1px solid #d5dce6;
+      color: #2a313b;
+    }
+
+    .btn-next {
+      background: var(--dark);
+      color: var(--orange);
+    }
+
+    .btn-soft:disabled,
+    .btn-main:disabled,
+    .btn-next:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none;
+      filter: none;
+    }
+
+    .feedback {
+      margin: 0;
+      border: 1px solid #d9dfe8;
+      border-radius: 10px;
+      background: #f4f7fb;
+      padding: 9px 10px;
+      color: #2f3d51;
+      line-height: 1.35;
+      font-size: 0.86rem;
+      font-weight: 600;
+      max-width: 620px;
+    }
+
+    .feedback.ok {
+      border-color: #b7e0c7;
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    .feedback.bad {
+      border-color: #f0c89b;
+      background: var(--warn-soft);
+      color: var(--warn);
+    }
+
+    @media (max-width: 1220px) {
+      .tabs {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .grid-2,
+      .cards-3,
+      .stats-grid,
+      .effect-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 860px) {
+      .tabs {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .grid-2,
+      .grid-3,
+      .cards-2,
+      .cards-3,
+      .stats-grid,
+      .effect-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stage-wrap {
+        min-height: 920px;
+      }
+
+      .right-actions {
+        margin-left: 0;
+      }
+
+      .feedback {
+        max-width: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <span class="badge">INTERAKTIVES ELEMENT: Angebot und Nachfrage</span>
+    <h1>Kurven lesen, verschieben und sauber begründen</h1>
+    <p class="lead">Im Zentrum steht immer das Diagramm: Achsen, alte und neue Lage, Hilfslinien zu <strong>P0/P1</strong> und <strong>M0/M1</strong> sowie Regler, mit denen Lernende Szenarien selbst weiterziehen können.</p>
+
+    <section class="topbar">
+      <div class="tabs" id="tabs"></div>
+      <div class="meta-row">
+        <p class="meta"><strong id="progressText">0/6</strong> Bereiche vollständig gelöst</p>
+        <p class="meta">Aktiv: <strong id="activeText">Punkt auf der Kurve</strong></p>
+      </div>
+    </section>
+
+    <section class="stage-wrap">
+      <article class="stage" id="stage"></article>
+    </section>
+  </main>
+
+  <script>
+    const steps = [
+      {
+        id: 1,
+        short: "Punkt",
+        title: "Punkt auf der Kurve",
+        learn: "Erkennen, wann nur der Preis wechselt und sich deshalb nur der Punkt auf einer bestehenden Kurve bewegt."
+      },
+      {
+        id: 2,
+        short: "Nachfrage",
+        title: "Nachfragekurve verschieben",
+        learn: "Rahmenbedingungen auf der Nachfrageseite in rechts, links oder bleibt gleich übersetzen."
+      },
+      {
+        id: 3,
+        short: "Angebot",
+        title: "Angebotskurve verschieben",
+        learn: "Rahmenbedingungen auf der Angebotsseite in rechts, links oder bleibt gleich übersetzen."
+      },
+      {
+        id: 4,
+        short: "Diagnose",
+        title: "Bewegung, Verschiebung oder keine Änderung?",
+        learn: "Preisveränderung, Kurvenverschiebung und keine Änderung sauber voneinander trennen."
+      },
+      {
+        id: 5,
+        short: "Quiz",
+        title: "Quiz und Rückmeldung",
+        learn: "Die typischen Denkfehler zu Angebot, Nachfrage und Gleichgewicht aktiv vermeiden."
+      },
+      {
+        id: 6,
+        short: "Labor",
+        title: "Marktlabor mit zwei Reglern",
+        learn: "Angebot und Nachfrage gleichzeitig verändern und die Wirkung auf Preis und Menge begründen."
+      }
+    ];
+
+    const movementPresets = [
+      {
+        title: "Kaffee wird billiger",
+        note: "Der Preis sinkt. Die nachgefragte Menge steigt. Die Nachfragekurve bleibt aber gleich.",
+        curve: "demand",
+        delta: -14
+      },
+      {
+        title: "Kaffee wird teurer",
+        note: "Der Preis steigt. Die nachgefragte Menge sinkt. Wieder bewegt sich nur der Punkt auf der Nachfragekurve.",
+        curve: "demand",
+        delta: 12
+      },
+      {
+        title: "Marktpreis steigt für Anbieter",
+        note: "Steigt der Preis, sind Anbieter bereit, mehr anzubieten. Das ist eine Bewegung auf der Angebotskurve.",
+        curve: "supply",
+        delta: 12
+      },
+      {
+        title: "Marktpreis sinkt für Anbieter",
+        note: "Sinkt der Preis, nimmt die angebotene Menge ab. Die Angebotskurve bleibt gleich.",
+        curve: "supply",
+        delta: -12
+      }
+    ];
+
+    const demandPresets = [
+      {
+        title: "Höheres Einkommen",
+        meta: "Mehr Kaufkraft",
+        shift: 14,
+        mode: "shift",
+        note: "Bei jedem Preis wird mehr nachgefragt. Die Nachfragekurve verschiebt sich nach rechts."
+      },
+      {
+        title: "Butter wird teurer",
+        meta: "Substitutionsgut",
+        shift: 12,
+        mode: "shift",
+        note: "Mehr Konsumenten weichen auf Margarine aus. Das erhöht die Nachfrage nach Margarine."
+      },
+      {
+        title: "Wohnkosten steigen",
+        meta: "Budgetdruck",
+        shift: -14,
+        mode: "shift",
+        note: "Wenn Haushalte sparen müssen, sinkt die Nachfrage nach Restaurantbesuchen bei jedem Preis."
+      },
+      {
+        title: "Preis des Guts steigt",
+        meta: "Nur Preiswechsel",
+        shift: 0,
+        mode: "movement",
+        note: "Die Nachfragekurve verschiebt sich nicht. Nur der Punkt auf der Nachfragekurve würde sich bewegen."
+      },
+      {
+        title: "Rahmenbedingungen bleiben gleich",
+        meta: "Keine neue Information",
+        shift: 0,
+        mode: "same",
+        note: "Ohne neue Rahmenbedingung gibt es keine Verschiebung der Nachfragekurve."
+      }
+    ];
+
+    const supplyPresets = [
+      {
+        title: "Neues Produktionsverfahren",
+        meta: "Tiefere Kosten",
+        shift: 14,
+        mode: "shift",
+        note: "Anbieter können bei jedem Preis mehr herstellen. Die Angebotskurve verschiebt sich nach rechts."
+      },
+      {
+        title: "Rekordernte bei Äpfeln",
+        meta: "Mehr Verfügbarkeit",
+        shift: 12,
+        mode: "shift",
+        note: "Mehr Ware kommt auf den Markt. Das Angebot steigt bei jedem Preis."
+      },
+      {
+        title: "Energiepreise steigen",
+        meta: "Höhere Kosten",
+        shift: -14,
+        mode: "shift",
+        note: "Wenn die Produktion teurer wird, können oder wollen Anbieter weniger anbieten."
+      },
+      {
+        title: "Marktpreis steigt",
+        meta: "Nur Preiswechsel",
+        shift: 0,
+        mode: "movement",
+        note: "Die Angebotskurve verschiebt sich nicht. Nur der Punkt auf der Angebotskurve würde sich bewegen."
+      },
+      {
+        title: "Rahmenbedingungen bleiben gleich",
+        meta: "Keine neue Information",
+        shift: 0,
+        mode: "same",
+        note: "Ohne neue Kosten- oder Mengenbedingungen bleibt die Angebotskurve an Ort."
+      }
+    ];
+
+    const diagnosisCases = [
+      {
+        title: "Der Preis eines Smartphones sinkt, Einkommen und Präferenzen bleiben gleich.",
+        answer: "move-demand",
+        hint: "Frage zuerst, ob nur der Preis des Guts wechselt oder ob sich auch Einkommen, Präferenzen oder Kosten ändern.",
+        solution: "Richtig. Nur der Preis des Guts ändert sich. Deshalb bewegt sich der Punkt auf der Nachfragekurve."
+      },
+      {
+        title: "Der Marktpreis für Erdbeeren steigt, die Produktionskosten bleiben gleich.",
+        answer: "move-supply",
+        hint: "Überlege, ob Anbieter auf einen Preiswechsel oder auf neue Produktionsbedingungen reagieren.",
+        solution: "Richtig. Anbieter reagieren auf den Preis. Das ist eine Bewegung auf der Angebotskurve, keine Verschiebung."
+      },
+      {
+        title: "Eine Werbekampagne macht Schutzhelme deutlich beliebter.",
+        answer: "d-right",
+        hint: "Prüfe, ob sich die Kaufbereitschaft der Konsumenten bei jedem Preis erhöht oder senkt.",
+        solution: "Richtig. Steigende Beliebtheit bedeutet mehr Nachfrage bei jedem Preis."
+      },
+      {
+        title: "Strom und Gas verteuern die Produktion von Brot.",
+        answer: "s-left",
+        hint: "Kostenanstiege betreffen die Angebotsseite. Entscheide dann, ob das Angebot grösser oder kleiner wird.",
+        solution: "Richtig. Höhere Produktionskosten verschieben das Angebot nach links."
+      },
+      {
+        title: "Es gibt keine neue Information zu Einkommen, Kosten, Erwartungen oder Präferenzen.",
+        answer: "same",
+        hint: "Ohne neue Rahmenbedingung brauchst du weder eine neue Nachfrage- noch eine neue Angebotskurve.",
+        solution: "Richtig. Wenn sich keine Rahmenbedingung ändert, verschiebt sich keine Kurve."
+      },
+      {
+        title: "Einfuhrregeln für einen wichtigen Rohstoff werden gelockert.",
+        answer: "s-right",
+        hint: "Frage dich, ob Produzenten dadurch leichter und günstiger produzieren können.",
+        solution: "Richtig. Leichter verfügbare Rohstoffe verbessern die Angebotsseite und verschieben das Angebot nach rechts."
+      },
+      {
+        title: "Drucker werden billiger, deshalb steigt die Nachfrage nach Druckerpatronen.",
+        answer: "d-right",
+        hint: "Prüfe, ob es sich um Güter handelt, die zusammen genutzt werden.",
+        solution: "Richtig. Patronen sind ein Komplementärgut. Sinkt der Preis des verbundenen Guts, steigt die Nachfrage."
+      },
+      {
+        title: "Höhere Wohnkosten zwingen Haushalte, bei Restaurantbesuchen zu sparen.",
+        answer: "d-left",
+        hint: "Überlege, ob Haushalte dadurch bei jedem Preis eher mehr oder eher weniger konsumieren wollen.",
+        solution: "Richtig. Weniger Budget für Restaurants bedeutet eine Nachfrageverschiebung nach links."
+      }
+    ];
+
+    const quizQuestions = [
+      {
+        prompt: "Was passiert, wenn nur der Preis eines Guts fällt und sich sonst nichts ändert?",
+        options: [
+          "Die Nachfragekurve verschiebt sich nach rechts.",
+          "Die Angebotskurve verschiebt sich nach links.",
+          "Der Punkt bewegt sich auf der Nachfragekurve.",
+          "Es gibt automatisch ein neues Angebot."
+        ],
+        answer: 2,
+        hint: "Frage zuerst, ob sich wirklich nur der Preis ändert oder ob eine neue Rahmenbedingung vorliegt.",
+        note: "Richtig. Nur Preiswechsel bedeuten keine neue Kurve, sondern eine Bewegung auf der vorhandenen Nachfragekurve."
+      },
+      {
+        prompt: "Ein neues Produktionsverfahren senkt die Stueckkosten deutlich. Welche Aussage passt?",
+        options: [
+          "Das Angebot verschiebt sich nach rechts.",
+          "Die Nachfrage verschiebt sich nach links.",
+          "Der Punkt bewegt sich auf der Nachfragekurve.",
+          "Es bleibt alles gleich."
+        ],
+        answer: 0,
+        hint: "Wenn Produktionskosten sinken, betrifft das die Anbieter. Entscheide dann, in welche Richtung sich das Angebot verändert.",
+        note: "Richtig. Tiefere Kosten stärken die Angebotsseite bei jedem Preis."
+      },
+      {
+        prompt: "Höheres Einkommen der Haushalte führt typischerweise dazu, dass ...",
+        options: [
+          "die Nachfrage nach rechts verschoben wird.",
+          "das Angebot nach links verschoben wird.",
+          "nur der Punkt auf der Angebotskurve wandert.",
+          "sich keine Kurve ändert."
+        ],
+        answer: 0,
+        hint: "Mehr Einkommen betrifft zuerst die Kaufseite. Prüfe, ob dadurch bei jedem Preis mehr oder weniger nachgefragt wird.",
+        note: "Richtig. Mehr Einkommen bedeutet mehr Kaufbereitschaft bei jedem Preis."
+      },
+      {
+        prompt: "Welche Antwort passt zu: 'Es gibt keine neue Information zu Kosten, Einkommen oder Präferenzen'?",
+        options: [
+          "Nachfrage nach rechts",
+          "Angebot nach links",
+          "Keine Kurvenverschiebung",
+          "Punkt auf Nachfragekurve"
+        ],
+        answer: 2,
+        hint: "Ohne neue Rahmenbedingungen musst du sehr vorsichtig sein mit jeder behaupteten Verschiebung.",
+        note: "Richtig. Ohne geänderte Rahmenbedingungen gibt es keine neue Kurve."
+      },
+      {
+        prompt: "Ein Orkan zerstört Weizenfelder. Welche Folge ist im Modell typisch?",
+        options: [
+          "Angebot nach rechts, Preis sinkt",
+          "Angebot nach links, Preis steigt",
+          "Nachfrage nach rechts, Preis steigt",
+          "Nur der Punkt auf der Nachfragekurve bewegt sich"
+        ],
+        answer: 1,
+        hint: "Eine Naturkatastrophe trifft hier die Produktionsseite. Frage dich, ob dadurch mehr oder weniger angeboten werden kann.",
+        note: "Richtig. Eine Naturkatastrophe reduziert das Angebot. Dadurch steigt der Gleichgewichtspreis."
+      }
+    ];
+
+    const labPresets = [
+      {
+        title: "Helmobligatorium",
+        description: "Ein Gesetz macht Schutzhelme beim Skifahren obligatorisch. Untersuche den Markt für Schutzhelme mit dem Diagramm und den Reglern.",
+        demand: 14,
+        supply: 0,
+        price: "up",
+        quantity: "up",
+        hint: "Prüfe zuerst, ob das Ereignis eher Nachfrage, Angebot oder beide Seiten betrifft.",
+        solution: "Richtig. Das Helmobligatorium erhöht die Nachfrage nach Schutzhelmen. Dadurch steigen Preis und Menge."
+      },
+      {
+        title: "Höheres Einkommen + Naturkatastrophe",
+        description: "Haushalte verfügen über mehr Einkommen, gleichzeitig fällt wegen einer Naturkatastrophe ein Teil der Produktion aus.",
+        demand: 14,
+        supply: -14,
+        price: "up",
+        quantity: "ambiguous",
+        hint: "Trenne zuerst Preis- und Mengenwirkung. Bei gegenläufigen Kurveneffekten ist nicht beides gleich eindeutig.",
+        solution: "Richtig. Die Nachfrage steigt und das Angebot sinkt. Der Preis steigt sicher, die Mengenwirkung ist allgemein nicht eindeutig."
+      },
+      {
+        title: "Technologie + Einkommensboom",
+        description: "Produzenten werden effizienter, gleichzeitig steigt die Kaufkraft der Haushalte.",
+        demand: 12,
+        supply: 12,
+        price: "ambiguous",
+        quantity: "up",
+        hint: "Wenn beide Kurven nach rechts wandern, prüfe getrennt, was sicher für die Menge gilt und was beim Preis offen bleibt.",
+        solution: "Richtig. Angebot und Nachfrage verschieben sich beide nach rechts. Die Menge steigt sicher, der Preis ist allgemein offen."
+      },
+      {
+        title: "Keine neue Rahmenbedingung",
+        description: "Es gibt keine neue Information zu Einkommen, Kosten, Technologie oder Präferenzen.",
+        demand: 0,
+        supply: 0,
+        price: "same",
+        quantity: "same",
+        hint: "Ohne neue Rahmenbedingung solltest du keine neue Kurve einzeichnen.",
+        solution: "Richtig. Ohne neue Rahmenbedingung bleibt das Gleichgewicht unverändert."
+      }
+    ];
+
+    const state = {
+      current: 1,
+      done: {},
+      feedback: {},
+      movementPreset: 0,
+      movementCurve: movementPresets[0].curve,
+      movementDelta: movementPresets[0].delta,
+      demandPreset: 0,
+      demandShift: demandPresets[0].shift,
+      supplyPreset: 0,
+      supplyShift: supplyPresets[0].shift,
+      labPreset: 0,
+      labDemand: labPresets[0].demand,
+      labSupply: labPresets[0].supply
+    };
+
+    const el = {
+      tabs: document.getElementById("tabs"),
+      progressText: document.getElementById("progressText"),
+      activeText: document.getElementById("activeText"),
+      stage: document.getElementById("stage")
+    };
+
+    const graphModel = {
+      width: 450,
+      height: 320,
+      padLeft: 58,
+      padRight: 20,
+      padTop: 18,
+      padBottom: 48,
+      demandA: 88,
+      demandB: 0.8,
+      supplyC: 12,
+      supplyD: 0.75
+    };
+
+    function esc(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function updateMeta() {
+      const doneCount = Object.values(state.done).filter(Boolean).length;
+      el.progressText.textContent = `${doneCount}/${steps.length}`;
+      const step = steps.find((item) => item.id === state.current);
+      el.activeText.textContent = step.short;
+    }
+
+    function renderTabs() {
+      el.tabs.innerHTML = steps.map((item) => {
+        const cls = ["tab", state.current === item.id ? "active" : "", state.done[item.id] ? "done" : ""]
+          .filter(Boolean)
+          .join(" ");
+        return `<button type="button" class="${cls}" data-step="${item.id}"><span>${esc(item.short)}</span></button>`;
+      }).join("");
+
+      Array.from(el.tabs.querySelectorAll(".tab")).forEach((btn) => {
+        btn.addEventListener("click", () => switchStep(Number(btn.dataset.step)));
+      });
+    }
+
+    function switchStep(next) {
+      if (next < 1 || next > steps.length || next === state.current) return;
+      el.stage.classList.add("leaving");
+      window.setTimeout(() => {
+        state.current = next;
+        renderCurrentStep();
+        el.stage.classList.remove("leaving");
+        el.stage.classList.add("entering");
+        window.setTimeout(() => el.stage.classList.remove("entering"), 260);
+      }, 160);
+    }
+
+    function moveStep(delta) {
+      const next = state.current + delta;
+      if (next >= 1 && next <= steps.length) {
+        switchStep(next);
+      }
+    }
+
+    function setFeedback(text, tone) {
+      const box = document.getElementById("stepFeedback");
+      if (!box) return;
+      box.classList.remove("ok", "bad");
+      if (tone) box.classList.add(tone);
+      box.textContent = text;
+      state.feedback[state.current] = { text, tone };
+    }
+
+    function setDone(score, total) {
+      const ok = score === total;
+      state.done[state.current] = ok;
+      renderTabs();
+      updateMeta();
+      return ok;
+    }
+
+    function clearStates(root) {
+      Array.from(root.querySelectorAll(".ok, .bad")).forEach((node) => node.classList.remove("ok", "bad"));
+      Array.from(root.querySelectorAll(".correct, .wrong")).forEach((node) => node.classList.remove("correct", "wrong"));
+    }
+
+    function shell(inner) {
+      const step = steps.find((item) => item.id === state.current);
+      const prevDisabled = state.current === 1 ? "disabled" : "";
+      const nextDisabled = state.current === steps.length ? "disabled" : "";
+      const fb = state.feedback[state.current];
+      const fbClass = fb?.tone ? `feedback ${fb.tone}` : "feedback";
+      const fbText = fb?.text || "Mini-Check ausführen, um Rückmeldung zu erhalten.";
+
+      el.stage.innerHTML = `
+        <header class="head">
+          <h2 class="title">${esc(step.title)}</h2>
+          <span class="pill">${state.done[step.id] ? "Abgeschlossen" : "In Bearbeitung"}</span>
+        </header>
+        <p class="learn">Lernziel: ${esc(step.learn)}</p>
+        ${inner}
+        <div class="actions">
+          <div class="left-actions">
+            <button type="button" class="btn-soft" id="prevBtn" ${prevDisabled}>Zurück</button>
+            <button type="button" class="btn-next" id="nextBtn" ${nextDisabled}>Nächster Bereich</button>
+          </div>
+          <div class="right-actions">
+            <p class="${fbClass}" id="stepFeedback">${esc(fbText)}</p>
+          </div>
+        </div>
+      `;
+
+      document.getElementById("prevBtn")?.addEventListener("click", () => moveStep(-1));
+      document.getElementById("nextBtn")?.addEventListener("click", () => moveStep(1));
+    }
+
+    function graphX(q) {
+      const usable = graphModel.width - graphModel.padLeft - graphModel.padRight;
+      return graphModel.padLeft + (q / 100) * usable;
+    }
+
+    function graphY(price) {
+      const usable = graphModel.height - graphModel.padTop - graphModel.padBottom;
+      return graphModel.padTop + ((100 - price) / 100) * usable;
+    }
+
+    function demandPrice(q, shift = 0) {
+      return graphModel.demandA - graphModel.demandB * (q - shift);
+    }
+
+    function supplyPrice(q, shift = 0) {
+      return graphModel.supplyC + graphModel.supplyD * (q - shift);
+    }
+
+    function demandQuantity(price, shift = 0) {
+      return shift + (graphModel.demandA - price) / graphModel.demandB;
+    }
+
+    function supplyQuantity(price, shift = 0) {
+      return shift + (price - graphModel.supplyC) / graphModel.supplyD;
+    }
+
+    function equilibrium(dShift = 0, sShift = 0) {
+      const q = (
+        graphModel.demandA - graphModel.supplyC +
+        graphModel.demandB * dShift +
+        graphModel.supplyD * sShift
+      ) / (graphModel.demandB + graphModel.supplyD);
+      const price = demandPrice(q, dShift);
+      return { q, price };
+    }
+
+    function curvePath(kind, shift = 0) {
+      const points = [];
+      for (let q = 0; q <= 100; q += 5) {
+        const price = kind === "demand" ? demandPrice(q, shift) : supplyPrice(q, shift);
+        points.push(`${graphX(q).toFixed(1)},${graphY(price).toFixed(1)}`);
+      }
+      return points.join(" ");
+    }
+
+    function outcomeCodeLabel(code) {
+      return {
+        up: "steigt",
+        down: "sinkt",
+        same: "bleibt gleich",
+        ambiguous: "ist nicht eindeutig"
+      }[code];
+    }
+
+    function effectChip(label, code) {
+      return `<div class="effect-chip ${code}">${esc(label)}: ${esc(outcomeCodeLabel(code))}</div>`;
+    }
+
+    function statBox(label, value) {
+      return `<div class="stat"><strong>${esc(label)}</strong><br>${esc(value)}</div>`;
+    }
+
+    function generalRule(dShift, sShift) {
+      if (dShift === 0 && sShift === 0) return { price: "same", quantity: "same" };
+      if (dShift > 0 && sShift === 0) return { price: "up", quantity: "up" };
+      if (dShift < 0 && sShift === 0) return { price: "down", quantity: "down" };
+      if (dShift === 0 && sShift > 0) return { price: "down", quantity: "up" };
+      if (dShift === 0 && sShift < 0) return { price: "up", quantity: "down" };
+      if (dShift > 0 && sShift > 0) return { price: "ambiguous", quantity: "up" };
+      if (dShift < 0 && sShift < 0) return { price: "ambiguous", quantity: "down" };
+      if (dShift > 0 && sShift < 0) return { price: "up", quantity: "ambiguous" };
+      return { price: "down", quantity: "ambiguous" };
+    }
+
+    function marker(eq, labelPrice, labelQty, color, offsetY = 0, dashed = false) {
+      const x = graphX(eq.q);
+      const y = graphY(eq.price);
+      const dash = dashed ? ' stroke-dasharray="6 5"' : "";
+      return `
+        <line x1="${graphModel.padLeft}" y1="${y}" x2="${x}" y2="${y}" stroke="${color}" stroke-width="1.8"${dash}></line>
+        <line x1="${x}" y1="${y}" x2="${x}" y2="${graphModel.height - graphModel.padBottom}" stroke="${color}" stroke-width="1.8"${dash}></line>
+        <circle cx="${x}" cy="${y}" r="5" fill="${color}"></circle>
+        <text x="${graphModel.padLeft + 6}" y="${y - 7 + offsetY}" font-size="12" font-weight="800" fill="${color}">${esc(labelPrice)}</text>
+        <text x="${x + 6}" y="${graphModel.height - graphModel.padBottom + 18 + offsetY}" font-size="12" font-weight="800" fill="${color}">${esc(labelQty)}</text>
+      `;
+    }
+
+    function baseAxes() {
+      return `
+        <g stroke="#edf2f7" stroke-width="1">
+          ${[20, 40, 60, 80].map((tick) => `
+            <line x1="${graphModel.padLeft}" y1="${graphY(tick)}" x2="${graphModel.width - graphModel.padRight}" y2="${graphY(tick)}"></line>
+            <line x1="${graphX(tick)}" y1="${graphModel.padTop}" x2="${graphX(tick)}" y2="${graphModel.height - graphModel.padBottom}"></line>
+          `).join("")}
+        </g>
+        <g stroke="#334155" stroke-width="2">
+          <line x1="${graphModel.padLeft}" y1="${graphModel.height - graphModel.padBottom}" x2="${graphModel.width - graphModel.padRight + 6}" y2="${graphModel.height - graphModel.padBottom}"></line>
+          <line x1="${graphModel.padLeft}" y1="${graphModel.height - graphModel.padBottom}" x2="${graphModel.padLeft}" y2="${graphModel.padTop - 6}"></line>
+        </g>
+        <g font-size="11" fill="#64748b" font-weight="700">
+          <text x="${graphModel.width / 2 - 20}" y="${graphModel.height - 12}">Menge</text>
+          <text x="18" y="${graphModel.padTop + 2}" transform="rotate(-90 18 ${graphModel.padTop + 2})">Preis</text>
+        </g>
+      `;
+    }
+
+    function shiftDiagram(dShift, sShift) {
+      const baseEq = equilibrium(0, 0);
+      const nextEq = equilibrium(dShift, sShift);
+      const sameEq = Math.abs(baseEq.q - nextEq.q) < 0.2 && Math.abs(baseEq.price - nextEq.price) < 0.2;
+      const demandLabel = dShift > 0 ? "N1" : dShift < 0 ? "N2" : "N";
+      const supplyLabel = sShift > 0 ? "A1" : sShift < 0 ? "A2" : "A";
+
+      return `
+        <svg viewBox="0 0 ${graphModel.width} ${graphModel.height}" role="img" aria-label="Preis-Mengen-Diagramm">
+          <rect x="0" y="0" width="${graphModel.width}" height="${graphModel.height}" rx="14" fill="#ffffff"></rect>
+          ${baseAxes()}
+          <polyline points="${curvePath("demand", 0)}" fill="none" stroke="#9aa8b7" stroke-width="2.2" stroke-dasharray="8 6"></polyline>
+          <polyline points="${curvePath("supply", 0)}" fill="none" stroke="#b1bcc8" stroke-width="2.2" stroke-dasharray="8 6"></polyline>
+          <polyline points="${curvePath("demand", dShift)}" fill="none" stroke="#2563eb" stroke-width="3"></polyline>
+          <polyline points="${curvePath("supply", sShift)}" fill="none" stroke="#ff8a1d" stroke-width="3"></polyline>
+          <text x="${graphX(83)}" y="${graphY(demandPrice(83, dShift)) - 10}" font-size="13" font-weight="800" fill="#1d4ed8">${esc(demandLabel)}</text>
+          <text x="${graphX(82)}" y="${graphY(supplyPrice(82, sShift)) - 10}" font-size="13" font-weight="800" fill="#c65f00">${esc(supplyLabel)}</text>
+          ${sameEq
+            ? marker(baseEq, "P0 = P1", "M0 = M1", "#111827", 0, false)
+            : `
+                ${marker(baseEq, "P0", "M0", "#94a3b8", -2, true)}
+                ${marker(nextEq, "P1", "M1", "#111827", 10, false)}
+              `}
+        </svg>
+      `;
+    }
+
+    function movementResult(curveType, delta) {
+      if (delta === 0) {
+        return {
+          price: "same",
+          quantity: "same",
+          curve: "same",
+          note: "Kein Preiswechsel: Der Punkt bleibt an derselben Stelle."
+        };
+      }
+
+      if (curveType === "demand") {
+        return {
+          price: delta > 0 ? "up" : "down",
+          quantity: delta > 0 ? "down" : "up",
+          curve: "same",
+          note: delta > 0
+            ? "Bei einer Nachfragekurve gilt: Höherer Preis, tiefere nachgefragte Menge."
+            : "Bei einer Nachfragekurve gilt: Tieferer Preis, höhere nachgefragte Menge."
+        };
+      }
+
+      return {
+        price: delta > 0 ? "up" : "down",
+        quantity: delta > 0 ? "up" : "down",
+        curve: "same",
+        note: delta > 0
+          ? "Bei einer Angebotskurve gilt: Höherer Preis, höhere angebotene Menge."
+          : "Bei einer Angebotskurve gilt: Tieferer Preis, tiefere angebotene Menge."
+      };
+    }
+
+    function movementDiagram(curveType, delta) {
+      const baseEq = equilibrium(0, 0);
+      const price0 = baseEq.price;
+      const price1 = Math.max(10, Math.min(90, price0 + delta));
+      const q0 = curveType === "demand" ? demandQuantity(price0) : supplyQuantity(price0);
+      const q1 = curveType === "demand" ? demandQuantity(price1) : supplyQuantity(price1);
+      const x0 = graphX(q0);
+      const y0 = graphY(price0);
+      const x1 = graphX(q1);
+      const y1 = graphY(price1);
+      const curvePathActive = curveType === "demand" ? curvePath("demand", 0) : curvePath("supply", 0);
+      const activeColor = curveType === "demand" ? "#2563eb" : "#ff8a1d";
+      const activeLabel = curveType === "demand" ? "N" : "A";
+      const passivePath = curveType === "demand" ? curvePath("supply", 0) : curvePath("demand", 0);
+
+      return `
+        <svg viewBox="0 0 ${graphModel.width} ${graphModel.height}" role="img" aria-label="Preis-Mengen-Diagramm">
+          <defs>
+            <marker id="moveArrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+              <path d="M0,0 L8,4 L0,8 z" fill="${activeColor}"></path>
+            </marker>
+          </defs>
+          <rect x="0" y="0" width="${graphModel.width}" height="${graphModel.height}" rx="14" fill="#ffffff"></rect>
+          ${baseAxes()}
+          <polyline points="${passivePath}" fill="none" stroke="#b8c3cf" stroke-width="2.2" stroke-dasharray="8 6"></polyline>
+          <polyline points="${curvePathActive}" fill="none" stroke="${activeColor}" stroke-width="3"></polyline>
+          <text x="${graphX(83)}" y="${curveType === "demand" ? graphY(demandPrice(83)) - 10 : graphY(supplyPrice(83)) - 10}" font-size="13" font-weight="800" fill="${activeColor}">${esc(activeLabel)}</text>
+          <line x1="${x0}" y1="${y0}" x2="${x1}" y2="${y1}" stroke="${activeColor}" stroke-width="2.4" marker-end="url(#moveArrow)"></line>
+          ${marker({ q: q0, price: price0 }, "P0", "M0", "#94a3b8", -2, true)}
+          ${Math.abs(delta) < 0.1 ? "" : marker({ q: q1, price: price1 }, "P1", "M1", activeColor, 10, false)}
+          <text x="${x0 + 8}" y="${y0 - 10}" font-size="12" font-weight="800" fill="#64748b">alt</text>
+          ${Math.abs(delta) < 0.1 ? "" : `<text x="${x1 + 8}" y="${y1 - 10}" font-size="12" font-weight="800" fill="${activeColor}">neu</text>`}
+        </svg>
+      `;
+    }
+
+    function movementSummaryHtml() {
+      const result = movementResult(state.movementCurve, state.movementDelta);
+      return `
+        <div class="effect-grid">
+          ${effectChip("Preis", result.price)}
+          ${effectChip("Menge auf der Kurve", result.quantity)}
+          ${effectChip("Kurve", result.curve)}
+        </div>
+        <div class="info-box">${esc(result.note)}</div>
+      `;
+    }
+
+    function renderStep1() {
+      const preset = movementPresets[state.movementPreset];
+
+      shell(`
+        <section class="task">
+          <p class="start-note"><strong>Kernidee:</strong> Wenn sich nur der Preis eines Guts ändert, verschiebt sich nicht die ganze Kurve. Es verändert sich nur der Punkt auf der bestehenden Kurve.</p>
+          <div class="grid-2">
+            <div class="scenario-list">
+              ${movementPresets.map((item, index) => `
+                <button type="button" class="scenario-btn ${index === state.movementPreset ? "active" : ""}" data-move-preset="${index}">
+                  <strong>${esc(item.title)}</strong>
+                  <span>${esc(item.note)}</span>
+                </button>
+              `).join("")}
+              <div class="panel">
+                <h3>Selbst manipulieren</h3>
+                <div class="slider-block">
+                  <div class="slider-head">
+                    <strong>Aktive Kurve</strong>
+                    <span>${state.movementCurve === "demand" ? "Nachfrage" : "Angebot"}</span>
+                  </div>
+                  <div class="tag-row">
+                    <button type="button" class="btn-soft" id="curveDemandBtn">Nachfrage</button>
+                    <button type="button" class="btn-soft" id="curveSupplyBtn">Angebot</button>
+                  </div>
+                </div>
+                <div class="slider-block">
+                  <div class="slider-head">
+                    <strong>Preisveränderung</strong>
+                    <div class="val" id="movementVal">${state.movementDelta > 0 ? "+" : ""}${state.movementDelta}</div>
+                  </div>
+                  <input type="range" id="movementSlider" min="-20" max="20" step="2" value="${state.movementDelta}">
+                  <span class="mini">Negativ = Preis sinkt, positiv = Preis steigt.</span>
+                </div>
+                <div class="hint-box">${esc(preset.note)}</div>
+                <ul class="helper-list">
+                  <li><strong>P0 / P1</strong> markieren den alten und neuen Preis.</li>
+                  <li><strong>M0 / M1</strong> markieren die alte und neue Menge.</li>
+                  <li>Die Kurve bleibt gleich, nur der Punkt wandert.</li>
+                </ul>
+              </div>
+            </div>
+            <div class="panel">
+              <h3>Preis-Mengen-Diagramm</h3>
+              <div class="graph-wrap" id="movementGraph">${movementDiagram(state.movementCurve, state.movementDelta)}</div>
+              <div id="movementSummary">${movementSummaryHtml()}</div>
+            </div>
+          </div>
+          <div class="cards-3" id="step1Root">
+            <article class="card">
+              <h3>Fall 1</h3>
+              <p>Der Preis eines Sneakers sinkt, Einkommen und Mode bleiben gleich.</p>
+              <select data-answer="move-demand">
+                <option value="">Bitte wählen</option>
+                <option value="move-demand">Punkt auf Nachfragekurve</option>
+                <option value="move-supply">Punkt auf Angebotskurve</option>
+                <option value="shift">Kurve verschiebt sich</option>
+                <option value="same">Gar nichts ändert sich</option>
+              </select>
+              <p class="answer-note" data-note data-hint="Prüfe zuerst, ob nur der Preis oder auch eine Rahmenbedingung wechselt." data-success="Richtig. Sinkt nur der Preis, wandert der Punkt auf der Nachfragekurve.">Hinweis erscheint nach dem Prüfen.</p>
+            </article>
+            <article class="card">
+              <h3>Fall 2</h3>
+              <p>Der Marktpreis für Produzenten steigt, die Produktionskosten bleiben gleich.</p>
+              <select data-answer="move-supply">
+                <option value="">Bitte wählen</option>
+                <option value="move-demand">Punkt auf Nachfragekurve</option>
+                <option value="move-supply">Punkt auf Angebotskurve</option>
+                <option value="shift">Kurve verschiebt sich</option>
+                <option value="same">Gar nichts ändert sich</option>
+              </select>
+              <p class="answer-note" data-note data-hint="Frage dich, ob Anbieter auf einen Preiswechsel oder auf veränderte Kosten reagieren." data-success="Richtig. Ein Preiswechsel bewegt den Punkt auf der Angebotskurve.">Hinweis erscheint nach dem Prüfen.</p>
+            </article>
+            <article class="card">
+              <h3>Fall 3</h3>
+              <p>Weder Preis noch Rahmenbedingungen verändern sich.</p>
+              <select data-answer="same">
+                <option value="">Bitte wählen</option>
+                <option value="move-demand">Punkt auf Nachfragekurve</option>
+                <option value="move-supply">Punkt auf Angebotskurve</option>
+                <option value="shift">Kurve verschiebt sich</option>
+                <option value="same">Gar nichts ändert sich</option>
+              </select>
+              <p class="answer-note" data-note data-hint="Überlege, ob überhaupt eine neue Information vorliegt." data-success="Richtig. Ohne Preis- oder Rahmenänderung bleibt die Lage gleich.">Hinweis erscheint nach dem Prüfen.</p>
+            </article>
+          </div>
+          <div class="actions">
+            <button type="button" class="btn-main" id="checkBtn">Mini-Check</button>
+          </div>
+        </section>
+      `);
+
+      Array.from(document.querySelectorAll("[data-move-preset]")).forEach((btn) => {
+        btn.addEventListener("click", () => {
+          state.movementPreset = Number(btn.dataset.movePreset);
+          const chosen = movementPresets[state.movementPreset];
+          state.movementCurve = chosen.curve;
+          state.movementDelta = chosen.delta;
+          renderStep1();
+        });
+      });
+
+      document.getElementById("curveDemandBtn")?.addEventListener("click", () => {
+        state.movementCurve = "demand";
+        renderStep1();
+      });
+
+      document.getElementById("curveSupplyBtn")?.addEventListener("click", () => {
+        state.movementCurve = "supply";
+        renderStep1();
+      });
+
+      document.getElementById("movementSlider")?.addEventListener("input", (event) => {
+        state.movementDelta = Number(event.target.value);
+        document.getElementById("movementVal").textContent = `${state.movementDelta > 0 ? "+" : ""}${state.movementDelta}`;
+        document.getElementById("movementGraph").innerHTML = movementDiagram(state.movementCurve, state.movementDelta);
+        document.getElementById("movementSummary").innerHTML = movementSummaryHtml();
+      });
+
+      document.getElementById("checkBtn")?.addEventListener("click", () => {
+        const root = document.getElementById("step1Root");
+        clearStates(root);
+        let score = 0;
+
+        Array.from(root.querySelectorAll(".card")).forEach((card) => {
+          const select = card.querySelector("select");
+          const note = card.querySelector("[data-note]");
+          const ok = select.value && select.value === select.dataset.answer;
+          select.classList.add(ok ? "ok" : "bad");
+          card.classList.add(ok ? "ok" : "bad");
+          note.classList.remove("ok", "bad");
+          note.classList.add(ok ? "ok" : "bad");
+          note.textContent = ok ? note.dataset.success : note.dataset.hint;
+          if (ok) score += 1;
+        });
+
+        const done = setDone(score, 3);
+        setFeedback(
+          done
+            ? "Sehr gut. Preiswechsel führen nur zu einer Bewegung des Punkts auf der Kurve."
+            : "Achte darauf, ob wirklich nur der Preis wechselt. Dann bleibt die Kurve an Ort und nur der Punkt wandert.",
+          done ? "ok" : "bad"
+        );
+      });
+    }
+
+    function demandSummary(preset) {
+      if (state.demandShift !== 0) {
+        const rule = generalRule(state.demandShift, 0);
+        return `
+          <div class="effect-grid">
+            ${effectChip("Nachfrage", state.demandShift > 0 ? "up" : "down")}
+            ${effectChip("Preis", rule.price)}
+            ${effectChip("Menge", rule.quantity)}
+          </div>
+          <div class="info-box">${esc(state.demandShift > 0 ? "Bei jedem Preis wird mehr nachgefragt. Dadurch verschiebt sich die Nachfragekurve nach rechts." : "Bei jedem Preis wird weniger nachgefragt. Dadurch verschiebt sich die Nachfragekurve nach links.")}</div>
+        `;
+      }
+
+      if (preset.mode === "movement") {
+        return `
+          <div class="effect-grid">
+            ${effectChip("Nachfragekurve", "same")}
+            ${effectChip("Angebot", "same")}
+            ${effectChip("Merksatz", "same")}
+          </div>
+          <div class="hint-box">${esc(preset.note)}</div>
+        `;
+      }
+
+      return `
+        <div class="effect-grid">
+          ${effectChip("Nachfragekurve", "same")}
+          ${effectChip("Preis", "same")}
+          ${effectChip("Menge", "same")}
+        </div>
+        <div class="info-box">${esc("Mit dem Regler auf 0 bleibt die Nachfragekurve an Ort. Ohne neue Rahmenbedingung gibt es keine Verschiebung.")}</div>
+      `;
+    }
+
+    function renderStep2() {
+      const preset = demandPresets[state.demandPreset];
+
+      shell(`
+        <section class="task">
+          <p class="start-note"><strong>Faustregel:</strong> Verschiebt sich die Nachfragekurve, dann wollen Konsumenten bei jedem Preis mehr oder weniger kaufen als vorher. Nur dann entsteht eine neue Kurve.</p>
+          <div class="grid-2">
+            <div class="scenario-list">
+              ${demandPresets.map((item, index) => `
+                <button type="button" class="scenario-btn ${index === state.demandPreset ? "active" : ""}" data-demand-preset="${index}">
+                  <strong>${esc(item.title)}</strong>
+                  <span>${esc(item.meta)}</span>
+                </button>
+              `).join("")}
+              <div class="panel">
+                <h3>Regler für die Nachfrage</h3>
+                <div class="slider-block">
+                  <div class="slider-head">
+                    <strong>Nachfrage verschieben</strong>
+                    <div class="val" id="demandVal">${state.demandShift > 0 ? "+" : ""}${state.demandShift}</div>
+                  </div>
+                  <input type="range" id="demandSlider" min="-20" max="20" step="2" value="${state.demandShift}">
+                  <span class="mini">Negativ = nach links, positiv = nach rechts, null = bleibt gleich.</span>
+                </div>
+                <ul class="helper-list">
+                  <li>Rechtsverschiebung: Bei jedem Preis wird mehr nachgefragt.</li>
+                  <li>Linksverschiebung: Bei jedem Preis wird weniger nachgefragt.</li>
+                  <li>Nur der Preis des Guts selbst? Dann bleibt die Kurve gleich.</li>
+                </ul>
+              </div>
+            </div>
+            <div class="panel">
+              <h3>Diagramm mit P0/P1 und M0/M1</h3>
+              <div class="graph-wrap" id="demandGraph">${shiftDiagram(state.demandShift, 0)}</div>
+              <div id="demandSummary">${demandSummary(preset)}</div>
+            </div>
+          </div>
+          <div class="cards-2" id="step2Root">
+            <article class="card">
+              <h3>Höheres Einkommen</h3>
+              <p>Die Kaufkraft der Haushalte steigt.</p>
+              <select data-answer="right">
+                <option value="">Bitte wählen</option>
+                <option value="right">Nachfrage nach rechts</option>
+                <option value="left">Nachfrage nach links</option>
+                <option value="same">Nachfrage bleibt gleich</option>
+              </select>
+              <p class="answer-note" data-note data-hint="Prüfe, ob Haushalte bei jedem Preis mehr oder weniger kaufen wollen." data-success="Richtig. Mehr Einkommen erhöht die Nachfrage bei jedem Preis.">Hinweis erscheint nach dem Prüfen.</p>
+            </article>
+            <article class="card">
+              <h3>Preis des betrachteten Guts steigt</h3>
+              <p>Es gibt keine neue Information ausser dem Preis.</p>
+              <select data-answer="same">
+                <option value="">Bitte wählen</option>
+                <option value="right">Nachfrage nach rechts</option>
+                <option value="left">Nachfrage nach links</option>
+                <option value="same">Nachfrage bleibt gleich</option>
+              </select>
+              <p class="answer-note" data-note data-hint="Überlege, ob hier wirklich eine neue Rahmenbedingung vorliegt oder nur ein Preiswechsel." data-success="Richtig. Das wäre nur eine Bewegung auf der Nachfragekurve, die Nachfrage selbst bleibt gleich.">Hinweis erscheint nach dem Prüfen.</p>
+            </article>
+            <article class="card">
+              <h3>Wohnkosten steigen stark</h3>
+              <p>Haushalte sparen bei Restaurantbesuchen.</p>
+              <select data-answer="left">
+                <option value="">Bitte wählen</option>
+                <option value="right">Nachfrage nach rechts</option>
+                <option value="left">Nachfrage nach links</option>
+                <option value="same">Nachfrage bleibt gleich</option>
+              </select>
+              <p class="answer-note" data-note data-hint="Frage dich, ob durch den Budgetdruck bei jedem Preis eher mehr oder eher weniger konsumiert wird." data-success="Richtig. Weniger Budget drückt die Nachfrage bei jedem Preis nach links.">Hinweis erscheint nach dem Prüfen.</p>
+            </article>
+            <article class="card">
+              <h3>Keine Änderung bei Einkommen, Trends oder Erwartungen</h3>
+              <p>Es liegt keine neue Rahmenbedingung vor.</p>
+              <select data-answer="same">
+                <option value="">Bitte wählen</option>
+                <option value="right">Nachfrage nach rechts</option>
+                <option value="left">Nachfrage nach links</option>
+                <option value="same">Nachfrage bleibt gleich</option>
+              </select>
+              <p class="answer-note" data-note data-hint="Ohne neue Rahmenbedingung solltest du vorsichtig mit jeder Verschiebung sein." data-success="Richtig. Ohne neue Rahmenbedingung gibt es keine neue Nachfragekurve.">Hinweis erscheint nach dem Prüfen.</p>
+            </article>
+          </div>
+          <div class="actions">
+            <button type="button" class="btn-main" id="checkBtn">Mini-Check</button>
+          </div>
+        </section>
+      `);
+
+      Array.from(document.querySelectorAll("[data-demand-preset]")).forEach((btn) => {
+        btn.addEventListener("click", () => {
+          state.demandPreset = Number(btn.dataset.demandPreset);
+          state.demandShift = demandPresets[state.demandPreset].shift;
+          renderStep2();
+        });
+      });
+
+      document.getElementById("demandSlider")?.addEventListener("input", (event) => {
+        state.demandShift = Number(event.target.value);
+        document.getElementById("demandVal").textContent = `${state.demandShift > 0 ? "+" : ""}${state.demandShift}`;
+        document.getElementById("demandGraph").innerHTML = shiftDiagram(state.demandShift, 0);
+        document.getElementById("demandSummary").innerHTML = demandSummary(preset);
+      });
+
+      document.getElementById("checkBtn")?.addEventListener("click", () => {
+        const root = document.getElementById("step2Root");
+        clearStates(root);
+        let score = 0;
+
+        Array.from(root.querySelectorAll(".card")).forEach((card) => {
+          const select = card.querySelector("select");
+          const note = card.querySelector("[data-note]");
+          const ok = select.value && (
+            (select.value === "right" && select.dataset.answer === "right") ||
+            (select.value === "left" && select.dataset.answer === "left") ||
+            (select.value === "same" && select.dataset.answer === "same")
+          );
+          select.classList.add(ok ? "ok" : "bad");
+          card.classList.add(ok ? "ok" : "bad");
+          note.classList.remove("ok", "bad");
+          note.classList.add(ok ? "ok" : "bad");
+          if (ok) {
+            note.textContent = note.dataset.success;
+            score += 1;
+          } else {
+            note.textContent = note.dataset.hint;
+          }
+        });
+
+        const done = setDone(score, 4);
+        setFeedback(
+          done
+            ? "Nachfrage sauber eingeordnet: rechts, links und bleibt gleich passen."
+            : "Prüfe immer, ob sich die Kaufbereitschaft bei jedem Preis ändert. Nur dann verschiebt sich die Nachfragekurve.",
+          done ? "ok" : "bad"
+        );
+      });
+    }
+
+    function supplySummary(preset) {
+      if (state.supplyShift !== 0) {
+        const rule = generalRule(0, state.supplyShift);
+        return `
+          <div class="effect-grid">
+            ${effectChip("Angebot", state.supplyShift > 0 ? "up" : "down")}
+            ${effectChip("Preis", rule.price)}
+            ${effectChip("Menge", rule.quantity)}
+          </div>
+          <div class="info-box">${esc(state.supplyShift > 0 ? "Bei jedem Preis wird mehr angeboten. Dadurch verschiebt sich die Angebotskurve nach rechts." : "Bei jedem Preis wird weniger angeboten. Dadurch verschiebt sich die Angebotskurve nach links.")}</div>
+        `;
+      }
+
+      if (preset.mode === "movement") {
+        return `
+          <div class="effect-grid">
+            ${effectChip("Angebotskurve", "same")}
+            ${effectChip("Nachfrage", "same")}
+            ${effectChip("Merksatz", "same")}
+          </div>
+          <div class="hint-box">${esc(preset.note)}</div>
+        `;
+      }
+
+      return `
+        <div class="effect-grid">
+          ${effectChip("Angebotskurve", "same")}
+          ${effectChip("Preis", "same")}
+          ${effectChip("Menge", "same")}
+        </div>
+        <div class="info-box">${esc("Mit dem Regler auf 0 bleibt die Angebotskurve an Ort. Ohne neue Rahmenbedingung gibt es keine Verschiebung.")}</div>
+      `;
+    }
+
+    function renderStep3() {
+      const preset = supplyPresets[state.supplyPreset];
+
+      shell(`
+        <section class="task">
+          <p class="start-note"><strong>Faustregel:</strong> Verschiebt sich die Angebotskurve, dann können oder wollen Anbieter bei jedem Preis mehr oder weniger anbieten als vorher.</p>
+          <div class="grid-2">
+            <div class="scenario-list">
+              ${supplyPresets.map((item, index) => `
+                <button type="button" class="scenario-btn ${index === state.supplyPreset ? "active" : ""}" data-supply-preset="${index}">
+                  <strong>${esc(item.title)}</strong>
+                  <span>${esc(item.meta)}</span>
+                </button>
+              `).join("")}
+              <div class="panel">
+                <h3>Regler für das Angebot</h3>
+                <div class="slider-block">
+                  <div class="slider-head">
+                    <strong>Angebot verschieben</strong>
+                    <div class="val" id="supplyVal">${state.supplyShift > 0 ? "+" : ""}${state.supplyShift}</div>
+                  </div>
+                  <input type="range" id="supplySlider" min="-20" max="20" step="2" value="${state.supplyShift}">
+                  <span class="mini">Negativ = nach links, positiv = nach rechts, null = bleibt gleich.</span>
+                </div>
+                <ul class="helper-list">
+                  <li>Rechtsverschiebung: Bei jedem Preis wird mehr angeboten.</li>
+                  <li>Linksverschiebung: Bei jedem Preis wird weniger angeboten.</li>
+                  <li>Nur der Marktpreis selbst? Dann wandert nur der Punkt auf der Angebotskurve.</li>
+                </ul>
+              </div>
+            </div>
+            <div class="panel">
+              <h3>Diagramm mit P0/P1 und M0/M1</h3>
+              <div class="graph-wrap" id="supplyGraph">${shiftDiagram(0, state.supplyShift)}</div>
+              <div id="supplySummary">${supplySummary(preset)}</div>
+            </div>
+          </div>
+          <div class="cards-2" id="step3Root">
+            <article class="card">
+              <h3>Neues Produktionsverfahren</h3>
+              <p>Die Stueckkosten sinken deutlich.</p>
+              <select data-answer="right">
+                <option value="">Bitte wählen</option>
+                <option value="right">Angebot nach rechts</option>
+                <option value="left">Angebot nach links</option>
+                <option value="same">Angebot bleibt gleich</option>
+              </select>
+              <p class="answer-note" data-note data-hint="Frage dich, was sinkende Kosten für die Produktionsbereitschaft bedeuten." data-success="Richtig. Tiefere Kosten ermöglichen mehr Angebot bei jedem Preis.">Hinweis erscheint nach dem Prüfen.</p>
+            </article>
+            <article class="card">
+              <h3>Marktpreis steigt</h3>
+              <p>Es gibt keine neue Information zu Kosten oder Technik.</p>
+              <select data-answer="same">
+                <option value="">Bitte wählen</option>
+                <option value="right">Angebot nach rechts</option>
+                <option value="left">Angebot nach links</option>
+                <option value="same">Angebot bleibt gleich</option>
+              </select>
+              <p class="answer-note" data-note data-hint="Überlege, ob hier neue Produktionsbedingungen vorliegen oder nur ein Preiswechsel." data-success="Richtig. Das ist nur eine Bewegung auf der Angebotskurve, das Angebot selbst bleibt gleich.">Hinweis erscheint nach dem Prüfen.</p>
+            </article>
+            <article class="card">
+              <h3>Energiepreise steigen stark</h3>
+              <p>Die Produktion wird teurer.</p>
+              <select data-answer="left">
+                <option value="">Bitte wählen</option>
+                <option value="right">Angebot nach rechts</option>
+                <option value="left">Angebot nach links</option>
+                <option value="same">Angebot bleibt gleich</option>
+              </select>
+              <p class="answer-note" data-note data-hint="Kostenanstiege betreffen die Angebotsseite. Entscheide dann, ob das Angebot grösser oder kleiner wird." data-success="Richtig. Höhere Kosten schieben die Angebotskurve nach links.">Hinweis erscheint nach dem Prüfen.</p>
+            </article>
+            <article class="card">
+              <h3>Keine Änderung bei Kosten, Ernte oder Anzahl Anbieter</h3>
+              <p>Es liegt keine neue Rahmenbedingung vor.</p>
+              <select data-answer="same">
+                <option value="">Bitte wählen</option>
+                <option value="right">Angebot nach rechts</option>
+                <option value="left">Angebot nach links</option>
+                <option value="same">Angebot bleibt gleich</option>
+              </select>
+              <p class="answer-note" data-note data-hint="Ohne neue Rahmenbedingung solltest du keine neue Angebotskurve einzeichnen." data-success="Richtig. Ohne neue Rahmenbedingung gibt es keine neue Angebotskurve.">Hinweis erscheint nach dem Prüfen.</p>
+            </article>
+          </div>
+          <div class="actions">
+            <button type="button" class="btn-main" id="checkBtn">Mini-Check</button>
+          </div>
+        </section>
+      `);
+
+      Array.from(document.querySelectorAll("[data-supply-preset]")).forEach((btn) => {
+        btn.addEventListener("click", () => {
+          state.supplyPreset = Number(btn.dataset.supplyPreset);
+          state.supplyShift = supplyPresets[state.supplyPreset].shift;
+          renderStep3();
+        });
+      });
+
+      document.getElementById("supplySlider")?.addEventListener("input", (event) => {
+        state.supplyShift = Number(event.target.value);
+        document.getElementById("supplyVal").textContent = `${state.supplyShift > 0 ? "+" : ""}${state.supplyShift}`;
+        document.getElementById("supplyGraph").innerHTML = shiftDiagram(0, state.supplyShift);
+        document.getElementById("supplySummary").innerHTML = supplySummary(preset);
+      });
+
+      document.getElementById("checkBtn")?.addEventListener("click", () => {
+        const root = document.getElementById("step3Root");
+        clearStates(root);
+        let score = 0;
+
+        Array.from(root.querySelectorAll(".card")).forEach((card) => {
+          const select = card.querySelector("select");
+          const note = card.querySelector("[data-note]");
+          const ok = select.value && select.value === select.dataset.answer;
+          select.classList.add(ok ? "ok" : "bad");
+          card.classList.add(ok ? "ok" : "bad");
+          note.classList.remove("ok", "bad");
+          note.classList.add(ok ? "ok" : "bad");
+          if (ok) {
+            note.textContent = note.dataset.success;
+            score += 1;
+          } else {
+            note.textContent = note.dataset.hint;
+          }
+        });
+
+        const done = setDone(score, 4);
+        setFeedback(
+          done
+            ? "Angebotsseite sitzt: rechts, links und bleibt gleich wurden korrekt erkannt."
+            : "Prüfe, ob sich Produktionsmöglichkeiten oder Kosten bei jedem Preis ändern. Nur dann verschiebt sich das Angebot.",
+          done ? "ok" : "bad"
+        );
+      });
+    }
+
+    function renderStep4() {
+      shell(`
+        <section class="task">
+          <p class="start-note"><strong>Diagnosefrage:</strong> Ändert sich nur der Preis, verändert sich eine Rahmenbedingung oder gar nichts? Diese eine Frage verhindert die meisten Fehler.</p>
+          <div class="hint-box">Wähle bei jedem Fall genau die passendste Kategorie: Bewegung auf der Nachfragekurve, Bewegung auf der Angebotskurve, Nachfrage links/rechts, Angebot links/rechts oder keine Kurvenverschiebung.</div>
+          <div class="cards-2" id="step4Root">
+            ${diagnosisCases.map((item, index) => `
+              <article class="card">
+                <h3>Situation ${index + 1}</h3>
+                <p>${esc(item.title)}</p>
+                <select data-answer="${item.answer}">
+                  <option value="">Bitte wählen</option>
+                  <option value="move-demand">Punkt auf Nachfragekurve</option>
+                  <option value="move-supply">Punkt auf Angebotskurve</option>
+                  <option value="d-right">Nachfrage nach rechts</option>
+                  <option value="d-left">Nachfrage nach links</option>
+                  <option value="s-right">Angebot nach rechts</option>
+                  <option value="s-left">Angebot nach links</option>
+                  <option value="same">Keine Kurvenverschiebung</option>
+                </select>
+                <p class="answer-note" data-note data-hint="${esc(item.hint)}" data-success="${esc(item.solution)}">Hinweis erscheint nach dem Prüfen.</p>
+              </article>
+            `).join("")}
+          </div>
+          <div class="actions">
+            <button type="button" class="btn-main" id="checkBtn">Diagnose prüfen</button>
+          </div>
+        </section>
+      `);
+
+      document.getElementById("checkBtn")?.addEventListener("click", () => {
+        const root = document.getElementById("step4Root");
+        clearStates(root);
+        let score = 0;
+
+        Array.from(root.querySelectorAll(".card")).forEach((card) => {
+          const select = card.querySelector("select");
+          const note = card.querySelector("[data-note]");
+          const ok = select.value && select.value === select.dataset.answer;
+          select.classList.add(ok ? "ok" : "bad");
+          card.classList.add(ok ? "ok" : "bad");
+          note.classList.remove("ok", "bad");
+          note.classList.add(ok ? "ok" : "bad");
+          note.textContent = ok ? note.dataset.success : note.dataset.hint;
+          if (ok) score += 1;
+        });
+
+        const done = setDone(score, diagnosisCases.length);
+        setFeedback(
+          done
+            ? "Sehr gut. Du trennst jetzt Bewegung, Verschiebung und keine Änderung sauber."
+            : "Wenn du unsicher bist, gehe in drei Schritten vor: nur Preis? Dann Bewegung. Neue Rahmenbedingung? Dann Verschiebung. Sonst bleibt die Kurve gleich.",
+          done ? "ok" : "bad"
+        );
+      });
+    }
+
+    function renderStep5() {
+      shell(`
+        <section class="task">
+          <p class="start-note"><strong>Quizlogik:</strong> Erst selbst entscheiden, dann prüfen. Nur bei einer richtigen Antwort erscheint die fachliche Erklärung in grün.</p>
+          <div class="grid-3" id="step5Root">
+            ${quizQuestions.map((item, index) => `
+              <article class="question-card">
+                <h3>Frage ${index + 1}</h3>
+                <p>${esc(item.prompt)}</p>
+                <div class="choice-list">
+                  ${item.options.map((option, optionIndex) => `
+                    <label class="choice-row" data-choice="${optionIndex}">
+                      <input type="radio" name="quiz-${index}" value="${optionIndex}">
+                      <span>${esc(option)}</span>
+                    </label>
+                  `).join("")}
+                </div>
+                <p class="answer-note" id="quiz-note-${index}">Wähle eine Antwort und prüfe danach.</p>
+              </article>
+            `).join("")}
+          </div>
+          <div class="actions">
+            <button type="button" class="btn-main" id="checkBtn">Quiz auswerten</button>
+          </div>
+        </section>
+      `);
+
+      document.getElementById("checkBtn")?.addEventListener("click", () => {
+        const root = document.getElementById("step5Root");
+        clearStates(root);
+        let score = 0;
+
+        quizQuestions.forEach((item, index) => {
+          const card = root.children[index];
+          const selected = card.querySelector(`input[name="quiz-${index}"]:checked`);
+          const note = document.getElementById(`quiz-note-${index}`);
+          const options = Array.from(card.querySelectorAll(".choice-row"));
+
+          if (selected && Number(selected.value) === item.answer) {
+            selected.closest(".choice-row")?.classList.add("correct");
+            card.classList.add("ok");
+            note.classList.add("ok");
+            note.textContent = item.note;
+            score += 1;
+          } else {
+            card.classList.add("bad");
+            note.classList.add("bad");
+            note.textContent = `Noch nicht korrekt. ${item.hint}`;
+            if (selected) {
+              selected.closest(".choice-row")?.classList.add("wrong");
+            }
+          }
+        });
+
+        const done = setDone(score, quizQuestions.length);
+        setFeedback(
+          done
+            ? "Quiz vollständig korrekt. Die typischen Fehlzuordnungen sitzen nicht mehr."
+            : `Du hast ${score} von ${quizQuestions.length} Fragen richtig. Lies die Hinweise, dort steckt die eigentliche Diagnose.`,
+          done ? "ok" : "bad"
+        );
+      });
+    }
+
+    function renderLabSummary() {
+      return `
+        <div class="hint-box">Beobachte im Diagramm, wie sich <strong>P1</strong> zu <strong>P0</strong> und <strong>M1</strong> zu <strong>M0</strong> verhalten. Erst danach unten die Preis- und Mengenwirkung beantworten.</div>
+      `;
+    }
+
+    function renderStep6() {
+      const preset = labPresets[state.labPreset];
+
+      shell(`
+        <section class="task">
+          <p class="start-note"><strong>Marktlabor:</strong> Hier wirken beide Regler gleichzeitig. Das Diagramm zeigt die Modellwirkung, die Chips darunter die allgemeine Regel.</p>
+          <div class="grid-2">
+            <div class="scenario-list">
+              ${labPresets.map((item, index) => `
+                <button type="button" class="scenario-btn ${index === state.labPreset ? "active" : ""}" data-lab-preset="${index}">
+                  <strong>${esc(item.title)}</strong>
+                  <span>${esc(item.description)}</span>
+                </button>
+              `).join("")}
+              <div class="panel">
+                <h3>Regler gleichzeitig steuern</h3>
+                <div class="slider-block">
+                  <div class="slider-head">
+                    <strong>Nachfrage verschieben</strong>
+                    <div class="val" id="labDemandVal">${state.labDemand > 0 ? "+" : ""}${state.labDemand}</div>
+                  </div>
+                  <input type="range" id="labDemandSlider" min="-20" max="20" step="2" value="${state.labDemand}">
+                </div>
+                <div class="slider-block">
+                  <div class="slider-head">
+                    <strong>Angebot verschieben</strong>
+                    <div class="val" id="labSupplyVal">${state.labSupply > 0 ? "+" : ""}${state.labSupply}</div>
+                  </div>
+                  <input type="range" id="labSupplySlider" min="-20" max="20" step="2" value="${state.labSupply}">
+                </div>
+                <div class="hint-box">${esc(preset.description)}</div>
+                <ul class="helper-list">
+                  <li>Prüfe zuerst, welche Kurve sich verschiebt und ob eine oder beide Seiten betroffen sind.</li>
+                  <li>Vergleiche dann im Diagramm <strong>P1</strong> mit <strong>P0</strong>.</li>
+                  <li>Vergleiche danach <strong>M1</strong> mit <strong>M0</strong>.</li>
+                </ul>
+              </div>
+            </div>
+            <div class="panel">
+              <h3>Diagramm mit beiden Reglern</h3>
+              <div class="graph-wrap" id="labGraph">${shiftDiagram(state.labDemand, state.labSupply)}</div>
+              <div id="labSummary">${renderLabSummary()}</div>
+            </div>
+          </div>
+          <div class="cards-2" id="step6Root">
+            ${labPresets.map((item) => `
+              <article class="card">
+                <h3>${esc(item.title)}</h3>
+                <p>${esc(item.description)}</p>
+                <select data-answer="${item.price}">
+                  <option value="">Preiswirkung wählen</option>
+                  <option value="up">Preis steigt</option>
+                  <option value="down">Preis sinkt</option>
+                  <option value="same">Preis bleibt gleich</option>
+                  <option value="ambiguous">Preis nicht eindeutig</option>
+                </select>
+                <select data-answer-two="${item.quantity}">
+                  <option value="">Mengenwirkung wählen</option>
+                  <option value="up">Menge steigt</option>
+                  <option value="down">Menge sinkt</option>
+                  <option value="same">Menge bleibt gleich</option>
+                  <option value="ambiguous">Menge nicht eindeutig</option>
+                </select>
+                <p class="answer-note" data-note data-hint="${esc(item.hint)}" data-success="${esc(item.solution)}">Hinweis erscheint nach dem Prüfen.</p>
+              </article>
+            `).join("")}
+          </div>
+          <div class="actions">
+            <button type="button" class="btn-main" id="checkBtn">Transfer prüfen</button>
+          </div>
+        </section>
+      `);
+
+      Array.from(document.querySelectorAll("[data-lab-preset]")).forEach((btn) => {
+        btn.addEventListener("click", () => {
+          state.labPreset = Number(btn.dataset.labPreset);
+          state.labDemand = labPresets[state.labPreset].demand;
+          state.labSupply = labPresets[state.labPreset].supply;
+          renderStep6();
+        });
+      });
+
+      document.getElementById("labDemandSlider")?.addEventListener("input", (event) => {
+        state.labDemand = Number(event.target.value);
+        document.getElementById("labDemandVal").textContent = `${state.labDemand > 0 ? "+" : ""}${state.labDemand}`;
+        document.getElementById("labGraph").innerHTML = shiftDiagram(state.labDemand, state.labSupply);
+        document.getElementById("labSummary").innerHTML = renderLabSummary();
+      });
+
+      document.getElementById("labSupplySlider")?.addEventListener("input", (event) => {
+        state.labSupply = Number(event.target.value);
+        document.getElementById("labSupplyVal").textContent = `${state.labSupply > 0 ? "+" : ""}${state.labSupply}`;
+        document.getElementById("labGraph").innerHTML = shiftDiagram(state.labDemand, state.labSupply);
+        document.getElementById("labSummary").innerHTML = renderLabSummary();
+      });
+
+      document.getElementById("checkBtn")?.addEventListener("click", () => {
+        const root = document.getElementById("step6Root");
+        clearStates(root);
+        let score = 0;
+
+        Array.from(root.querySelectorAll(".card")).forEach((card) => {
+          const selects = Array.from(card.querySelectorAll("select"));
+          const note = card.querySelector("[data-note]");
+          const firstOk = selects[0].value && selects[0].value === selects[0].dataset.answer;
+          const secondOk = selects[1].value && selects[1].value === selects[1].dataset.answerTwo;
+          selects[0].classList.add(firstOk ? "ok" : "bad");
+          selects[1].classList.add(secondOk ? "ok" : "bad");
+          const localOk = firstOk && secondOk;
+          card.classList.add(localOk ? "ok" : "bad");
+          note.classList.remove("ok", "bad");
+          note.classList.add(localOk ? "ok" : "bad");
+          if (localOk) {
+            note.textContent = note.dataset.success;
+            score += 2;
+          } else {
+            note.textContent = note.dataset.hint;
+          }
+        });
+
+        const done = setDone(score, labPresets.length * 2);
+        setFeedback(
+          done
+            ? "Transfer geschafft. Auch kombinierte Verschiebungen kannst du jetzt sauber lesen."
+            : "Prüfe bei Doppelbewegungen zuerst, was für Preis und Menge sicher gilt und was nur vom konkreten Modell abhängt.",
+          done ? "ok" : "bad"
+        );
+      });
+    }
+
+    function renderCurrentStep() {
+      updateMeta();
+      renderTabs();
+
+      if (state.current === 1) return renderStep1();
+      if (state.current === 2) return renderStep2();
+      if (state.current === 3) return renderStep3();
+      if (state.current === 4) return renderStep4();
+      if (state.current === 5) return renderStep5();
+      return renderStep6();
+    }
+
+    renderCurrentStep();
+  </script>
+</body>
+</html>
