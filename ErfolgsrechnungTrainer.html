@@ -241,6 +241,13 @@
       padding: 9px;
     }
 
+    .q-note {
+      margin: 0;
+      color: #5f6775;
+      font-size: 0.84rem;
+      line-height: 1.4;
+    }
+
     .q label {
       display: block;
       font-size: 0.86rem;
@@ -479,7 +486,13 @@
           deprRatio: [0.02, 0.06],
           finance: [-120, 40, 10],
           taxRate: [0.11, 0.18],
-          unknownPool: ["cogs", "grossProfit", "operatingProfit", "taxes", "netProfit"]
+          rechnenTemplates: [
+            ["cogs", "grossProfit", "netProfit"],
+            ["cogs", "grossProfit", "taxes"],
+            ["cogs", "grossProfit", "operatingProfit"],
+            ["grossProfit", "operatingProfit", "netProfit"],
+            ["grossProfit", "operatingProfit", "taxes"]
+          ]
         }
       },
       {
@@ -495,7 +508,13 @@
           deprRatio: [0.06, 0.12],
           finance: [-180, 20, 10],
           taxRate: [0.1, 0.17],
-          unknownPool: ["depr", "operatingProfit", "finance", "taxes", "netProfit"]
+          rechnenTemplates: [
+            ["depr", "grossProfit", "netProfit"],
+            ["depr", "grossProfit", "taxes"],
+            ["depr", "grossProfit", "finance"],
+            ["depr", "cogs", "netProfit"],
+            ["finance", "grossProfit", "operatingProfit"]
+          ]
         }
       },
       {
@@ -511,7 +530,13 @@
           deprRatio: [0.01, 0.05],
           finance: [-90, 80, 10],
           taxRate: [0.1, 0.16],
-          unknownPool: ["payroll", "grossProfit", "operatingProfit", "taxes", "netProfit"]
+          rechnenTemplates: [
+            ["payroll", "grossProfit", "netProfit"],
+            ["payroll", "grossProfit", "taxes"],
+            ["payroll", "grossProfit", "finance"],
+            ["payroll", "cogs", "netProfit"],
+            ["payroll", "grossProfit", "operatingProfit"]
+          ]
         }
       },
       {
@@ -527,7 +552,13 @@
           deprRatio: [0.02, 0.07],
           finance: [-110, 30, 10],
           taxRate: [0.08, 0.15],
-          unknownPool: ["cogs", "payroll", "operatingProfit", "taxes", "netProfit"]
+          rechnenTemplates: [
+            ["cogs", "payroll", "netProfit"],
+            ["cogs", "payroll", "taxes"],
+            ["grossProfit", "payroll", "netProfit"],
+            ["grossProfit", "payroll", "taxes"],
+            ["grossProfit", "payroll", "operatingProfit"]
+          ]
         }
       }
     ];
@@ -579,6 +610,13 @@
       return new Intl.NumberFormat("de-CH").format(value);
     }
 
+    function fmtPercent(rate) {
+      return `${new Intl.NumberFormat("de-CH", {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 1
+      }).format(rate * 100)} %`;
+    }
+
     function randInt(min, max, step = 1) {
       const n = Math.floor((max - min) / step);
       return min + Math.floor(Math.random() * (n + 1)) * step;
@@ -586,6 +624,10 @@
 
     function randFloat(min, max) {
       return min + Math.random() * (max - min);
+    }
+
+    function randRate(min, max) {
+      return randInt(Math.round(min * 100), Math.round(max * 100), 1) / 100;
     }
 
     function toOutcome(net) {
@@ -616,7 +658,7 @@
         const operatingProfit = grossProfit - payroll - rent - otherOp - depr;
         const finance = randInt(r.finance[0], r.finance[1], r.finance[2]);
         const preTax = operatingProfit + finance;
-        const taxRate = randFloat(r.taxRate[0], r.taxRate[1]);
+        const taxRate = randRate(r.taxRate[0], r.taxRate[1]);
         const taxes = preTax > 0 ? Math.round(preTax * taxRate) : 0;
         const netProfit = preTax - taxes;
 
@@ -669,9 +711,18 @@
       return { ...values, grossProfit, operatingProfit, taxes, netProfit };
     }
 
+    function pickRechnenUnknownKeys(profile) {
+      const templates = profile.rules.rechnenTemplates;
+      if (templates && templates.length) {
+        return [...templates[randInt(0, templates.length - 1, 1)]];
+      }
+
+      return ["grossProfit", "operatingProfit", "netProfit"];
+    }
+
     function buildModeTask(mode, base, profile) {
       if (mode.id === "rechnen") {
-        const unknownKeys = [...profile.rules.unknownPool].sort(() => Math.random() - 0.5).slice(0, 4);
+        const unknownKeys = pickRechnenUnknownKeys(profile);
         return {
           type: "rechnen",
           values: base.values,
@@ -733,6 +784,7 @@
         options: evaluated,
         bestOptionId: evaluated[0].id,
         bestNetProfit: evaluated[0].netProfit,
+        taxRate: base.taxRate,
         outcome: base.outcome
       };
     }
@@ -816,6 +868,9 @@
       }).join("");
 
       el.modeQuestions.innerHTML = `
+        <div class="q">
+          <p class="q-note">Für diese Entscheidungsaufgabe bleibt der Steuersatz unverändert bei <strong>${fmtPercent(task.taxRate)}</strong>. So lässt sich der neue Jahreserfolg eindeutig berechnen.</p>
+        </div>
         <div class="q">
           <label>Welche Maßnahme verbessert den Jahreserfolg am stärksten?</label>
           <div class="choice-list">${optionsHtml}</div>
@@ -1012,7 +1067,15 @@
 
       if (currentTask.type === "rechnen") {
         if (hintLevel === 1) text = "Tipp 1: Rechne zuerst Bruttoerfolg, dann Betriebserfolg, dann Jahreserfolg.";
-        else if (hintLevel === 2) text = "Tipp 2: Finanzerfolg kann negativ sein, Steuern nur bei positivem Vorsteuerergebnis.";
+        else if (hintLevel === 2) {
+          if (currentTask.unknownKeys.includes("taxes") && !currentTask.unknownKeys.includes("netProfit")) {
+            text = "Tipp 2: Direkte Steuern = Betriebserfolg + Finanzerfolg - Jahreserfolg.";
+          } else if (currentTask.unknownKeys.includes("netProfit") && !currentTask.unknownKeys.includes("taxes")) {
+            text = "Tipp 2: Jahreserfolg = Betriebserfolg + Finanzerfolg - Steuern.";
+          } else {
+            text = "Tipp 2: Finanzerfolg kann negativ sein. Nutze die Formelketten konsequent von oben nach unten.";
+          }
+        }
         else {
           const key = currentTask.unknownKeys[0];
           const label = erRows.find((r) => r.key === key).label;
@@ -1024,7 +1087,7 @@
         else text = `Tipp 3: Korrigierter Jahreserfolg = ${fmt(currentTask.values.netProfit)}.`;
       } else {
         if (hintLevel === 1) text = "Tipp 1: Prüfe, welche Option den größten positiven Effekt auf den Jahreserfolg hat.";
-        else if (hintLevel === 2) text = "Tipp 2: Ein Erlösanstieg wirkt oft über mehrere Stufen auf den Gewinn.";
+        else if (hintLevel === 2) text = `Tipp 2: Für alle Varianten gilt derselbe Steuersatz von ${fmtPercent(currentTask.taxRate)}.`;
         else text = `Tipp 3: Beste Maßnahme führt zu Jahreserfolg ${fmt(currentTask.bestNetProfit)}.`;
       }
 
