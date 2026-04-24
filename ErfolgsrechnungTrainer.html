@@ -196,6 +196,15 @@
       color: #253041;
     }
 
+    .row-note {
+      display: block;
+      margin-top: 3px;
+      color: #5f6775;
+      font-size: 0.8rem;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+
     .amount {
       text-align: right;
       font-variant-numeric: tabular-nums;
@@ -246,6 +255,10 @@
       color: #5f6775;
       font-size: 0.84rem;
       line-height: 1.4;
+    }
+
+    .q-note strong {
+      color: #154a87;
     }
 
     .q label {
@@ -810,11 +823,14 @@
       el.erBody.innerHTML = erRows
         .map((row) => {
           const isInput = task.type === "rechnen" && task.unknownKeys.includes(row.key);
+          const labelHtml = task.type === "entscheiden" && row.key === "taxes"
+            ? `${row.label}<span class="row-note">Steuersatz fix: ${fmtPercent(task.taxRate)} vom Vorsteuerergebnis</span>`
+            : row.label;
           const amountCell = isInput
             ? `<input class="line-input checkable" id="in-${row.key}" type="number" step="1" />`
             : fmt(displayValues[row.key]);
           const rowClass = row.calc ? "calc-row" : "";
-          return `<tr class="${rowClass}"><td class="position">${row.label}</td><td class="amount">${amountCell}</td></tr>`;
+          return `<tr class="${rowClass}"><td class="position">${labelHtml}</td><td class="amount">${amountCell}</td></tr>`;
         })
         .join("");
     }
@@ -869,14 +885,14 @@
 
       el.modeQuestions.innerHTML = `
         <div class="q">
-          <p class="q-note">Für diese Entscheidungsaufgabe bleibt der Steuersatz unverändert bei <strong>${fmtPercent(task.taxRate)}</strong>. So lässt sich der neue Jahreserfolg eindeutig berechnen.</p>
+          <p class="q-note">Für diese Entscheidungsaufgabe bleibt der Steuersatz unverändert bei <strong>${fmtPercent(task.taxRate)}</strong>. Den Steuerbetrag nach der gewählten Maßnahme musst du damit neu berechnen.</p>
         </div>
         <div class="q">
           <label>Welche Maßnahme verbessert den Jahreserfolg am stärksten?</label>
           <div class="choice-list">${optionsHtml}</div>
         </div>
         <div class="q">
-          <label for="best-net">Neuer Jahreserfolg nach bester Maßnahme (CHF)</label>
+          <label for="best-net">Neuer Jahreserfolg nach bester Maßnahme (CHF, inkl. neu berechneter Steuern)</label>
           <input class="line-input checkable" id="best-net" type="number" step="1" />
         </div>
       `;
@@ -918,7 +934,13 @@
 
       const gaps = currentTask.type === "rechnen" ? currentTask.unknownKeys.length + 1
         : currentTask.type === "fehler" ? 4 : 2;
-      el.taskInfo.textContent = `Profil: ${currentProfile.name} · Inputs: ${gaps}`;
+      const taxInfo = currentTask.type === "entscheiden" ? ` · Steuersatz: ${fmtPercent(currentTask.taxRate)}` : "";
+      el.taskInfo.textContent = `Profil: ${currentProfile.name}${taxInfo} · Inputs: ${gaps}`;
+      if (currentTask.type === "entscheiden") {
+        el.contextBox.innerHTML = `${currentProfile.context}<br><strong>Für diese Aufgabe gilt ein fixer Steuersatz von ${fmtPercent(currentTask.taxRate)}.</strong>`;
+      } else {
+        el.contextBox.textContent = currentProfile.context;
+      }
 
       renderTable(currentTask);
       renderQuestions(currentTask);
@@ -1087,7 +1109,7 @@
         else text = `Tipp 3: Korrigierter Jahreserfolg = ${fmt(currentTask.values.netProfit)}.`;
       } else {
         if (hintLevel === 1) text = "Tipp 1: Prüfe, welche Option den größten positiven Effekt auf den Jahreserfolg hat.";
-        else if (hintLevel === 2) text = `Tipp 2: Für alle Varianten gilt derselbe Steuersatz von ${fmtPercent(currentTask.taxRate)}.`;
+        else if (hintLevel === 2) text = `Tipp 2: Rechne nach der Maßnahme zuerst das Vorsteuerergebnis und dann die direkten Steuern mit ${fmtPercent(currentTask.taxRate)} neu aus.`;
         else text = `Tipp 3: Beste Maßnahme führt zu Jahreserfolg ${fmt(currentTask.bestNetProfit)}.`;
       }
 
