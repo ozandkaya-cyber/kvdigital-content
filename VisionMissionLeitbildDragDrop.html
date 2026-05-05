@@ -1,0 +1,710 @@
+<!doctype html>
+<html lang="de-CH">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vision, Mission oder Leitbild?</title>
+  <style>
+    :root {
+      --bg: #eef2f5;
+      --panel: #f8fafc;
+      --card: #ffffff;
+      --line: #d7dee8;
+      --line-dark: #b7c2cf;
+      --ink: #111827;
+      --muted: #5b6675;
+      --dark: #151c28;
+      --orange: #ff8a1d;
+      --green: #15803d;
+      --green-soft: #ecfdf3;
+      --warn: #a16207;
+      --warn-soft: #fff7ed;
+      --bad: #b91c1c;
+      --bad-soft: #fef2f2;
+      --blue-soft: #eef5ff;
+      --shadow: 0 14px 34px rgba(15, 23, 42, 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      height: 100vh;
+      height: 100dvh;
+      padding: 10px;
+      overflow: hidden;
+      font-family: "Encode Sans", "Segoe UI", Arial, sans-serif;
+      color: var(--ink);
+      background: linear-gradient(180deg, #f3f6f9, var(--bg));
+    }
+
+    button {
+      border: 0;
+      border-radius: 8px;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.12s ease, filter 0.12s ease, border-color 0.12s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.03);
+    }
+
+    button:focus-visible,
+    .statement:focus-visible,
+    .dropzone:focus-visible {
+      outline: 3px solid rgba(255, 138, 29, 0.32);
+      outline-offset: 2px;
+    }
+
+    .app {
+      max-width: 1180px;
+      height: calc(100vh - 20px);
+      height: calc(100dvh - 20px);
+      margin: 0 auto;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      padding: 10px;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      gap: 8px;
+      overflow: hidden;
+    }
+
+    .head {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 9px 10px;
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 4px 10px;
+      align-items: center;
+    }
+
+    .badge {
+      width: fit-content;
+      border: 1px solid #d7dde6;
+      border-radius: 999px;
+      background: #f1f4f8;
+      color: #3f4a5a;
+      padding: 3px 8px;
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      color: #101722;
+      font-size: clamp(1.18rem, 2.25vw, 1.55rem);
+      line-height: 1.12;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      margin: 0;
+      grid-column: 1 / -1;
+      max-width: 88ch;
+      color: var(--muted);
+      font-size: 0.8rem;
+      line-height: 1.28;
+      font-weight: 600;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(270px, 0.86fr) minmax(0, 1.44fr);
+      gap: 8px;
+      align-items: stretch;
+      min-height: 0;
+    }
+
+    .source,
+    .targets {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 8px;
+      min-width: 0;
+      min-height: 0;
+    }
+
+    .source {
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      gap: 7px;
+    }
+
+    .section-title {
+      margin: 0;
+      color: #263345;
+      font-size: 0.82rem;
+      font-weight: 800;
+    }
+
+    .stack {
+      min-height: 0;
+      display: grid;
+      gap: 7px;
+      align-content: start;
+    }
+
+    .statement {
+      border: 1px solid var(--line-dark);
+      border-radius: 8px;
+      background: #fbfdff;
+      color: #182230;
+      padding: 8px;
+      display: grid;
+      gap: 4px;
+      text-align: left;
+      box-shadow: 0 5px 12px rgba(15, 23, 42, 0.05);
+      user-select: none;
+      touch-action: manipulation;
+    }
+
+    .statement[draggable="true"] {
+      cursor: grab;
+    }
+
+    .statement.dragging {
+      opacity: 0.56;
+      transform: scale(0.985);
+    }
+
+    .statement.selected {
+      border-color: var(--orange);
+      background: #fff8ef;
+      box-shadow: 0 0 0 3px rgba(255, 138, 29, 0.15);
+    }
+
+    .statement.ok {
+      border-color: #83cf9d;
+      background: var(--green-soft);
+    }
+
+    .statement.bad {
+      border-color: #ef9a9a;
+      background: var(--bad-soft);
+    }
+
+    .statement-number {
+      color: #637186;
+      font-size: 0.66rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    .statement-text {
+      font-size: 0.79rem;
+      font-weight: 700;
+      line-height: 1.22;
+    }
+
+    .targets {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .dropzone {
+      border: 2px dashed #c8d2df;
+      border-radius: 8px;
+      background: #f6f8fb;
+      min-height: 0;
+      padding: 8px;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 7px;
+      min-width: 0;
+      transition: background 0.12s ease, border-color 0.12s ease, transform 0.12s ease;
+    }
+
+    .dropzone.over,
+    .dropzone.selected-target {
+      border-color: var(--orange);
+      background: #fff8ef;
+      transform: translateY(-1px);
+    }
+
+    .dropzone.ok {
+      border-color: #83cf9d;
+      background: var(--green-soft);
+    }
+
+    .dropzone.bad {
+      border-color: #efb0a1;
+      background: var(--warn-soft);
+    }
+
+    .zone-head {
+      border: 1px solid #dbe2eb;
+      border-radius: 8px;
+      background: var(--card);
+      padding: 7px;
+      display: grid;
+      gap: 2px;
+    }
+
+    .zone-title {
+      margin: 0;
+      color: #182230;
+      font-size: 0.9rem;
+      font-weight: 800;
+    }
+
+    .zone-clue {
+      margin: 0;
+      color: #64748b;
+      font-size: 0.7rem;
+      font-weight: 700;
+      line-height: 1.22;
+    }
+
+    .zone-list {
+      display: grid;
+      gap: 7px;
+      align-content: start;
+      min-height: 0;
+    }
+
+    #poolList {
+      grid-template-columns: 1fr;
+    }
+
+    .empty {
+      border: 1px dashed #d7dee8;
+      border-radius: 8px;
+      padding: 10px;
+      color: #738195;
+      font-size: 0.76rem;
+      font-weight: 700;
+      line-height: 1.35;
+      text-align: center;
+    }
+
+    .controls {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 8px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .btn-main {
+      background: var(--orange);
+      color: #fff;
+      padding: 8px 12px;
+    }
+
+    .btn-soft {
+      border: 1px solid #d4dbe5;
+      background: #eef2f6;
+      color: #263345;
+      padding: 8px 12px;
+    }
+
+    .feedback {
+      margin: 0;
+      max-width: 720px;
+      border: 1px solid #d9e0ea;
+      border-radius: 8px;
+      background: #f4f7fb;
+      color: #2f3d51;
+      padding: 8px 10px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      line-height: 1.28;
+    }
+
+    .feedback.ok {
+      border-color: #b7e0c7;
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    .feedback.bad {
+      border-color: #f0c89b;
+      background: var(--warn-soft);
+      color: var(--warn);
+    }
+
+    .feedback.neutral {
+      color: #506076;
+    }
+
+    @media (max-height: 720px) and (min-width: 761px) {
+      .lead {
+        display: none;
+      }
+
+      .statement {
+        padding: 7px;
+      }
+
+      .statement-text {
+        font-size: 0.75rem;
+        line-height: 1.18;
+      }
+
+      .zone-clue {
+        display: none;
+      }
+
+      #poolList {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 760px) {
+      body {
+        height: auto;
+        min-height: 100vh;
+        overflow: auto;
+      }
+
+      .app {
+        height: auto;
+        overflow: visible;
+      }
+
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+
+      .targets {
+        grid-template-columns: 1fr;
+      }
+
+      #poolList {
+        grid-template-columns: 1fr;
+      }
+
+      .dropzone {
+        min-height: 250px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .app {
+        padding: 10px;
+        border-radius: 10px;
+      }
+
+      .head,
+      .source,
+      .targets,
+      .controls {
+        padding: 10px;
+      }
+
+      .controls {
+        align-items: stretch;
+      }
+
+      .button-row,
+      .btn-main,
+      .btn-soft,
+      .feedback {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app" aria-label="Vision, Mission oder Leitbild Drag-and-Drop">
+    <header class="head">
+      <span class="badge">HKVdigital Compact | LE3: Strategische Steuerung</span>
+      <h1>Vision, Mission oder Leitbild?</h1>
+      <p class="lead">Ordnen Sie jede Aussage der passenden Kategorie zu. Ziehen Sie eine Karte in einen Bereich oder wählen Sie eine Karte an und tippen Sie danach auf die Zielkategorie.</p>
+    </header>
+
+    <section class="workspace">
+      <aside class="source" aria-label="Aussagen zum Zuordnen">
+        <h2 class="section-title">Aussagen</h2>
+        <div class="stack dropzone" id="pool" data-category="pool" tabindex="0" aria-label="Noch nicht zugeordnete Aussagen">
+          <div class="zone-list" id="poolList"></div>
+        </div>
+      </aside>
+
+      <section class="targets" aria-label="Kategorien">
+        <article class="dropzone" data-category="vision" tabindex="0" aria-label="Kategorie Vision">
+          <div class="zone-head">
+            <h2 class="zone-title">Vision</h2>
+            <p class="zone-clue">Zukunftsbild, Zeithorizont, ambitioniertes Ziel</p>
+          </div>
+          <div class="zone-list" id="zone-vision"></div>
+        </article>
+
+        <article class="dropzone" data-category="mission" tabindex="0" aria-label="Kategorie Mission">
+          <div class="zone-head">
+            <h2 class="zone-title">Mission</h2>
+            <p class="zone-clue">Daseinszweck, Nutzenversprechen, Warum</p>
+          </div>
+          <div class="zone-list" id="zone-mission"></div>
+        </article>
+
+        <article class="dropzone" data-category="leitbild" tabindex="0" aria-label="Kategorie Leitbild">
+          <div class="zone-head">
+            <h2 class="zone-title">Leitbild</h2>
+            <p class="zone-clue">Werte, Handlungsgrundsätze, Zusammenarbeit</p>
+          </div>
+          <div class="zone-list" id="zone-leitbild"></div>
+        </article>
+      </section>
+    </section>
+
+    <section class="controls" aria-label="Auswertung">
+      <div class="button-row">
+        <button type="button" class="btn-main" id="checkBtn">Prüfen</button>
+        <button type="button" class="btn-soft" id="resetBtn">Zurücksetzen</button>
+      </div>
+      <p class="feedback neutral" id="feedback" aria-live="polite">Alle sechs Aussagen zuordnen und danach prüfen.</p>
+    </section>
+  </main>
+
+  <script>
+    const statements = [
+      {
+        id: "s1",
+        nr: 1,
+        text: "«Wir wollen bis 2030 der innovativste Anbieter digitaler Bildungslösungen in der DACH-Region sein.»",
+        category: "vision"
+      },
+      {
+        id: "s2",
+        nr: 2,
+        text: "«Wir ermöglichen Menschen, sich unabhängig von Ort und Zeit weiterzubilden, durch moderne Technologie und erstklassige Inhalte.»",
+        category: "mission"
+      },
+      {
+        id: "s3",
+        nr: 3,
+        text: "«Wir begegnen einander auf Augenhöhe, fördern Eigenverantwortung und messen uns an der Wirkung unserer Produkte.»",
+        category: "leitbild"
+      },
+      {
+        id: "s4",
+        nr: 4,
+        text: "«Wir sind die vertrauenswürdigste Bank der Schweiz.»",
+        category: "vision"
+      },
+      {
+        id: "s5",
+        nr: 5,
+        text: "«Transparenz, Nachhaltigkeit und Kundennähe leiten unser tägliches Handeln.»",
+        category: "leitbild"
+      },
+      {
+        id: "s6",
+        nr: 6,
+        text: "«Wir bieten KMU massgeschneiderte Finanzlösungen, die Wachstum ermöglichen.»",
+        category: "mission"
+      }
+    ];
+
+    const successText = "Richtig! Sie haben die drei Konzepte korrekt unterschieden. Merken Sie sich: Die Vision zeigt, wohin die Reise geht. Die Mission erklärt, warum es das Unternehmen gibt. Und das Leitbild definiert, wie man zusammenarbeitet.";
+    const errorText = "Nicht ganz. Prüfen Sie nochmals: Enthält die Aussage ein Zukunftsziel (Vision), einen Zweck (Mission) oder Handlungswerte (Leitbild)?";
+
+    const placement = new Map(statements.map((item) => [item.id, "pool"]));
+    let selectedId = null;
+    let draggedId = null;
+
+    const els = {
+      pool: document.getElementById("poolList"),
+      zones: {
+        pool: document.getElementById("poolList"),
+        vision: document.getElementById("zone-vision"),
+        mission: document.getElementById("zone-mission"),
+        leitbild: document.getElementById("zone-leitbild")
+      },
+      feedback: document.getElementById("feedback")
+    };
+
+    function esc(text) {
+      return String(text)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function setFeedback(text, tone = "neutral") {
+      els.feedback.className = `feedback ${tone}`;
+      els.feedback.textContent = text;
+    }
+
+    function clearResultStyles() {
+      document.querySelectorAll(".statement.ok, .statement.bad, .dropzone.ok, .dropzone.bad").forEach((node) => {
+        node.classList.remove("ok", "bad");
+      });
+    }
+
+    function setSelected(id) {
+      selectedId = selectedId === id ? null : id;
+      document.querySelectorAll(".statement").forEach((card) => {
+        card.classList.toggle("selected", card.dataset.id === selectedId);
+        card.setAttribute("aria-pressed", card.dataset.id === selectedId ? "true" : "false");
+      });
+      document.querySelectorAll(".dropzone").forEach((zone) => {
+        zone.classList.toggle("selected-target", Boolean(selectedId) && zone.dataset.category !== placement.get(selectedId));
+      });
+    }
+
+    function moveStatement(id, targetCategory) {
+      if (!id || !placement.has(id)) return;
+      placement.set(id, targetCategory);
+      selectedId = null;
+      render();
+      setFeedback("Zuordnung übernommen. Prüfen Sie, sobald alle Karten platziert sind.", "neutral");
+    }
+
+    function emptyText(category) {
+      if (category === "pool") return "Alle Karten sind zugeordnet.";
+      return "Aussagen hier ablegen.";
+    }
+
+    function render() {
+      clearResultStyles();
+      Object.values(els.zones).forEach((zone) => {
+        zone.innerHTML = "";
+      });
+
+      ["pool", "vision", "mission", "leitbild"].forEach((category) => {
+        const items = statements.filter((item) => placement.get(item.id) === category);
+        const target = els.zones[category];
+
+        if (!items.length) {
+          target.innerHTML = `<div class="empty">${esc(emptyText(category))}</div>`;
+          return;
+        }
+
+        items.forEach((item) => {
+          const card = document.createElement("button");
+          card.type = "button";
+          card.className = "statement";
+          card.draggable = true;
+          card.dataset.id = item.id;
+          card.setAttribute("aria-pressed", "false");
+          card.innerHTML = `
+            <span class="statement-number">Aussage ${item.nr}</span>
+            <span class="statement-text">${esc(item.text)}</span>
+          `;
+
+          card.addEventListener("click", () => setSelected(item.id));
+          card.addEventListener("dragstart", (event) => {
+            draggedId = item.id;
+            event.dataTransfer.effectAllowed = "move";
+            event.dataTransfer.setData("text/plain", item.id);
+            window.setTimeout(() => card.classList.add("dragging"), 0);
+          });
+          card.addEventListener("dragend", () => {
+            draggedId = null;
+            card.classList.remove("dragging");
+            document.querySelectorAll(".dropzone.over").forEach((zone) => zone.classList.remove("over"));
+          });
+
+          target.appendChild(card);
+        });
+      });
+
+      setSelected(selectedId);
+    }
+
+    function setupDropzones() {
+      document.querySelectorAll(".dropzone").forEach((zone) => {
+        zone.addEventListener("dragover", (event) => {
+          event.preventDefault();
+          zone.classList.add("over");
+          event.dataTransfer.dropEffect = "move";
+        });
+
+        zone.addEventListener("dragleave", (event) => {
+          if (!zone.contains(event.relatedTarget)) zone.classList.remove("over");
+        });
+
+        zone.addEventListener("drop", (event) => {
+          event.preventDefault();
+          zone.classList.remove("over");
+          const id = event.dataTransfer.getData("text/plain") || draggedId;
+          moveStatement(id, zone.dataset.category);
+        });
+
+        zone.addEventListener("click", (event) => {
+          if (!selectedId || event.target.closest(".statement")) return;
+          moveStatement(selectedId, zone.dataset.category);
+        });
+
+        zone.addEventListener("keydown", (event) => {
+          if (!selectedId || (event.key !== "Enter" && event.key !== " ")) return;
+          event.preventDefault();
+          moveStatement(selectedId, zone.dataset.category);
+        });
+      });
+    }
+
+    function checkAnswers() {
+      clearResultStyles();
+      let allPlaced = true;
+      let allCorrect = true;
+
+      statements.forEach((item) => {
+        const placed = placement.get(item.id);
+        const card = document.querySelector(`.statement[data-id="${item.id}"]`);
+        const ok = placed === item.category;
+
+        if (placed === "pool") allPlaced = false;
+        if (!ok) allCorrect = false;
+
+        if (card) card.classList.add(ok ? "ok" : "bad");
+      });
+
+      document.querySelectorAll(".dropzone[data-category]").forEach((zone) => {
+        const category = zone.dataset.category;
+        if (category === "pool") return;
+        const placedHere = statements.filter((item) => placement.get(item.id) === category);
+        const expectedHere = statements.filter((item) => item.category === category);
+        const zoneOk = placedHere.length === expectedHere.length && placedHere.every((item) => item.category === category);
+        zone.classList.add(zoneOk ? "ok" : "bad");
+      });
+
+      setFeedback(allPlaced && allCorrect ? successText : errorText, allPlaced && allCorrect ? "ok" : "bad");
+    }
+
+    function reset() {
+      statements.forEach((item) => placement.set(item.id, "pool"));
+      selectedId = null;
+      draggedId = null;
+      render();
+      setFeedback("Alle sechs Aussagen zuordnen und danach prüfen.", "neutral");
+    }
+
+    document.getElementById("checkBtn").addEventListener("click", checkAnswers);
+    document.getElementById("resetBtn").addEventListener("click", reset);
+
+    setupDropzones();
+    render();
+  </script>
+</body>
+</html>
