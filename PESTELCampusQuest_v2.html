@@ -1441,8 +1441,8 @@
       position: relative;
       display: grid;
       grid-template-columns: auto minmax(0, 1fr) auto;
-      gap: 18px;
-      padding: 14px 18px 14px 16px;
+      gap: 14px;
+      padding: 10px 16px 12px 14px;
       border-radius: 12px;
       background: linear-gradient(135deg, #0f172a, #1c2738 55%, #1f2a3a);
       border: 1px solid #1f2a3a;
@@ -1464,15 +1464,15 @@
 
     .hero-medal {
       position: relative;
-      width: 86px;
-      height: 86px;
+      width: 64px;
+      height: 64px;
       display: grid;
       place-items: center;
       border-radius: 50%;
       background: radial-gradient(circle at 30% 28%, #ffd596, #ff8a1d 50%, #b45309);
-      box-shadow: 0 10px 30px rgba(255, 138, 29, 0.5), inset 0 -3px 9px rgba(0,0,0,0.3);
+      box-shadow: 0 8px 22px rgba(255, 138, 29, 0.45), inset 0 -3px 7px rgba(0,0,0,0.3);
       z-index: 1;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
 
     .hero-medal::before {
@@ -1491,7 +1491,7 @@
     }
 
     .medal-icon {
-      font-size: 2rem;
+      font-size: 1.5rem;
       line-height: 1;
       color: #fff;
       text-shadow: 0 2px 6px rgba(0,0,0,0.45);
@@ -1500,16 +1500,16 @@
 
     .medal-rank {
       position: absolute;
-      bottom: -22px;
+      bottom: -16px;
       left: 50%;
       transform: translateX(-50%);
-      font-size: 0.6rem;
+      font-size: 0.55rem;
       font-weight: 900;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.06em;
       text-transform: uppercase;
       color: #fff;
       background: #151c28;
-      padding: 4px 10px;
+      padding: 3px 8px;
       border-radius: 999px;
       white-space: nowrap;
       border: 1px solid rgba(255,138,29,0.45);
@@ -1524,7 +1524,7 @@
 
     .hero-headline {
       margin: 0;
-      font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+      font-size: clamp(1.05rem, 2vw, 1.4rem);
       line-height: 1.1;
       color: #fff;
       font-weight: 900;
@@ -1532,32 +1532,32 @@
     }
 
     .hero-sub {
-      margin: 4px 0 0;
+      margin: 3px 0 0;
       color: rgba(255, 255, 255, 0.74);
-      font-size: 0.82rem;
-      line-height: 1.32;
+      font-size: 0.74rem;
+      line-height: 1.28;
       font-weight: 700;
     }
 
     .hero-chips {
       display: flex;
       flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 10px;
+      gap: 5px;
+      margin-top: 6px;
     }
 
     .hero-chip {
       background: rgba(255,255,255,0.08);
       border: 1px solid rgba(255,255,255,0.18);
       color: #fff;
-      padding: 4px 10px;
+      padding: 3px 8px;
       border-radius: 999px;
-      font-size: 0.7rem;
+      font-size: 0.66rem;
       font-weight: 800;
       letter-spacing: 0.02em;
       display: inline-flex;
       align-items: center;
-      gap: 5px;
+      gap: 4px;
     }
 
     .hero-chip strong {
@@ -1585,7 +1585,7 @@
     }
 
     .hero-score-value {
-      font-size: clamp(2.2rem, 4.4vw, 3.2rem);
+      font-size: clamp(1.7rem, 3.6vw, 2.4rem);
       font-weight: 900;
       color: #ff8a1d;
       line-height: 1;
@@ -1613,7 +1613,7 @@
     }
 
     .final-radar-wrap.big {
-      height: 280px;
+      height: 230px;
     }
 
     .final-radar.big {
@@ -1738,23 +1738,23 @@
     }
 
     .action-card.big {
-      min-height: 72px;
-      padding: 9px 10px;
-      gap: 5px;
+      min-height: 58px;
+      padding: 7px 9px;
+      gap: 3px;
     }
 
     .action-card.big strong {
-      font-size: 0.78rem;
-      line-height: 1.18;
+      font-size: 0.72rem;
+      line-height: 1.16;
     }
 
     .action-card.big span:not(.action-hint) {
-      font-size: 0.64rem;
+      font-size: 0.6rem;
     }
 
     .action-card.big .action-hint {
-      font-size: 0.6rem;
-      padding: 4px 6px;
+      font-size: 0.56rem;
+      padding: 3px 5px;
     }
 
     .final-summary {
@@ -1764,7 +1764,31 @@
 
     .final-profile-grid {
       grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 4px;
+    }
+
+    .profile-pill {
+      padding: 4px 6px;
+    }
+
+    .profile-pill strong {
+      font-size: 0.66rem;
+    }
+
+    .profile-pill span {
+      font-size: 0.58rem;
+      line-height: 1.12;
+    }
+
+    .result-box.compact {
+      min-height: 0;
+      padding: 8px 10px;
       gap: 5px;
+    }
+
+    .result-box.compact .result-text {
+      font-size: 0.78rem;
+      line-height: 1.28;
     }
 
     @media (max-width: 980px) {
