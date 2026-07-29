@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aufgaben-Stresstest: die fünf Hebel</title>
+<style>
+  :root {
+    --dunkel: #1F3864; --mittel: #2E75B6; --hell: #D5E8F0;
+    --gruen: #2e7d32; --gelb: #e6a817; --rot: #c0392b; --grau: #f4f5f7;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "Segoe UI", Arial, sans-serif;
+    background: #fff; color: #222; padding: 24px 16px;
+    display: flex; justify-content: center;
+  }
+  .app { width: 100%; max-width: 720px; }
+  h1 { color: var(--dunkel); font-size: 1.45rem; margin-bottom: 6px; }
+  .intro { color: #444; font-size: .95rem; line-height: 1.5; margin-bottom: 14px; }
+  .beispielwahl { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  .tab {
+    padding: 8px 14px; font-size: .85rem; font-weight: 700; border-radius: 20px;
+    border: 2px solid var(--dunkel); color: var(--dunkel); background: #fff;
+    cursor: pointer; transition: all .15s;
+  }
+  .tab:hover { background: var(--hell); }
+  .tab.aktiv { background: var(--dunkel); color: #fff; }
+  .meterbox { background: var(--grau); border: 1px solid #dde2e9; border-radius: 12px; padding: 18px 20px; margin-bottom: 16px; }
+  .meterlabelzeile { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+  .meterlabel { font-size: .8rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--dunkel); }
+  .meterwert { font-size: 1.5rem; font-weight: 800; }
+  .meterwrap { background: #e2e6ec; border-radius: 8px; height: 26px; overflow: hidden; }
+  .meter { height: 100%; border-radius: 8px; transition: width .5s, background .5s; }
+  .metertext { font-size: .88rem; color: #444; margin-top: 8px; min-height: 1.3em; }
+  .layout { display: grid; grid-template-columns: 1fr; gap: 16px; }
+  @media (min-width: 660px) { .layout { grid-template-columns: 265px 1fr; } }
+  .hebelbox { display: flex; flex-direction: column; gap: 8px; }
+  .hebel {
+    display: flex; align-items: flex-start; gap: 10px; background: #fff;
+    border: 2px solid #dde2e9; border-radius: 10px; padding: 10px 12px;
+    cursor: pointer; transition: border-color .15s, background .15s; user-select: none;
+  }
+  .hebel.an { border-color: var(--mittel); background: var(--hell); }
+  .hebel input { margin-top: 3px; accent-color: var(--dunkel); width: 17px; height: 17px; cursor: pointer; pointer-events: none; }
+  .hebel .titel { font-weight: 700; font-size: .9rem; color: var(--dunkel); }
+  .hebel .aufwand { font-size: .75rem; color: #666; }
+  .aufgabenbox { background: var(--grau); border: 1px solid #dde2e9; border-radius: 12px; padding: 18px 20px; }
+  .aufgabenlabel { font-size: .8rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--dunkel); margin-bottom: 4px; }
+  .stufe { font-size: .78rem; color: #666; margin-bottom: 10px; }
+  .aufgabe { font-size: .98rem; line-height: 1.65; }
+  .neu { background: #fdf3d7; border-radius: 3px; padding: 1px 3px; }
+  .erkenntnis { margin-top: 16px; padding: 14px 16px; background: var(--hell); border-radius: 10px; font-size: .93rem; line-height: 1.55; display: none; }
+  .erkenntnis.zeigen { display: block; }
+  .fussnote { margin-top: 14px; font-size: .82rem; color: #666; line-height: 1.5; }
+</style>
+</head>
+<body>
+<div class="app">
+  <h1>Aufgaben-Stresstest: die fünf Hebel</h1>
+  <p class="intro">Wähle ein Fachbeispiel aus deiner Schulwelt. Aktiviere dann Hebel und beobachte, wie sich die Aufgabenstellung verändert und die KI-Anfälligkeit sinkt. Neue Textteile sind gelb markiert. Die Hebel bleiben beim Wechsel des Beispiels aktiv, so siehst du, dass sie überall funktionieren.</p>
+
+  <div class="beispielwahl" id="beispielwahl"></div>
+
+  <div class="meterbox">
+    <div class="meterlabelzeile">
+      <span class="meterlabel">KI-Anfälligkeit dieser Aufgabe</span>
+      <span class="meterwert" id="meterwert">95%</span>
+    </div>
+    <div class="meterwrap"><div class="meter" id="meter" style="width:95%;background:var(--rot)"></div></div>
+    <div class="metertext" id="metertext"></div>
+  </div>
+
+  <div class="layout">
+    <div class="hebelbox" id="hebelbox"></div>
+    <div>
+      <div class="aufgabenbox">
+        <div class="aufgabenlabel">Aufgabenstellung, wie die Lernenden sie erhalten</div>
+        <div class="stufe" id="stufe"></div>
+        <div class="aufgabe" id="aufgabe"></div>
+      </div>
+      <div class="erkenntnis" id="erkenntnis"></div>
+    </div>
+  </div>
+
+  <p class="fussnote">Hinweis: Die Prozentwerte sind didaktische Richtwerte, keine Messung. Keine Aufgabe ist vollständig KI-fest. Das Ziel ist sichtbare Eigenleistung, nicht Verhinderung.</p>
+</div>
+
+<script>
+const hebel = [
+  { id: 'h1', titel: 'Hebel 1: Persönlicher Kontext', aufwand: 'Aufwand für dich: gering', wirkung: 25 },
+  { id: 'h2', titel: 'Hebel 2: Eigene Daten', aufwand: 'Aufwand: gering bis mittel', wirkung: 20 },
+  { id: 'h3', titel: 'Hebel 3: Spezifität', aufwand: 'Aufwand: gering', wirkung: 12 },
+  { id: 'h4', titel: 'Hebel 4: Prozessnachweise', aufwand: 'Aufwand: gering (sichten statt korrigieren)', wirkung: 14 },
+  { id: 'h5', titel: 'Hebel 5: Medienwechsel', aufwand: 'Aufwand: mittel (Abnahme einplanen)', wirkung: 14 }
+];
+
+// Pro Beispiel: Basistext (ohne/mit Hebel 1) und Bausteine fuer Hebel 2 bis 5
+const beispiele = [
+  {
+    name: 'Berufsfachschule: Wirtschaft',
+    stufe: 'Kaufmännische Grundbildung, Wirtschaft und Gesellschaft',
+    basis: 'Erklären Sie die vier P des Marketings am Beispiel eines Unternehmens Ihrer Wahl.',
+    basisH1: 'Erklären Sie die vier P des Marketings am Beispiel |Ihres Lehrbetriebs|.',
+    h2: 'Belegen Sie jedes P mit einer eigenen Beobachtung aus Ihrem Arbeitsalltag oder mit einer Kurzbefragung von mindestens zwei Personen (Kundschaft oder Mitarbeitende).',
+    h3: 'Gehen Sie von der aktuellen Situation aus: Der Betrieb verliert Laufkundschaft an den Onlinehandel und das Marketingbudget beträgt 8000 Franken pro Jahr. Priorisieren Sie Ihre Massnahmen entsprechend.',
+    h4: 'Geben Sie mit der Endfassung Ihre Stichwortliste und eine kurze Notiz ab: Was haben Sie gegenüber Ihrer ersten Fassung geändert und warum?',
+    h5: 'Erklären Sie Ihre wichtigste Erkenntnis zusätzlich in einer Sprachnachricht von maximal 90 Sekunden.'
+  },
+  {
+    name: 'Sekundarstufe I: Deutsch',
+    stufe: 'Sekundarstufe I, 8./9. Klasse, Erörterung',
+    basis: 'Schreibe eine Erörterung zum Thema «Vor- und Nachteile von Social Media» (ca. 400 Wörter).',
+    basisH1: 'Schreibe eine Erörterung zum Thema «Vor- und Nachteile von Social Media» und gehe dabei |von deiner eigenen Nutzung| aus (ca. 400 Wörter).',
+    h2: 'Werte dazu deine Bildschirmzeit-Statistik einer Woche aus und baue mindestens drei konkrete Zahlen daraus in deine Argumentation ein.',
+    h3: 'Beziehe dich konkret auf die zwei Apps, die du am meisten nutzt und nimm Stellung zu den Handy-Regeln an unserer Schule.',
+    h4: 'Gib deine Stoffsammlung und deinen ersten Entwurf mit ab und markiere zwei Stellen, die du bewusst überarbeitet hast.',
+    h5: 'Stelle deine wichtigste These der Klasse in einem Kurzreferat von zwei Minuten vor und beantworte eine Rückfrage.'
+  },
+  {
+    name: 'Gymnasium: Geschichte',
+    stufe: 'Gymnasium, Sekundarstufe II, Essay',
+    basis: 'Verfassen Sie einen Essay über die Ursachen des Ersten Weltkriegs (ca. 3 Seiten).',
+    basisH1: 'Verfassen Sie einen Essay über die Ursachen des Ersten Weltkriegs und zeigen Sie, |wie sich der Kriegsausbruch 1914 in Ihrer Region niederschlug| (ca. 3 Seiten).',
+    h2: 'Arbeiten Sie mit mindestens zwei Originalquellen aus einer digitalisierten Schweizer Zeitung vom Sommer 1914 (z.B. via e-newspaperarchives.ch) und zitieren Sie daraus.',
+    h3: 'Konzentrieren Sie sich auf die Julikrise und gewichten Sie: Welche Ursache war in den letzten vier Wochen vor Kriegsausbruch entscheidend? Begründen Sie Ihre Gewichtung gegen mindestens eine Gegenposition.',
+    h4: 'Geben Sie Ihre Disposition und Ihr Quellenprotokoll ab, inklusive Deklaration allfälliger KI-Nutzung.',
+    h5: 'Verteidigen Sie Ihre Hauptthese in einem Fachgespräch von fünf Minuten.'
+  },
+  {
+    name: 'Berufsfachschule: ABU',
+    stufe: 'Allgemeinbildender Unterricht, Thema Geld und Konsum',
+    basis: 'Erstellen Sie ein Monatsbudget für die erste eigene Wohnung und erläutern Sie es (ca. 2 Seiten).',
+    basisH1: 'Erstellen Sie ein Monatsbudget für Ihre erste eigene Wohnung |nach dem Lehrabschluss, bezogen auf Ihre Region und Ihren Beruf| und erläutern Sie es (ca. 2 Seiten).',
+    h2: 'Recherchieren Sie zwei echte Wohnungsinserate aus Ihrer Region und rechnen Sie mit dem branchenüblichen Einstiegslohn Ihres Berufs. Legen Sie beide Inserate bei.',
+    h3: 'Randbedingungen: Nettolohn maximal 3800 Franken, Sie brauchen ein ÖV-Abo und übernehmen Handy-Abo und Krankenkasse neu selbst. Weisen Sie eine Sparquote aus.',
+    h4: 'Geben Sie Ihre Rechenwege ab plus eine kurze Notiz: Welche zwei Budgetposten haben Sie am meisten unterschätzt?',
+    h5: 'Erklären Sie Ihr Budget in einer Sprachnachricht von 90 Sekunden, als würden Sie es Ihren Eltern vorstellen.'
+  }
+];
+
+const zustand = { h1: false, h2: false, h3: false, h4: false, h5: false };
+let beispielIndex = 0;
+
+function markiert(text) {
+  // |...| wird gelb markiert
+  return text.replace(/\|([^|]+)\|/g, '<span class="neu">$1</span>');
+}
+
+function baueAufgabe() {
+  const b = beispiele[beispielIndex];
+  let teile = [];
+  teile.push(zustand.h1 ? markiert(b.basisH1) : b.basis);
+  if (zustand.h3) teile.push('<span class="neu">' + b.h3 + '</span>');
+  if (zustand.h2) teile.push('<span class="neu">' + b.h2 + '</span>');
+  if (zustand.h4) teile.push('<span class="neu">' + b.h4 + '</span>');
+  if (zustand.h5) teile.push('<span class="neu">' + b.h5 + '</span>');
+  document.getElementById('aufgabe').innerHTML = teile.join(' ');
+  document.getElementById('stufe').textContent = b.stufe;
+}
+
+function baueMeter() {
+  let wert = 95;
+  hebel.forEach(h => { if (zustand[h.id]) wert -= h.wirkung; });
+  wert = Math.max(wert, 10);
+  const m = document.getElementById('meter');
+  m.style.width = wert + '%';
+  m.style.background = wert > 65 ? 'var(--rot)' : (wert > 35 ? 'var(--gelb)' : 'var(--gruen)');
+  document.getElementById('meterwert').textContent = wert + '%';
+  const anzahl = Object.values(zustand).filter(Boolean).length;
+  const texte = {
+    hoch: 'Eine frei verfügbare KI löst diese Aufgabe in rund 30 Sekunden auf Bestnoten-Niveau.',
+    mittel: 'Besser. Die KI kann noch helfen, aber die Substanz muss zunehmend vom Menschen kommen.',
+    tief: 'Stark. Der ehrliche Weg ist jetzt der einfachste: Eigenleistung muss sichtbar werden.'
+  };
+  document.getElementById('metertext').textContent = wert > 65 ? texte.hoch : (wert > 35 ? texte.mittel : texte.tief);
+
+  const e = document.getElementById('erkenntnis');
+  if (anzahl === 0) {
+    e.className = 'erkenntnis';
+  } else if (anzahl <= 2) {
+    e.className = 'erkenntnis zeigen';
+    e.innerHTML = anzahl === 2
+      ? '<strong>Merkst du es?</strong> Schon zwei Hebel drücken die Anfälligkeit deutlich. Genau das ist die Faustregel des Kurses: Zwei gut gewählte Hebel genügen meistens. Mehr Hebel bringen vor allem mehr Aufwand. Wechsle oben das Fachbeispiel: Die Hebel funktionieren in jedem Fach gleich.'
+      : '<strong>Ein Anfang.</strong> Ein einzelner Hebel verändert die Aufgabe bereits spürbar. Probiere einen zweiten dazu.';
+  } else {
+    e.className = 'erkenntnis zeigen';
+    e.innerHTML = '<strong>Beachte den Preis:</strong> Mit ' + anzahl + ' aktiven Hebeln wird die Aufgabe robuster, aber auch aufwendiger, für dich und für die Lernenden. Frage dich: Welche zwei Hebel bringen bei dieser Aufgabe am meisten? Der Rest ist Kür.';
+  }
+}
+
+function toggle(id) {
+  zustand[id] = !zustand[id];
+  document.getElementById('wrap_' + id).classList.toggle('an', zustand[id]);
+  document.getElementById('cb_' + id).checked = zustand[id];
+  baueAufgabe();
+  baueMeter();
+}
+
+function waehleBeispiel(i) {
+  beispielIndex = i;
+  document.querySelectorAll('.tab').forEach((t, j) => t.classList.toggle('aktiv', j === i));
+  baueAufgabe();
+  baueMeter();
+}
+
+// Aufbau
+const wahl = document.getElementById('beispielwahl');
+beispiele.forEach((b, i) => {
+  const t = document.createElement('div');
+  t.className = 'tab' + (i === 0 ? ' aktiv' : '');
+  t.textContent = b.name;
+  t.addEventListener('click', () => waehleBeispiel(i));
+  wahl.appendChild(t);
+});
+
+const box = document.getElementById('hebelbox');
+hebel.forEach(h => {
+  const div = document.createElement('div');
+  div.className = 'hebel';
+  div.id = 'wrap_' + h.id;
+  div.innerHTML = '<input type="checkbox" id="cb_' + h.id + '"><div><div class="titel">' + h.titel + '</div><div class="aufwand">' + h.aufwand + '</div></div>';
+  div.addEventListener('click', () => toggle(h.id));
+  box.appendChild(div);
+});
+
+baueAufgabe();
+baueMeter();
+</script>
+</body>
+</html>
