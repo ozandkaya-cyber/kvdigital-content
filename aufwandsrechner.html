@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Was kostet dich dein Umbau?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --dunkel: #183E45; --mittel: #4E9E7A; --mint: #89BD99; --hell: #E1EEE5;
+    --gruen: #2C6B45; --gelb: #C08A2E; --rot: #B4515C; --grau: #F1F2F2;
+    --ocker25: #F7EBCE; --rose25: #F4DDE0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: Montserrat, -apple-system, "Segoe UI", Calibri, Arial, sans-serif;
+    background: #fff; color: #20292B; padding: 24px 16px;
+    display: flex; justify-content: center; line-height: 1.5;
+  }
+  .app { width: 100%; max-width: 720px; }
+  h1 { color: var(--dunkel); font-size: 1.35rem; margin-bottom: 6px; }
+  .balken { width: 80px; height: 5px; background: var(--mint); border-radius: 3px; margin-bottom: 14px; }
+  .intro { color: #5A6B6E; font-size: .92rem; margin-bottom: 18px; }
+
+  .klassenzeile {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    background: var(--hell); border-radius: 10px; padding: 12px 16px; margin-bottom: 16px;
+  }
+  .klassenzeile label { font-size: .88rem; font-weight: 700; color: var(--dunkel); }
+  .klassenzeile input {
+    width: 80px; font-family: inherit; font-size: 1rem; font-weight: 700; text-align: center;
+    padding: 7px 8px; border: 2px solid var(--mittel); border-radius: 8px; background: #fff; color: var(--dunkel);
+  }
+  .klassenzeile input:focus { outline: none; border-color: var(--dunkel); }
+  .schnell { display: flex; gap: 6px; }
+  .schnell button {
+    padding: 6px 12px; font-family: inherit; font-size: .82rem; font-weight: 700;
+    border: 2px solid #C9D6D8; border-radius: 16px; background: #fff; color: var(--dunkel); cursor: pointer;
+  }
+  .schnell button:hover { border-color: var(--mittel); background: #fff; }
+
+  label.feld { display: block; font-size: .82rem; font-weight: 700; color: var(--dunkel); margin: 16px 0 6px; }
+  .kacheln { display: grid; grid-template-columns: 1fr; gap: 7px; }
+  @media (min-width: 580px) { .kacheln { grid-template-columns: 1fr 1fr; } }
+  .kachel {
+    display: flex; align-items: flex-start; gap: 9px; background: #fff;
+    border: 2px solid #C9D6D8; border-radius: 10px; padding: 9px 11px;
+    cursor: pointer; transition: border-color .15s, background .15s; user-select: none;
+  }
+  .kachel:hover { border-color: var(--mint); }
+  .kachel.an { border-color: var(--mittel); background: var(--hell); }
+  .kachel .mark {
+    flex: 0 0 17px; height: 17px; margin-top: 2px; border: 2px solid var(--dunkel);
+    border-radius: 4px; background: #fff; position: relative;
+  }
+  .kachel.rund .mark { border-radius: 50%; }
+  .kachel.an .mark { background: var(--dunkel); }
+  .kachel.an .mark::after {
+    content: ''; position: absolute; left: 4px; top: 0; width: 4px; height: 9px;
+    border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg);
+  }
+  .kachel .titel { font-weight: 700; font-size: .85rem; color: var(--dunkel); }
+  .kachel .sub { font-size: .74rem; color: #5A6B6E; }
+
+  .aufwand {
+    background: #fff; border: 2px solid var(--mint); border-radius: 12px;
+    padding: 16px 18px; margin-top: 20px; position: sticky; bottom: 12px;
+  }
+  .aufwandkopf { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; gap: 10px; }
+  .aufwandlabel { font-size: .76rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--dunkel); }
+  .aufwandwert { font-size: 1.7rem; font-weight: 800; white-space: nowrap; }
+  .lektionen { font-size: .82rem; color: #5A6B6E; text-align: right; margin-top: -6px; margin-bottom: 10px; }
+  .aufwandbalken { background: #E8ECEC; border-radius: 6px; height: 18px; overflow: hidden; margin-bottom: 12px; }
+  .aufwandfuell { height: 100%; border-radius: 6px; transition: width .4s, background .4s; }
+  .posten { font-size: .82rem; color: #444; margin-bottom: 10px; }
+  .posten div { display: flex; justify-content: space-between; gap: 12px; padding: 3px 0; border-bottom: 1px dotted #D6DEDF; }
+  .posten div:last-child { border-bottom: none; font-weight: 700; color: var(--dunkel); }
+  .posten .wert { white-space: nowrap; }
+  .urteil { padding: 11px 13px; border-radius: 8px; font-size: .86rem; }
+  .urteil.ok { background: var(--hell); }
+  .urteil.warn { background: var(--ocker25); }
+  .urteil.stopp { background: var(--rose25); }
+  .urteil button {
+    margin-top: 9px; padding: 6px 13px; font-family: inherit; font-size: .8rem; font-weight: 700;
+    border: 2px solid var(--dunkel); border-radius: 7px; background: #fff; color: var(--dunkel); cursor: pointer;
+  }
+  .urteil button:hover { background: var(--dunkel); color: #fff; }
+  .fussnote { margin-top: 16px; font-size: .79rem; color: #7A8899; line-height: 1.5; }
+</style>
+</head>
+<body>
+<div class="app">
+  <h1>Was kostet dich dein Umbau?</h1>
+  <div class="balken"></div>
+  <p class="intro">Wähle die Prozessnachweise und das Validierungsformat, die du einsetzen willst. Der Rechner zeigt dir sofort, was das an zusätzlicher Zeit kostet, für deine Klassengrösse. Probiere ruhig verschiedene Kombinationen aus, bevor du dich entscheidest.</p>
+
+  <div class="klassenzeile">
+    <label for="klasse">Anzahl Lernende</label>
+    <input type="number" id="klasse" value="22" min="1" max="60">
+    <div class="schnell">
+      <button onclick="setzeKlasse(12)">12</button>
+      <button onclick="setzeKlasse(18)">18</button>
+      <button onclick="setzeKlasse(24)">24</button>
+      <button onclick="setzeKlasse(30)">30</button>
+    </div>
+  </div>
+
+  <label class="feld">Prozessnachweise, mehrere möglich</label>
+  <div class="kacheln" id="nachweise"></div>
+
+  <label class="feld">Validierungsformat, eines</label>
+  <div class="kacheln" id="formate"></div>
+
+  <div class="aufwand">
+    <div class="aufwandkopf">
+      <span class="aufwandlabel">Zusatzaufwand für dich, pro Klasse</span>
+      <span class="aufwandwert" id="awert">0 Min.</span>
+    </div>
+    <div class="lektionen" id="alekt"></div>
+    <div class="aufwandbalken"><div class="aufwandfuell" id="afuell" style="width:0%;background:var(--mittel)"></div></div>
+    <div class="posten" id="aposten"></div>
+    <div class="urteil ok" id="aurteil">Wähle links etwas aus, dann rechne ich.</div>
+  </div>
+
+  <p class="fussnote">Die Zeitangaben sind Erfahrungswerte, keine Messung. Sie sollen dir eine Grössenordnung geben, damit du den Aufwand kennst, bevor du die Prüfung ankündigst, und nicht erst danach. Bei einer Prüfung unter Aufsicht brauchst du übrigens gar keine Nachweise, dann ist die Aufsicht dein Nachweis.</p>
+</div>
+
+<script>
+const NACHWEISE = [
+  { id:'disp', titel:'Disposition', sub:'Gliederung vor dem Schreiben', min:1 },
+  { id:'jour', titel:'Kurzjournal', sub:'Entscheidungen unterwegs', min:2 },
+  { id:'zwis', titel:'Zwischenstand', sub:'Arbeitsstand zur Halbzeit', min:1.5 },
+  { id:'vers', titel:'Versionsgeschichte', sub:'Nur bei Verdacht sichten', min:0.2 },
+  { id:'prot', titel:'Quellen- und Promptprotokoll', sub:'Bei Recherchearbeiten', min:3 },
+];
+const FORMATE = [
+  { id:'gespr', titel:'Fünfminutengespräch', sub:'Mit allen oder als Stichprobe', min:6, fix:0, stichprobe:true },
+  { id:'verte', titel:'Verteidigung einer Entscheidung', sub:'Schriftlich, eine halbe Seite', min:2, fix:0 },
+  { id:'erkl', titel:'Erklärsequenz', sub:'Kurz erklären in der Lektion', min:3, fix:0 },
+  { id:'mini', titel:'Minifall-Anwendung', sub:'Transfer auf einen neuen Fall', min:2.5, fix:20 },
+];
+
+let gewaehltN = [], gewaehltF = null, stichprobe = false;
+
+function bauen() {
+  const n = document.getElementById('nachweise');
+  NACHWEISE.forEach(x => {
+    const d = document.createElement('div');
+    d.className = 'kachel'; d.id = 'k_' + x.id;
+    d.innerHTML = '<div class="mark"></div><div><div class="titel">' + x.titel + '</div><div class="sub">' + x.sub + '</div></div>';
+    d.onclick = () => { const i = gewaehltN.indexOf(x.id); if (i >= 0) gewaehltN.splice(i, 1); else gewaehltN.push(x.id); d.classList.toggle('an'); rechnen(); };
+    n.appendChild(d);
+  });
+  const f = document.getElementById('formate');
+  FORMATE.forEach(x => {
+    const d = document.createElement('div');
+    d.className = 'kachel rund'; d.id = 'f_' + x.id;
+    d.innerHTML = '<div class="mark"></div><div><div class="titel">' + x.titel + '</div><div class="sub">' + x.sub + '</div></div>';
+    d.onclick = () => {
+      if (gewaehltF === x.id) { gewaehltF = null; stichprobe = false; d.classList.remove('an'); }
+      else { FORMATE.forEach(y => document.getElementById('f_' + y.id).classList.remove('an')); gewaehltF = x.id; stichprobe = false; d.classList.add('an'); }
+      rechnen();
+    };
+    f.appendChild(d);
+  });
+}
+function klasse() { const v = parseInt(document.getElementById('klasse').value, 10); return (isNaN(v) || v < 1) ? 22 : v; }
+function setzeKlasse(n) { document.getElementById('klasse').value = n; rechnen(); }
+function minText(m) {
+  m = Math.round(m);
+  if (m < 60) return m + ' Min.';
+  const h = Math.floor(m / 60), r = m % 60;
+  return r === 0 ? h + ' Std.' : h + ' Std. ' + r + ' Min.';
+}
+function stichprobeUm() { stichprobe = !stichprobe; rechnen(); }
+
+function rechnen() {
+  const k = klasse();
+  let total = 0; const zeilen = [];
+
+  gewaehltN.forEach(id => {
+    const x = NACHWEISE.find(n => n.id === id);
+    const m = x.min * k; total += m;
+    zeilen.push([x.titel, minText(m), x.min + ' Min. pro Person']);
+  });
+  if (gewaehltF) {
+    const x = FORMATE.find(f => f.id === gewaehltF);
+    const anzahl = (x.stichprobe && stichprobe) ? Math.max(4, Math.round(k / 4)) : k;
+    const m = x.min * anzahl + x.fix; total += m;
+    const zusatz = x.stichprobe
+      ? x.min + ' Min. mal ' + anzahl + (stichprobe ? ' (Stichprobe)' : ' (alle)')
+      : x.min + ' Min. pro Person' + (x.fix ? ' plus ' + x.fix + ' Min. Vorbereitung' : '');
+    zeilen.push([x.titel, minText(m), zusatz]);
+  }
+
+  document.getElementById('awert').textContent = minText(total);
+  document.getElementById('alekt').textContent = total > 0
+    ? 'das sind rund ' + (total / 45).toFixed(1).replace('.', ',') + ' Lektionen à 45 Minuten'
+    : '';
+  const farbe = total <= 60 ? 'var(--gruen)' : total <= 120 ? 'var(--gelb)' : 'var(--rot)';
+  const f = document.getElementById('afuell');
+  f.style.width = Math.min(100, total / 180 * 100) + '%';
+  f.style.background = farbe;
+  document.getElementById('awert').style.color = farbe;
+
+  document.getElementById('aposten').innerHTML = zeilen.length
+    ? zeilen.map(z => '<div><span>' + z[0] + '<br><span style="font-size:.74rem;color:#7A8899">' + z[2] + '</span></span><span class="wert">' + z[1] + '</span></div>').join('')
+      + '<div><span>Total pro Klasse</span><span class="wert">' + minText(total) + '</span></div>'
+    : '';
+
+  const u = document.getElementById('aurteil');
+  const anzN = gewaehltN.length;
+  let txt, kl;
+  if (anzN === 0 && !gewaehltF) {
+    txt = 'Noch nichts gewählt. Bei einer Prüfung unter Aufsicht ist genau das die richtige Antwort. Bei einer unbeaufsichtigten Arbeit brauchst du mindestens einen Nachweis, sonst siehst du nur das Ergebnis.';
+    kl = 'warn';
+  } else if (anzN > 3) {
+    txt = 'Vier oder mehr Nachweise sind selten verhältnismässig. Der Kurs empfiehlt zwei bis drei, bewusst gewählte. Frag dich bei jedem einzelnen: Was sehe ich damit, das ich sonst nicht sähe?';
+    kl = 'stopp';
+  } else if (total > 135) {
+    txt = 'Das sind über drei Lektionen zusätzlich. Machbar, aber plane sie ein, bevor du die Prüfung ankündigst. Corinne hat sich genau hier verschätzt und musste im zweiten Durchgang zurückrudern.';
+    kl = 'stopp';
+  } else if (total > 90) {
+    txt = 'Rund zwei bis drei Lektionen zusätzlich. Ein spürbarer, aber realistischer Aufwand. Prüfe, ob du die Zeit im laufenden Semester wirklich hast.';
+    kl = 'warn';
+  } else if (anzN >= 1 && gewaehltF) {
+    txt = 'Gute Kombination. Der Aufwand bleibt im Rahmen und du siehst beides: den Weg und ob er gegangen wurde.';
+    kl = 'ok';
+  } else if (!gewaehltF) {
+    txt = 'Nachweise zeigen den Weg, aber niemand prüft, ob die Person ihn gegangen ist. Ein Validierungsformat schliesst diese Lücke, oft mit erstaunlich wenig Aufwand.';
+    kl = 'warn';
+  } else {
+    txt = 'Ein Format ohne Nachweise funktioniert, wenn die Arbeit klein ist oder unter Aufsicht entsteht. Bei längeren Heimarbeiten fehlt dir der Blick auf den Weg.';
+    kl = 'warn';
+  }
+  if (gewaehltF === 'gespr') {
+    txt += '<br><br>' + (stichprobe
+      ? 'Du rechnest mit einer Stichprobe von einem Viertel der Klasse. Die Wirkung entsteht ohnehin durch die Ankündigung, nicht durch die Zahl der Gespräche.'
+      : 'Gespräche mit allen sind gründlich und teuer. Als angekündigte Stichprobe kosten sie einen Bruchteil und verändern das Arbeitsverhalten der ganzen Klasse genauso.')
+      + '<br><button onclick="stichprobeUm()">' + (stichprobe ? 'Doch mit allen rechnen' : 'Als Stichprobe rechnen') + '</button>';
+  }
+  u.className = 'urteil ' + kl;
+  u.innerHTML = txt;
+}
+
+bauen();
+document.getElementById('klasse').addEventListener('input', rechnen);
+rechnen();
+</script>
+</body>
+</html>

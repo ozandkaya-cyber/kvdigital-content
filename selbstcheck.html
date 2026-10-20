@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Selbstcheck: Ist deine nächste Prüfung bereit?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --dunkel: #183E45; --mittel: #4E9E7A; --mint: #89BD99; --hell: #E1EEE5;
+    --gruen: #2C6B45; --gelb: #C08A2E; --rot: #B4515C; --grau: #F1F2F2;
+    --ocker25: #F7EBCE; --rose25: #F4DDE0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: Montserrat, -apple-system, "Segoe UI", Calibri, Arial, sans-serif;
+    background: #fff; color: #20292B; padding: 24px 16px;
+    display: flex; justify-content: center; line-height: 1.55;
+  }
+  .app { width: 100%; max-width: 640px; }
+  h1 { color: var(--dunkel); font-size: 1.4rem; margin-bottom: 6px; }
+  .balken { width: 80px; height: 5px; background: var(--mint); border-radius: 3px; margin-bottom: 14px; }
+  .intro { color: #5A6B6E; font-size: .92rem; margin-bottom: 20px; }
+
+  .fortschritt { display: flex; gap: 4px; margin-bottom: 8px; }
+  .punkt { flex: 1; height: 6px; border-radius: 3px; background: #DCE4E5; transition: background .2s; }
+  .punkt.ja { background: var(--gruen); }
+  .punkt.nein { background: var(--gelb); }
+  .punkt.aktiv { background: var(--dunkel); }
+  .zaehlzeile { display: flex; justify-content: space-between; font-size: .8rem; color: #5A6B6E; margin-bottom: 16px; }
+
+  .karte { background: var(--grau); border: 1px solid #C9D6D8; border-radius: 12px; padding: 24px; margin-bottom: 16px; }
+  .nummer { font-size: .78rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--mittel); margin-bottom: 10px; }
+  .frage { font-size: 1.1rem; font-weight: 600; color: var(--dunkel); line-height: 1.45; margin-bottom: 8px; }
+  .warum { font-size: .87rem; color: #5A6B6E; }
+
+  .knoepfe { display: flex; gap: 12px; margin-top: 22px; }
+  button {
+    flex: 1; padding: 13px 10px; font-family: inherit; font-size: 1rem; font-weight: 700;
+    border: 2px solid var(--dunkel); border-radius: 10px; cursor: pointer;
+    background: #fff; color: var(--dunkel); transition: all .15s;
+  }
+  button:hover { background: var(--dunkel); color: #fff; }
+  button.primaer { background: var(--dunkel); color: #fff; }
+  button.primaer:hover { background: var(--mittel); border-color: var(--mittel); }
+  button.klein { flex: 0 0 auto; padding: 9px 16px; font-size: .85rem; }
+
+  .rueck { margin-top: 18px; padding: 14px 16px; border-radius: 10px; font-size: .9rem; display: none; }
+  .rueck.zeigen { display: block; }
+  .rueck.ja { background: var(--hell); }
+  .rueck.nein { background: var(--ocker25); }
+  .rueck .kopf { font-weight: 700; margin-bottom: 5px; }
+  .rueck .wohin { margin-top: 8px; font-size: .84rem; color: var(--dunkel); font-weight: 600; }
+
+  /* Ergebnis */
+  .ergebnis { text-align: center; }
+  .score { font-size: 3.2rem; font-weight: 800; color: var(--dunkel); margin: 6px 0 0; line-height: 1; }
+  .scorelabel { color: #5A6B6E; margin-bottom: 6px; }
+  .stufe { display: inline-block; padding: 7px 18px; border-radius: 20px; font-weight: 700; font-size: .95rem; margin-bottom: 20px; }
+  .fazit { text-align: left; padding: 16px; background: var(--hell); border-radius: 10px; font-size: .93rem; margin-bottom: 18px; }
+  .offen { text-align: left; margin-bottom: 18px; }
+  .offen h3 { font-size: .95rem; color: var(--dunkel); margin-bottom: 10px; }
+  .offenzeile {
+    display: flex; gap: 12px; align-items: flex-start; background: #fff;
+    border: 1px solid #C9D6D8; border-left: 4px solid var(--gelb);
+    border-radius: 8px; padding: 11px 14px; margin-bottom: 8px; font-size: .88rem;
+  }
+  .offenzeile .wo { flex: 0 0 38%; max-width: 38%; font-weight: 700; color: var(--dunkel); font-size: .8rem; }
+  .keinoffen { text-align: left; padding: 14px 16px; background: var(--hell); border-radius: 10px; font-size: .9rem; margin-bottom: 18px; }
+  .fussnote { margin-top: 18px; font-size: .8rem; color: #7A8899; line-height: 1.5; }
+  .versteckt { display: none; }
+</style>
+</head>
+<body>
+<div class="app">
+  <h1>Selbstcheck: Ist deine nächste Prüfung bereit?</h1>
+  <div class="balken"></div>
+  <p class="intro">Zehn Fragen zu der Prüfung, die bei dir als nächste ansteht. Antworte so, wie die Prüfung heute aussieht. Ein Nein kann die richtige Antwort sein: Bei einer Prüfung unter Aufsicht brauchst du zum Beispiel keine Prozessnachweise.</p>
+
+  <div class="fortschritt" id="fortschritt"></div>
+  <div class="zaehlzeile">
+    <span id="zaehler"></span>
+    <span id="stand"></span>
+  </div>
+
+  <div class="karte" id="fragekarte">
+    <div class="nummer" id="nummer"></div>
+    <div class="frage" id="frage"></div>
+    <div class="warum" id="warum"></div>
+    <div class="knoepfe" id="antwortknoepfe">
+      <button onclick="antworten(true)">Ja</button>
+      <button onclick="antworten(false)">Nein</button>
+    </div>
+    <div class="rueck" id="rueck"></div>
+    <div class="knoepfe versteckt" id="weiterwrap">
+      <button class="primaer" onclick="weiter()" id="weiterbtn">Weiter</button>
+    </div>
+  </div>
+
+  <div class="karte versteckt" id="ergebniskarte">
+    <div class="ergebnis">
+      <div class="nummer">Dein Ergebnis</div>
+      <div class="score" id="score"></div>
+      <div class="scorelabel">von 10 Fragen mit Ja beantwortet</div>
+      <div class="stufe" id="stufe"></div>
+      <div class="fazit" id="fazit"></div>
+      <div id="offenbereich"></div>
+      <div class="knoepfe">
+        <button onclick="neustart()">Nochmals durchgehen</button>
+      </div>
+    </div>
+  </div>
+
+  <p class="fussnote">Dieser Selbstcheck lohnt sich auch später wieder. Wenn in einem halben Jahr die nächste Prüfung ansteht, gehst du ihn in drei Minuten nochmals durch.</p>
+</div>
+
+<script>
+const FRAGEN = [
+  { f: 'Hängt die Aufgabe an einem Kontext, den die KI nicht kennt?',
+    w: 'Lehrbetrieb, Wohngemeinde, eine Beobachtung aus dem eigenen Alltag: Material, das nicht im Trainingsdatensatz stehen kann.',
+    ja: 'Das ist der wirksamste einzelne Hebel. Damit ist die generische Antwort schon halb ausgeschlossen.',
+    nein: 'Ohne eigenen Kontext bleibt die Aufgabe für jede KI in Sekunden lösbar. Prüfe, ob sich ein Bezug einbauen lässt, ohne das Lernziel zu verändern.',
+    wo: 'Modul 2, Folie «Hebel 1»' },
+  { f: 'Müssen eigene Daten oder Beobachtungen eingebracht werden?',
+    w: 'Eine Kurzbefragung, eine Messung, eine Zählung, ein Interview: Material, das erst durch die Lernenden entsteht.',
+    ja: 'Damit hat die Arbeit einen Kern, den niemand erfinden kann, ohne dass es auffällt.',
+    nein: 'Schon zwei eigene Beobachtungen verändern eine Arbeit spürbar. Oft reicht ein einziger Satz im Auftrag.',
+    wo: 'Modul 2, Folie «Hebel 2»' },
+  { f: 'Würde eine generische KI-Antwort als solche auffallen?',
+    w: 'Der Test: Gib deine Aufgabe einer KI. Wenn das Ergebnis durchginge, ist die Aufgabe zu offen.',
+    ja: 'Gut. Dann trägt die Spezifität deiner Aufgabe.',
+    nein: 'Mach den Test tatsächlich, er dauert zwei Minuten und ist ernüchternd hilfreich. Meistens fehlt eine konkrete Ausgangslage.',
+    wo: 'Modul 2, Folie «Hebel 3»' },
+  { f: 'Gibt es eine Ausweichvariante für Lernende ohne den geforderten Kontext?',
+    w: 'Kein Lehrbetrieb, keine Wohngemeinde mit Angebotslücke, sprachliche Hürden bei mündlichen Formaten.',
+    ja: 'Wichtig. Genau das hat Corinne im ersten Durchgang vergessen und musste improvisieren.',
+    nein: 'Das ist die häufigste Lücke bei gut gemeinten Umbauten. Ein Satz im Auftrag genügt meist, etwa den Ort des Lehrbetriebs als Alternative zuzulassen.',
+    wo: 'Modul 2, Folie «Fazit»' },
+  { f: 'Ist mindestens ein Prozessnachweis eingeplant, sofern das Format es verlangt?',
+    w: 'Disposition, Journal, Zwischenstand. Bei Prüfungen unter Aufsicht ist die Aufsicht der Nachweis.',
+    ja: 'Damit siehst du den Weg und nicht nur das Ergebnis.',
+    nein: 'Falls die Arbeit unter Aufsicht entsteht, ist das richtig so, dann ist diese Frage für dich ein bewusstes Nein. Bei einer Heimarbeit fehlt dir jeder Blick auf den Weg.',
+    wo: 'Modul 3, Folie «Prozessnachweis»' },
+  { f: 'Ist der Aufwand der Nachweise realistisch für dich?',
+    w: 'Rechne durch: Minuten pro Person mal Klassengrösse. Der Konfigurator hat dir die Zahl gezeigt.',
+    ja: 'Dann überlebt dein Umbau auch den zweiten Durchgang.',
+    nein: 'Ein Umbau, den du nicht durchhältst, wird beim nächsten Mal gestrichen. Lieber ein Nachweis weniger und dieser dafür dauerhaft.',
+    wo: 'Modul 3, Folie «Prozessnachweis», Abschnitt Augenmass' },
+  { f: 'Ist eine KI-Deklaration Teil des Auftrags?',
+    w: 'Drei Angaben genügen: welches Werkzeug, wofür, was ist mein eigener Beitrag.',
+    ja: 'Damit hast du Information, die du sonst nie bekämst.',
+    nein: 'Ohne Deklaration rätst du. Und Lernende, die ehrlich wären, haben keinen Ort dafür. Die Vorlage liegt im Gesamtdossier.',
+    wo: 'Modul 3, Folie «Die KI-Deklaration»' },
+  { f: 'Ist ein Validierungsformat festgelegt und im Auftrag angekündigt?',
+    w: 'Gespräch, Verteidigung, Erklärsequenz oder Minifall. Angekündigt, nicht überraschend.',
+    ja: 'Die Ankündigung wirkt bei der ganzen Klasse, auch wenn du nur eine Stichprobe prüfst.',
+    nein: 'Nachweise zeigen den Weg, aber niemand prüft, ob die Person ihn gegangen ist. Diese Lücke schliesst nur die Validierung, oft mit wenig Aufwand.',
+    wo: 'Modul 4, Folie «Vier Formate der Kurzvalidierung»' },
+  { f: 'Sind alle drei Bewertungsebenen im Auftrag transparent?',
+    w: 'Produkt, Prozess und Reflexion, mit Gewichtung, und zwar vor der Abgabe statt bei der Rückgabe.',
+    ja: 'Transparenz vorher ist das, was den Unterschied zwischen Bewertung und Urteil ausmacht.',
+    nein: 'Ein Raster, das erst bei der Rückgabe erscheint, kann niemandem beim Arbeiten helfen. Es rechtfertigt nur die Note.',
+    wo: 'Modul 3, Folie «Das Bewertungsraster»' },
+  { f: 'Weisst du, wie du auf eine ehrliche KI-Deklaration reagierst?',
+    w: 'Der Moment, in dem sich entscheidet, ob deine Klasse beim nächsten Mal wieder deklariert.',
+    ja: 'Dann ist der wichtigste Teil geklärt, denn diese Reaktion beobachtet die ganze Klasse.',
+    nein: 'Genau hier entscheidet sich alles. Wer Ehrlichkeit abwertet, bekommt beim nächsten Mal Schweigen statt Deklarationen.',
+    wo: 'Modul 5, Folie «Die vier Feedbackfallen»' },
+];
+
+let i = 0, antw = [];
+
+function fortschrittBauen() {
+  document.getElementById('fortschritt').innerHTML =
+    FRAGEN.map((_, n) => '<div class="punkt" id="p' + n + '"></div>').join('');
+}
+function zeigen() {
+  const q = FRAGEN[i];
+  document.getElementById('nummer').textContent = 'Frage ' + (i + 1) + ' von ' + FRAGEN.length;
+  document.getElementById('frage').textContent = q.f;
+  document.getElementById('warum').textContent = q.w;
+  document.getElementById('zaehler').textContent = 'Frage ' + (i + 1) + ' von ' + FRAGEN.length;
+  const ja = antw.filter(a => a).length;
+  document.getElementById('stand').textContent = antw.length ? ja + ' mal Ja bisher' : '';
+  document.getElementById('antwortknoepfe').classList.remove('versteckt');
+  document.getElementById('weiterwrap').classList.add('versteckt');
+  document.getElementById('rueck').classList.remove('zeigen');
+  for (let n = 0; n < FRAGEN.length; n++) {
+    const p = document.getElementById('p' + n);
+    p.className = 'punkt' + (n < antw.length ? (antw[n] ? ' ja' : ' nein') : n === i ? ' aktiv' : '');
+  }
+}
+function antworten(ja) {
+  antw[i] = ja;
+  const q = FRAGEN[i];
+  const r = document.getElementById('rueck');
+  r.className = 'rueck zeigen ' + (ja ? 'ja' : 'nein');
+  r.innerHTML = '<div class="kopf">' + (ja ? 'Gut.' : 'Schau dir das an.') + '</div>' + (ja ? q.ja : q.nein) +
+    (ja ? '' : '<div class="wohin">Nachlesen: ' + q.wo + '</div>');
+  document.getElementById('antwortknoepfe').classList.add('versteckt');
+  document.getElementById('weiterwrap').classList.remove('versteckt');
+  document.getElementById('weiterbtn').textContent = (i === FRAGEN.length - 1) ? 'Auswertung ansehen' : 'Weiter';
+  document.getElementById('p' + i).className = 'punkt ' + (ja ? 'ja' : 'nein');
+  const stand = antw.filter(a => a).length;
+  document.getElementById('stand').textContent = stand + ' mal Ja bisher';
+}
+function weiter() {
+  if (i < FRAGEN.length - 1) { i++; zeigen(); }
+  else auswerten();
+}
+function auswerten() {
+  document.getElementById('fragekarte').classList.add('versteckt');
+  document.getElementById('ergebniskarte').classList.remove('versteckt');
+  const ja = antw.filter(a => a).length;
+  document.getElementById('score').textContent = ja;
+
+  const st = document.getElementById('stufe');
+  const fz = document.getElementById('fazit');
+  let farbe, label, text;
+  if (ja >= 9) {
+    farbe = 'var(--hell)'; label = 'Bereit zum Einsatz';
+    text = 'Deine Prüfung deckt praktisch alles ab, was dieser Kurs empfiehlt. Der nächste Schritt ist kein weiterer Umbau, sondern der erste Durchgang. Notiere dir danach, was du unterschätzt hast, so wie Corinne es mit den vierundzwanzig Kurzpitches getan hat.';
+  } else if (ja >= 7) {
+    farbe = 'var(--hell)'; label = 'Tragfähig, mit Lücken';
+    text = 'Das Gerüst steht. Die offenen Punkte unten sind meist mit ein bis zwei Sätzen im Auftrag zu schliessen und kosten dich kaum Zeit. Wenn du nur einen davon angehst, nimm den obersten.';
+  } else if (ja >= 4) {
+    farbe = 'var(--ocker25)'; label = 'Auf halbem Weg';
+    text = 'Einiges steht schon, aber an mehreren Stellen fehlt etwas Substanzielles. Geh die Punkte unten der Reihe nach durch, sie sind nach Wirkung sortiert. Und behalte im Kopf: Eine umgesetzte Änderung schlägt fünf geplante.';
+  } else {
+    farbe = 'var(--rose25)'; label = 'Noch am Anfang';
+    text = 'Das sieht nach viel aus, ist es aber nicht. Nimm dir für heute genau einen Punkt vor, am besten den obersten. Corinne hat mit einer einzigen Aufgabe angefangen und zwanzig Minuten gebraucht. Der Rest kam später, und einiges kam nie, und das war in Ordnung.';
+  }
+  st.style.background = farbe; st.textContent = label;
+  fz.textContent = text;
+
+  const offen = FRAGEN.map((q, n) => ({ q, n })).filter(x => antw[x.n] === false);
+  const ob = document.getElementById('offenbereich');
+  if (offen.length === 0) {
+    ob.innerHTML = '<div class="keinoffen">Zehn mal Ja. Das kommt selten vor, und es heisst nicht, dass alles perfekt ist. Es heisst, dass du auf keine bekannte Lücke mehr triffst. Die nächste Erkenntnis kommt jetzt aus dem Einsatz, nicht aus der Checkliste.</div>';
+  } else {
+    ob.innerHTML = '<div class="offen"><h3>Diese ' + offen.length + ' Punkte sind offen</h3>' +
+      offen.map(x => '<div class="offenzeile"><span class="wo">' + x.q.wo + '</span><span>' + x.q.f + '</span></div>').join('') +
+      '</div>';
+  }
+}
+function neustart() {
+  i = 0; antw = [];
+  document.getElementById('ergebniskarte').classList.add('versteckt');
+  document.getElementById('fragekarte').classList.remove('versteckt');
+  zeigen();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+fortschrittBauen();
+zeigen();
+</script>
+</body>
+</html>
