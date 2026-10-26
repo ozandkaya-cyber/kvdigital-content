@@ -1,0 +1,642 @@
+<!doctype html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Die Rabattschlacht</title>
+<style>
+:root{
+  --p:#183E45; --p75:#4E6B70; --p50:#8C9EA2; --p25:#C5CFD0; --p10:#E8ECEC;
+  --mint:#89BD99; --blue:#86C1CF; --rose:#D47882; --mus:#E0AF58;
+  --lmint:#d0e6d7; --lblue:#d6ebf0; --lrose:#f2d6d9; --lmus:#f5e3bf;
+  --serif:'Playfair Display','Liberation Serif','DejaVu Serif',Georgia,serif;
+  --sans:Roboto,'Segoe UI','DejaVu Sans',Arial,sans-serif;
+  --head:Montserrat,'Segoe UI','DejaVu Sans',Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:var(--sans);color:#2b3a3d;background:#fff;font-size:16px;line-height:1.5}
+.app{max-width:1000px;margin:0 auto;padding:18px 16px 26px}
+.rub{font-family:var(--head);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--p50);border-bottom:1px solid var(--p25);padding-bottom:7px;margin-bottom:6px;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.rub button{font:inherit;letter-spacing:.12em;background:none;border:1px solid var(--p25);color:var(--p75);border-radius:999px;padding:3px 10px;cursor:pointer;text-transform:uppercase;font-size:11px}
+h1{font-family:var(--serif);font-weight:400;color:var(--p);font-size:clamp(26px,4.4vw,38px);margin:4px 0 4px;line-height:1.15}
+h2{font-family:var(--head);color:var(--p);font-size:19px;margin:0 0 6px}
+.lead{color:var(--p75);margin:0 0 14px;max-width:68ch}
+.tabs{display:flex;gap:6px;margin:10px 0 16px;flex-wrap:wrap}
+.tab{border:1px solid var(--p25);background:#fff;color:var(--p);font-weight:600;padding:9px 16px;border-radius:999px;cursor:pointer;font-size:15px}
+.tab.on{background:var(--p);color:#fff;border-color:var(--p)}
+.hidden{display:none!important}
+.btn{border:0;background:var(--p);color:#fff;font-weight:600;font-size:16px;padding:12px 22px;border-radius:10px;cursor:pointer;font-family:var(--sans)}
+.btn:hover{background:#0f2b30}
+.btn.ghost{background:#fff;color:var(--p);border:1.5px solid var(--p)}
+.btn.big{font-size:18px;padding:15px 28px}
+.btn:disabled{opacity:.4;cursor:default}
+
+/* Intro */
+.intro{display:grid;grid-template-columns:1.15fr .85fr;gap:22px;align-items:center}
+@media(max-width:760px){.intro{grid-template-columns:1fr}}
+.intro .facts{background:var(--p10);padding:16px 18px;border-left:6px solid var(--mus)}
+.intro .facts div{display:flex;justify-content:space-between;border-bottom:1px solid var(--p25);padding:6px 0;font-size:15px}
+.intro .facts div:last-child{border-bottom:0}
+.intro .facts b{color:var(--p)}
+.rules{margin:12px 0 18px;padding-left:18px;color:#2b3a3d}
+.rules li{margin:4px 0}
+
+/* Game */
+.hud{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
+@media(max-width:620px){.hud{grid-template-columns:repeat(2,1fr)}}
+.hud div{background:var(--p10);padding:8px 12px}
+.hud .k{font-family:var(--head);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--p50)}
+.hud .v{font-size:22px;font-weight:700;color:var(--p);font-variant-numeric:tabular-nums}
+.hud .v.secret{color:var(--p50);letter-spacing:.1em}
+.months{display:flex;gap:4px;margin-bottom:10px}
+.months span{flex:1;text-align:center;font-size:12px;padding:5px 0;background:var(--p10);color:var(--p50);font-weight:600}
+.months span.done{background:var(--p25);color:var(--p)}
+.months span.now{background:var(--p);color:#fff}
+.scene{position:relative;background:#f4f7f7;border:1px solid var(--p10);overflow:hidden}
+canvas{display:block;width:100%;height:auto}
+@media(max-width:620px){#scene{width:190%;margin-left:-90%}.hud .v{font-size:18px}.hud div{padding:6px 10px}}
+.msg{display:flex;gap:12px;align-items:flex-start;background:#fff;border:1px solid var(--p25);border-left:6px solid var(--blue);padding:12px 14px;margin:12px 0}
+.msg.warn{border-left-color:var(--rose)}
+.msg.good{border-left-color:var(--mint)}
+.avatar{flex:0 0 42px;height:42px;border-radius:50%;background:var(--p);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-family:var(--head)}
+.msg .who{font-family:var(--head);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--p50)}
+.dec{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:700px){.dec{grid-template-columns:1fr}}
+.dec h3{font-family:var(--head);font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--p50);margin:0 0 8px;font-weight:600}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#priceOpts{grid-template-columns:1fr 1fr 1fr}
+@media(max-width:420px){#priceOpts{grid-template-columns:1fr 1fr}}
+.opt{border:1.5px solid var(--p25);background:#fff;padding:10px 12px;cursor:pointer;text-align:left;border-radius:10px;font-family:var(--sans);color:#2b3a3d;transition:transform .12s, border-color .12s}
+.opt:hover{transform:translateY(-2px);border-color:var(--p50)}
+.opt.on{border-color:var(--p);background:var(--p10);box-shadow:inset 0 0 0 1.5px var(--p)}
+.opt .t{font-weight:700;color:var(--p);font-size:17px;display:block}
+.opt .s{font-size:13px;color:var(--p75);display:block;line-height:1.35}
+.go{display:flex;justify-content:flex-end;margin-top:14px;gap:10px;flex-wrap:wrap}
+.monthres{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:12px;background:var(--lmint);padding:12px 14px}
+.monthres b{color:var(--p)}
+
+/* Finale */
+.stage{text-align:center;padding:10px 0}
+.trophy{font-family:var(--serif);font-size:clamp(26px,5vw,44px);color:var(--p);margin:6px 0}
+.bignum{font-size:clamp(34px,7vw,64px);font-weight:800;color:var(--p);font-variant-numeric:tabular-nums;line-height:1.1}
+.cardflip{perspective:1200px;max-width:560px;margin:18px auto}
+.card{position:relative;height:215px;transition:transform 1.1s cubic-bezier(.2,.8,.2,1);transform-style:preserve-3d}
+.card.flipped{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:16px}
+.front{background:var(--p);color:#fff}
+.front .q{font-family:var(--serif);font-size:30px}
+.back{background:#fff;border:2px solid var(--p);transform:rotateY(180deg)}
+.compare{max-width:760px;margin:20px auto 0;text-align:left}
+.bar{display:grid;grid-template-columns:200px 1fr;gap:10px;align-items:center;margin:9px 0}
+@media(max-width:560px){.bar{grid-template-columns:1fr}}
+.bar .lbl{font-weight:600;color:var(--p);font-size:15px}
+.bar .track{height:38px;background:var(--p10);position:relative}
+.bar .fill{height:100%;width:0;transition:width 1.4s cubic-bezier(.2,.8,.2,1);display:flex;align-items:center;justify-content:flex-end;padding-right:10px;font-weight:700;color:var(--p);font-variant-numeric:tabular-nums;white-space:nowrap}
+.insight{max-width:760px;margin:18px auto 0;text-align:left;background:var(--lmus);padding:14px 16px;border-left:6px solid var(--mus)}
+.insight p{margin:6px 0}
+table.season{width:100%;border-collapse:collapse;font-size:14px;margin-top:10px}
+table.season th,table.season td{border-bottom:1px solid var(--p25);padding:6px 8px;text-align:right;font-variant-numeric:tabular-nums}
+table.season th:first-child,table.season td:first-child,table.season td:nth-child(3),table.season th:nth-child(3){text-align:left}
+table.season th{font-family:var(--head);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--p50)}
+table.season tr.sum td{font-weight:700;color:var(--p);border-top:2px solid var(--p)}
+.medal{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:999px;font-weight:700;margin-top:6px}
+details.model{max-width:760px;margin:14px auto 0;text-align:left;border:1px solid var(--p25);padding:10px 14px}
+details.model summary{cursor:pointer;font-weight:600;color:var(--p)}
+details.model p,details.model li{font-size:14px;color:var(--p75)}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:50}
+
+/* Mein Produkt */
+.tool{display:grid;grid-template-columns:.9fr 1.1fr;gap:20px}
+@media(max-width:760px){.tool{grid-template-columns:1fr}}
+.field{margin-bottom:14px}
+.field label{display:block;font-weight:600;color:var(--p);font-size:15px;margin-bottom:4px}
+.field .hint{font-size:12.5px;color:var(--p75)}
+.inp{display:flex;align-items:center;border:1.5px solid var(--p25);border-radius:10px;overflow:hidden;background:#fff}
+.inp input{flex:1;border:0;font-size:20px;font-weight:700;color:var(--p);padding:9px 12px;width:100%;font-family:var(--sans);font-variant-numeric:tabular-nums;min-width:0}
+.inp span{padding:0 12px;color:var(--p50);font-weight:600}
+.inp button{border:0;background:var(--p10);color:var(--p);font-size:20px;width:42px;align-self:stretch;cursor:pointer}
+.mode{display:flex;gap:6px}.mbtn{flex:1;border:1.5px solid var(--p25);background:#fff;color:var(--p);font-weight:600;padding:9px;border-radius:10px;cursor:pointer;font-size:15px}.mbtn.on{background:var(--p);color:#fff;border-color:var(--p)}
+.ampel{display:flex;gap:16px;align-items:center;padding:16px;border:1.5px solid var(--p25)}
+.lights{display:flex;flex-direction:column;gap:6px;background:var(--p);padding:8px;border-radius:24px}
+.lights i{width:30px;height:30px;border-radius:50%;background:#2c5056;display:block;transition:background .3s, box-shadow .3s}
+.lights i.r.on{background:var(--rose);box-shadow:0 0 14px var(--rose)}
+.lights i.y.on{background:var(--mus);box-shadow:0 0 14px var(--mus)}
+.lights i.g.on{background:var(--mint);box-shadow:0 0 14px var(--mint)}
+.verdict{font-family:var(--serif);font-size:24px;color:var(--p);line-height:1.2}
+.need{margin:16px 0}
+.need .row{display:flex;justify-content:space-between;font-size:14px;color:var(--p75);margin-bottom:4px}
+.gauge{position:relative;height:30px;background:var(--p10)}
+.gauge .exp{position:absolute;left:0;top:0;bottom:0;transition:width .5s}
+.gauge .mark{position:absolute;top:-6px;bottom:-6px;width:3px;background:var(--p);transition:left .5s}
+.gauge .mark b{position:absolute;top:40px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:12px;color:var(--p)}
+.mini{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.mini div{background:var(--p10);padding:10px 12px}
+.mini .k{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--p50);font-family:var(--head)}
+.mini .v{font-size:20px;font-weight:700;color:var(--p);font-variant-numeric:tabular-nums}
+.foot{margin-top:22px;border-top:1px solid var(--p25);padding-top:9px;display:flex;justify-content:space-between;font-family:var(--head);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--p50)}
+.printhead{display:none}
+@media print{
+  .tabs,.rub button,.go,#game,.noprint,.foot{display:none!important}
+  .printhead{display:block}
+  .app{max-width:none}
+}
+</style>
+</head>
+<body>
+<canvas id="confetti"></canvas>
+<div class="app" id="app">
+  <div class="rub"><span>HKV Aarau · Markt und Kunde</span><button id="soundBtn" type="button" aria-pressed="false">Ton aus</button></div>
+  <h1>Die Rabattschlacht</h1>
+  <div class="tabs noprint">
+    <button class="tab on" data-tab="game" type="button">Saison spielen</button>
+    <button class="tab" data-tab="tool" type="button">Mein Produkt prüfen</button>
+  </div>
+
+  <!-- ===================== SPIEL ===================== -->
+  <section id="game">
+    <div id="scrIntro">
+      <div class="intro">
+        <div>
+          <p class="lead">Sie übernehmen den Verkauf des Trekkingrucksacks «Säntis 45» für eine ganze Bergsaison. Sechs Monate, ein grosser Konkurrent, eine ungeduldige Verkaufsleiterin. Jeden Monat entscheiden Sie über den Preis und über eine Massnahme. Am Ende zählt nur eines.</p>
+          <ul class="rules">
+            <li>Pro Monat wählen Sie einen Preis, von 20 Prozent Rabatt bis 16 Prozent Aufschlag, und eine Massnahme.</li>
+            <li>Die Kundschaft entscheidet live, ob sie bei Ihnen oder bei der Konkurrenz kauft.</li>
+            <li>Während der Saison sehen Sie Absatz und Umsatz, wie in vielen Verkaufsberichten.</li>
+            <li>Ob Sie gut gewirtschaftet haben, erfahren Sie erst bei der Abrechnung.</li>
+          </ul>
+          <button class="btn big" id="startBtn" type="button">Saison starten</button>
+        </div>
+        <div class="facts">
+          <div><span>Normalpreis</span><b>CHF 249</b></div>
+          <div><span>Variable Kosten je Stück</span><b>CHF 140</b></div>
+          <div><span>Erwarteter Absatz zum Normalpreis</span><b>rund 8'000 Stück</b></div>
+          <div><span>Ihr Marktanteil</span><b>5 Prozent</b></div>
+          <div><span>Grösster Konkurrent</span><b>3.6-mal so gross</b></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="scrMonth" class="hidden">
+      <div class="months" id="monthBar"></div>
+      <div class="hud">
+        <div><div class="k">Preisempfindlichkeit</div><div class="v" id="hElast">hoch</div></div>
+        <div><div class="k">Absatz Saison</div><div class="v" id="hUnits">0</div></div>
+        <div><div class="k">Umsatz Saison</div><div class="v" id="hRev">CHF 0</div></div>
+        <div><div class="k">Gewinnbeitrag</div><div class="v secret">verdeckt</div></div>
+      </div>
+      <div class="scene"><canvas id="scene" width="1000" height="260" aria-label="Kundinnen und Kunden laufen zu Alpstein oder zur Konkurrenz"></canvas></div>
+      <div class="msg" id="msg"><div class="avatar" id="msgAv">PL</div><div><div class="who" id="msgWho">Petra Lang, Leiterin Verkauf</div><div id="msgTxt"></div></div></div>
+      <div id="decisions">
+        <div class="dec">
+          <div><h3>Ihr Preis diesen Monat</h3><div class="opts" id="priceOpts"></div></div>
+          <div><h3>Ihre Massnahme diesen Monat</h3><div class="opts" id="actOpts"></div></div>
+        </div>
+        <div class="go"><button class="btn big" id="runBtn" type="button">Monat starten</button></div>
+      </div>
+      <div id="monthResult" class="hidden">
+        <div class="monthres" id="monthResTxt"></div>
+        <div class="go"><button class="btn big" id="nextBtn" type="button">Weiter</button></div>
+      </div>
+    </div>
+
+    <div id="scrFinal" class="hidden">
+      <div class="stage" id="stage1">
+        <div class="rub" style="justify-content:center;border:0">Abrechnung der Saison</div>
+        <div class="trophy" id="umsTitle">Ihr Umsatz</div>
+        <div class="bignum" id="umsNum">CHF 0</div>
+        <div id="umsBadge"></div>
+        <p class="lead" style="margin:14px auto 0" id="umsTxt"></p>
+        <div class="cardflip"><div class="card" id="card">
+          <div class="face front"><div class="q">Und jetzt der Gewinnbeitrag.</div><div style="margin-top:10px;opacity:.8">Umsatz minus variable Kosten minus Massnahmen</div></div>
+          <div class="face back"><div style="font-family:var(--head);font-size:12px;letter-spacing:.16em;color:var(--p50);text-transform:uppercase">Ihr Deckungsbeitrag</div><div class="bignum" id="dbNum">CHF 0</div><div id="dbMedal"></div></div>
+        </div></div>
+        <button class="btn big" id="flipBtn" type="button">Aufdecken</button>
+      </div>
+      <div id="stage2" class="hidden">
+        <div class="compare">
+          <h2>So schneiden Sie ab</h2>
+          <div class="bar"><div class="lbl">Ihre Saison</div><div class="track"><div class="fill" id="b1" style="background:var(--blue)"></div></div></div>
+          <div class="bar"><div class="lbl">Immer Normalpreis, keine Massnahmen</div><div class="track"><div class="fill" id="b2" style="background:var(--p25)"></div></div></div>
+          <div class="bar"><div class="lbl">Beste mögliche Saison</div><div class="track"><div class="fill" id="b3" style="background:var(--mint)"></div></div></div>
+        </div>
+        <div class="insight" id="insight"></div>
+        <div class="compare">
+          <h2 style="margin-top:20px">Ihre Saison Monat für Monat</h2>
+          <div style="overflow-x:auto"><table class="season" id="seasonTbl"></table></div>
+        </div>
+        <details class="model"><summary>Wie rechnet die Simulation?</summary>
+          <ul>
+            <li>Grundnachfrage zum Normalpreis rund 8'000 Stück pro Saison, verteilt auf die Monate nach Saisonverlauf.</li>
+            <li>Preiselastizität zu Beginn minus 2.5: Eine Preissenkung um 12 Prozent bringt rund 30 Prozent mehr Absatz, eine Erhöhung um 8 Prozent kostet rund 20 Prozent Absatz.</li><li>Differenzierung senkt die Preisempfindlichkeit: Ab dem Testbericht im Juni sinkt sie um 0.4, mit beworbenem Reparaturservice um weitere 0.6, bis auf minus 1.5. Dann verliert eine Erhöhung um 8 Prozent nur noch rund 12 Prozent Absatz. Diese Werte sind Annahmen für das Spiel, keine Messwerte.</li>
+            <li>Nach einem Rabattmonat warten Kundinnen auf die nächste Aktion: Ohne Rabatt sinkt die Nachfrage im Folgemonat um 8 Prozent.</li>
+            <li>Werbung kostet CHF 8'000 und bringt im selben Monat 12 Prozent mehr Nachfrage. Der Reparaturservice kostet CHF 3'000 und bringt ab diesem Monat dauerhaft 3 Prozent mehr, weil zufriedene Kundinnen weiterempfehlen. Der Sicherheitsbestand kostet CHF 5'000 und verhindert Ausverkäufe.</li>
+            <li>Alle Zahlen sind fiktiv und vereinfacht. Bei Ihrem eigenen Produkt kann die Elastizität ganz anders sein, genau dafür gibt es den Reiter «Mein Produkt prüfen».</li>
+          </ul>
+        </details>
+        <div class="go" style="justify-content:center;margin-top:20px">
+          <button class="btn ghost" id="againBtn" type="button">Nochmals spielen</button>
+          <button class="btn" id="toToolBtn" type="button">Jetzt mein eigenes Produkt prüfen</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== MEIN PRODUKT ===================== -->
+  <section id="tool" class="hidden">
+    <div class="printhead"><h2>Preis-Check</h2></div>
+    <p class="lead noprint">Prüfen Sie eine geplante Preisänderung für Ihr eigenes Produkt oder Ihre Dienstleistung, bevor Sie sie umsetzen. Bei einem Rabatt zeigt der Check, wie viel mehr Sie verkaufen müssen. Bei einer Preiserhöhung zeigt er, wie viele Kunden Sie verlieren dürfen, ohne schlechter dazustehen.</p>
+    <div class="tool">
+      <div>
+        <div class="field"><label for="tName">Produkt oder Dienstleistung</label><div class="inp"><input id="tName" type="text" value="Säntis 45" style="font-size:17px"></div></div>
+        <div class="field"><label for="tPrice">Normaler Verkaufspreis</label><div class="inp"><span>CHF</span><input id="tPrice" type="number" min="1" step="1" value="249" inputmode="decimal"></div></div>
+        <div class="field"><label for="tVar">Variable Kosten je Stück</label><div class="inp"><span>CHF</span><input id="tVar" type="number" min="0" step="1" value="140" inputmode="decimal"></div><div class="hint">Kosten, die mit jedem verkauften Stück anfallen: Material, Einkauf, Versand, Provision.</div></div>
+        <div class="field"><label for="tUnits">Absatz ohne Aktion</label><div class="inp"><input id="tUnits" type="number" min="1" step="1" value="8000" inputmode="numeric"><span>Stück</span></div><div class="hint">Im betrachteten Zeitraum, zum Beispiel eine Saison oder ein Quartal.</div></div>
+        <div class="field"><label>Was planen Sie?</label><div class="mode noprint"><button type="button" class="mbtn on" data-mode="down">Rabatt</button><button type="button" class="mbtn" data-mode="up">Preiserhöhung</button></div></div>
+        <div class="field"><label id="tChgLbl">Geplanter Rabatt</label><div class="inp"><button type="button" data-step="tChg" data-d="-1">−</button><input id="tChg" type="number" min="0" max="90" step="1" value="12"><span>%</span><button type="button" data-step="tChg" data-d="1">+</button></div></div>
+        <div class="field"><label id="tVolLbl">Erwarteter Mehrabsatz durch die Aktion</label><div class="inp"><button type="button" data-step="tVol" data-d="-5">−</button><input id="tVol" type="number" min="0" max="1000" step="1" value="30"><span>%</span><button type="button" data-step="tVol" data-d="5">+</button></div><div class="hint" id="tVolHint">Ihre ehrliche Schätzung. Fragen Sie sich: Kaufen wirklich neue Kunden, oder kaufen die bisherigen nur günstiger?</div></div>
+      </div>
+      <div>
+        <div class="ampel">
+          <div class="lights"><i class="r" id="lR"></i><i class="y" id="lY"></i><i class="g" id="lG"></i></div>
+          <div><div class="verdict" id="tVerdict"></div><div id="tVerdictSub" style="color:var(--p75);margin-top:6px;font-size:15px"></div></div>
+        </div>
+        <div class="need">
+          <div class="row"><span id="tExpRow">Ihr erwarteter Mehrabsatz</span><span id="tExpLbl"></span></div>
+          <div class="gauge"><div class="exp" id="tExpBar"></div><div class="mark" id="tMark"><b id="tMarkLbl"></b></div></div>
+          <div class="row" style="margin-top:30px"><span id="tMarkExpl">Die dunkle Linie zeigt, wie viel Mehrabsatz nötig wäre.</span><span></span></div>
+        </div>
+        <div class="mini">
+          <div><div class="k">Gewinnbeitrag je Stück heute</div><div class="v" id="tDb0"></div></div>
+          <div><div class="k" id="tDb1K">Gewinnbeitrag je Stück mit Rabatt</div><div class="v" id="tDb1"></div></div>
+          <div><div class="k">Deckungsbeitrag ohne Aktion</div><div class="v" id="tTot0"></div></div>
+          <div><div class="k">Deckungsbeitrag mit Aktion</div><div class="v" id="tTot1"></div></div>
+        </div>
+        <div class="insight" style="margin-top:14px" id="tTip"></div>
+        <div class="go noprint"><button class="btn ghost" type="button" id="printBtn">Als Preis-Check drucken</button></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="foot"><span>HKV Aarau</span><span>Fiktive Zahlen</span></div>
+</div>
+
+<script>
+(function(){
+"use strict";
+/* ---------- Hilfen ---------- */
+var $ = function(id){return document.getElementById(id);};
+function chf(n){var s=Math.round(Math.abs(n)).toString().replace(/\B(?=(\d{3})+(?!\d))/g,"'");return (n<0?'−CHF ':'CHF ')+s;}
+function num(n){return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,"'");}
+
+/* ---------- Ton ---------- */
+var soundOn=false, actx=null, lastPing=0;
+$('soundBtn').addEventListener('click',function(){
+  soundOn=!soundOn; this.textContent=soundOn?'Ton an':'Ton aus'; this.setAttribute('aria-pressed',soundOn);
+  if(soundOn&&!actx){try{actx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){soundOn=false;}}
+});
+function ping(freq,dur,vol){
+  if(!soundOn||!actx)return; var t=actx.currentTime; if(t-lastPing<0.045)return; lastPing=t;
+  var o=actx.createOscillator(),g=actx.createGain(); o.type='sine'; o.frequency.value=freq;
+  g.gain.setValueAtTime(vol||0.05,t); g.gain.exponentialRampToValueAtTime(0.0001,t+(dur||0.12));
+  o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t+(dur||0.12));
+}
+
+/* ---------- Iframe-Höhe ---------- */
+function reportHeight(){try{parent.postMessage({type:'resize',source:'rabattschlacht',height:document.documentElement.scrollHeight},'*');}catch(e){}}
+if(window.ResizeObserver){new ResizeObserver(reportHeight).observe(document.body);} window.addEventListener('load',reportHeight);
+
+/* ---------- Tabs ---------- */
+function showTab(t){
+  document.querySelectorAll('.tab').forEach(function(b){b.classList.toggle('on',b.dataset.tab===t);});
+  $('game').classList.toggle('hidden',t!=='game'); $('tool').classList.toggle('hidden',t!=='tool');
+  if(t==='tool')calcTool(); reportHeight();
+}
+document.querySelectorAll('.tab').forEach(function(b){b.addEventListener('click',function(){showTab(b.dataset.tab);});});
+
+/* ================= MODELL ================= */
+var BASE=8000, P0=249, VC=140, ELAST=2.5;
+var MONTHS=[
+ {n:'Mai',w:.12,ev:null},
+ {n:'Juni',w:.17,ev:'test'},
+ {n:'Juli',w:.22,ev:'comp'},
+ {n:'August',w:.22,ev:'stock'},
+ {n:'September',w:.17,ev:null},
+ {n:'Oktober',w:.10,ev:null}
+];
+var PRICES=[289,269,249,229,219,199];
+var ACTS=[
+ {id:'none',t:'Keine',s:'Nichts unternehmen',cost:0},
+ {id:'ads',t:'Werbung',s:'CHF 8\'000, +12 % in diesem Monat',cost:8000},
+ {id:'stock',t:'Sicherheitsbestand',s:'CHF 5\'000, keine Ausverkäufe',cost:5000},
+ {id:'repair',t:'Reparaturservice bewerben',s:'CHF 3\'000, +3 % ab jetzt dauerhaft',cost:3000}
+];
+var MSG=[
+ {who:'Petra Lang, Leiterin Verkauf',av:'PL',cls:'',txt:'Saisonstart! Mit einer Eröffnungsaktion holen wir uns die Kundschaft, bevor es die Konkurrenz tut. 20 Prozent, und die Kasse klingelt. Der Controller meint übrigens, wir seien zu billig. Ich halte das für Unsinn.'},
+ {who:'Fachportal Bergwelt',av:'FB',cls:'good',txt:'Testbericht erschienen: «Der Säntis 45 überzeugt mit Robustheit und Tragkomfort.» Die Nachfrage steigt diesen Monat um 10 Prozent. Und weil der Säntis jetzt als Qualitätsprodukt gilt, reagiert die Kundschaft ab sofort weniger empfindlich auf den Preis.'},
+ {who:'Petra Lang, Leiterin Verkauf',av:'PL',cls:'warn',txt:'Alarm! Der Konkurrent senkt seine Preise um 15 Prozent. Unsere Nachfrage sinkt diesen Monat um 15 Prozent. Wir müssen sofort nachziehen, sonst verlieren wir alles!'},
+ {who:'Marco Steiner, Leiter Produktion',av:'MS',cls:'warn',txt:'Hochsaison. Die Händler melden, dass Grösse M knapp wird. Ohne Sicherheitsbestand verlieren wir diesen Monat rund 20 Prozent der Verkäufe an die Konkurrenz.'},
+ {who:'Marco Steiner, Leiter Produktion',av:'MS',cls:'',txt:'Immer mehr Kundinnen fragen nach Reparaturen für ältere Rucksäcke. Den Service haben wir eigentlich, nur weiss es niemand. Wer bei uns reparieren lässt, schaut übrigens kaum noch auf den Preis der Konkurrenz.'},
+ {who:'Petra Lang, Leiterin Verkauf',av:'PL',cls:'',txt:'Saisonende. Räumen wir das Lager mit 20 Prozent Rabatt? Dann sieht der Umsatz zum Abschluss nochmals richtig gut aus.'}
+];
+
+/* Monat berechnen: state = {disc:bool (letzter Monat Rabatt), rep:bool (Reparaturservice aktiv)} */
+function monthCalc(mi,price,act,state){
+  var m=MONTHS[mi], d=BASE*m.w;
+  var rep=state.rep||act==='repair';
+  var e=elastOf(mi,rep);
+  var mult=1+e*((P0-price)/P0);
+  if(state.disc && price>=P0) mult*=0.92;           /* Kunden warten auf die nächste Aktion */
+  if(rep) mult*=1.03;
+  if(act==='ads') mult*=1.12;
+  if(m.ev==='test') mult*=1.10;
+  if(m.ev==='comp') mult*=0.85;
+  var lost=0;
+  var units=d*mult;
+  if(m.ev==='stock' && act!=='stock'){ lost=units*0.20; units=units*0.80; }
+  units=Math.round(units); lost=Math.round(lost);
+  var cost=ACTS.filter(function(a){return a.id===act;})[0].cost;
+  return {units:units,lost:lost,rev:units*price,db:units*(price-VC)-cost,cost:cost,
+          next:{disc:price<P0,rep:rep},e:e};
+}
+/* Preisempfindlichkeit: Differenzierung senkt sie. Testbericht ab Juni, Reparaturservice ab Aktivierung. */
+function elastOf(mi,rep){return ELAST-(rep?0.6:0)-(mi>=1?0.4:0);}
+function elastLabel(e){return e>=2.3?'hoch':e>=1.8?'mittel':'tief';}
+function simulate(plan){ /* plan: [{price,act}] */
+  var st={disc:false,rep:false}, out=[];
+  for(var i=0;i<plan.length;i++){var r=monthCalc(i,plan[i].price,plan[i].act,st); out.push(r); st=r.next;}
+  return out;
+}
+function sum(arr,k){return arr.reduce(function(s,r){return s+r[k];},0);}
+/* Optimum per dynamischer Programmierung */
+function bestSeason(){
+  var memo={};
+  function f(i,disc,rep){
+    if(i===MONTHS.length)return {v:0,plan:[]};
+    var key=i+'|'+disc+'|'+rep; if(memo[key])return memo[key];
+    var best=null;
+    PRICES.forEach(function(p){ACTS.forEach(function(a){
+      var r=monthCalc(i,p,a.id,{disc:disc,rep:rep});
+      var rest=f(i+1,r.next.disc,r.next.rep);
+      var v=r.db+rest.v;
+      if(!best||v>best.v)best={v:v,plan:[{price:p,act:a.id}].concat(rest.plan)};
+    });});
+    memo[key]=best; return best;
+  }
+  return f(0,false,false);
+}
+
+/* ================= SPIELABLAUF ================= */
+var plan=[], results=[], mi=0, curPrice=249, curAct='none', state={disc:false,rep:false};
+var totUnits=0, totRev=0;
+
+function renderMonthBar(){
+  $('monthBar').innerHTML=MONTHS.map(function(m,i){return '<span class="'+(i<mi?'done':i===mi?'now':'')+'">'+m.n.slice(0,3)+'</span>';}).join('');
+}
+function renderOpts(){
+  $('priceOpts').innerHTML=PRICES.map(function(p){
+    var pct=Math.round((P0-p)/P0*100);
+    var lab=pct>0?pct+' % Rabatt':pct<0?'+'+(-pct)+' % Preiserhöhung':'Normalpreis';
+    return '<button type="button" class="opt'+(p===curPrice?' on':'')+'" data-p="'+p+'"><span class="t">CHF '+p+'</span><span class="s">'+lab+'</span></button>';
+  }).join('');
+  $('actOpts').innerHTML=ACTS.map(function(a){
+    return '<button type="button" class="opt'+(a.id===curAct?' on':'')+'" data-a="'+a.id+'"><span class="t">'+a.t+'</span><span class="s">'+a.s+'</span></button>';
+  }).join('');
+  $('priceOpts').querySelectorAll('.opt').forEach(function(b){b.onclick=function(){curPrice=+b.dataset.p;renderOpts();ping(660,.08);};});
+  $('actOpts').querySelectorAll('.opt').forEach(function(b){b.onclick=function(){curAct=b.dataset.a;renderOpts();ping(560,.08);};});
+}
+function showMonth(){
+  renderMonthBar();
+  var eNow=elastOf(mi,state.rep); $('hElast').textContent=elastLabel(eNow)+' (−'+eNow.toFixed(1)+')';
+  var m=MSG[mi]; $('msg').className='msg '+m.cls; $('msgAv').textContent=m.av; $('msgWho').textContent=m.who; $('msgTxt').textContent=m.txt;
+  $('decisions').classList.remove('hidden'); $('monthResult').classList.add('hidden');
+  curPrice=249; curAct='none'; renderOpts();
+  scene.reset(MONTHS[mi].ev==='stock'); reportHeight();
+}
+$('startBtn').onclick=function(){
+  $('scrIntro').classList.add('hidden'); $('scrMonth').classList.remove('hidden');
+  plan=[];results=[];mi=0;state={disc:false,rep:false};totUnits=0;totRev=0;
+  $('hUnits').textContent='0'; $('hRev').textContent='CHF 0'; showMonth();
+};
+$('runBtn').onclick=function(){
+  var r=monthCalc(mi,curPrice,curAct,state);
+  plan.push({price:curPrice,act:curAct}); results.push(r); state=r.next;
+  $('decisions').classList.add('hidden');
+  var startU=totUnits,startR=totRev; totUnits+=r.units; totRev+=r.rev;
+  var compUnits=Math.round(BASE*3.6*MONTHS[mi].w*(MONTHS[mi].ev==='comp'?1.25:1)*(curPrice<P0?0.93:1))+r.lost;
+  scene.run(r.units,compUnits,r.lost,curPrice,function(frac){
+    $('hUnits').textContent=num(startU+r.units*frac); $('hRev').textContent=chf(startR+r.rev*frac);
+  },function(){
+    $('hUnits').textContent=num(totUnits); $('hRev').textContent=chf(totRev);
+    var t='<span>'+MONTHS[mi].n+': <b>'+num(r.units)+' Rucksäcke</b> verkauft, <b>'+chf(r.rev)+'</b> Umsatz.</span>';
+    if(r.lost)t+='<span style="color:#9a3d47">'+num(r.lost)+' Kundinnen fanden ihre Grösse nicht und gingen zur Konkurrenz.</span>';
+    $('monthResTxt').innerHTML=t;
+    $('nextBtn').textContent=mi<MONTHS.length-1?'Weiter zum '+MONTHS[mi+1].n:'Zur Abrechnung';
+    $('monthResult').classList.remove('hidden'); reportHeight();
+  });
+};
+$('nextBtn').onclick=function(){ if(mi<MONTHS.length-1){mi++;showMonth();} else finale(); };
+
+/* ================= SZENE ================= */
+var scene=(function(){
+  var cv=$('scene'), cx=cv.getContext('2d'), W=1000, H=260, people=[], raf=null, soldOut=false, popups=[];
+  var shopA={x:820,y:52,w:150,h:74,label:'Alpstein'}, shopB={x:820,y:162,w:150,h:76,label:'Konkurrenz'};
+  function bg(){
+    cx.clearRect(0,0,W,H);
+    cx.fillStyle='#f4f7f7'; cx.fillRect(0,0,W,H);
+    cx.fillStyle='#C5CFD0'; cx.beginPath(); cx.moveTo(0,170); cx.lineTo(120,70); cx.lineTo(200,130); cx.lineTo(310,40); cx.lineTo(430,150); cx.lineTo(520,90); cx.lineTo(640,170); cx.lineTo(640,260); cx.lineTo(0,260); cx.fill();
+    cx.fillStyle='#fff'; cx.beginPath(); cx.moveTo(310,40); cx.lineTo(282,66); cx.lineTo(300,62); cx.lineTo(316,72); cx.lineTo(336,64); cx.fill();
+    cx.beginPath(); cx.moveTo(120,70); cx.lineTo(102,85); cx.lineTo(126,82); cx.lineTo(138,86); cx.fill();
+    cx.fillStyle='#E8ECEC'; cx.fillRect(0,196,W,64);
+    cx.strokeStyle='#8C9EA2'; cx.lineWidth=2; cx.setLineDash([8,8]);
+    cx.beginPath(); cx.moveTo(20,215); cx.lineTo(600,215); cx.quadraticCurveTo(700,215,790,92); cx.stroke();
+    cx.beginPath(); cx.moveTo(600,215); cx.quadraticCurveTo(700,215,790,200); cx.stroke(); cx.setLineDash([]);
+    shop(shopA,'#183E45','#fff'); shop(shopB,'#8C9EA2','#fff');
+    if(soldOut){cx.save();cx.translate(shopA.x+shopA.w/2,shopA.y+shopA.h+4);cx.rotate(-0.08);cx.fillStyle='#D47882';cx.fillRect(-66,-14,132,24);cx.fillStyle='#183E45';cx.font='700 13px Roboto, DejaVu Sans, sans-serif';cx.textAlign='center';cx.fillText('Grösse M ausverkauft',0,3);cx.restore();}
+  }
+  function shop(s,f,t){
+    cx.fillStyle=f; cx.fillRect(s.x,s.y,s.w,s.h);
+    cx.beginPath(); cx.moveTo(s.x-8,s.y); cx.lineTo(s.x+s.w/2,s.y-22); cx.lineTo(s.x+s.w+8,s.y); cx.fill();
+    cx.fillStyle=t; cx.font='700 17px Montserrat, DejaVu Sans, sans-serif'; cx.textAlign='center'; cx.fillText(s.label,s.x+s.w/2,s.y+s.h/2+6);
+  }
+  function person(p){
+    var c=p.col; cx.fillStyle=c; cx.beginPath(); cx.arc(p.x,p.y-15,5,0,7); cx.fill();
+    cx.fillRect(p.x-4,p.y-9,8,11);
+    var sw=Math.sin(p.t*0.35)*3; cx.strokeStyle=c; cx.lineWidth=2.4; cx.beginPath(); cx.moveTo(p.x-2,p.y+2); cx.lineTo(p.x-2-sw,p.y+9); cx.moveTo(p.x+2,p.y+2); cx.lineTo(p.x+2+sw,p.y+9); cx.stroke();
+    if(p.bag){cx.fillStyle='#E0AF58'; cx.fillRect(p.x-9,p.y-9,5,9);}
+  }
+  function path(p,u){ /* u 0..1 entlang Weg zur Gabelung, dann zum Laden */
+    if(u<0.62){var k=u/0.62; return {x:20+580*k, y:215+p.lane};}
+    var k2=(u-0.62)/0.38, tx=p.to==='A'?790:790, ty=p.to==='A'?92:200;
+    var x=(1-k2)*(1-k2)*600+2*(1-k2)*k2*700+k2*k2*tx, y=(1-k2)*(1-k2)*215+2*(1-k2)*k2*215+k2*k2*ty;
+    return {x:x,y:y+p.lane*(1-k2)};
+  }
+  return {
+    reset:function(stockWarn){soldOut=false;people=[];popups=[];if(raf)cancelAnimationFrame(raf);bg();
+      cx.fillStyle='#4E6B70';cx.font='15px Roboto, DejaVu Sans, sans-serif';cx.textAlign='left';
+      cx.fillText(stockWarn?'Hochsaison. Wählen Sie, und sehen Sie, wohin die Kundschaft geht.':'Wählen Sie Preis und Massnahme, dann starten Sie den Monat.',24,30);},
+    run:function(uA,uB,lost,price,onTick,onDone){
+      var per=Math.max(20,(uA+uB)/95), nA=Math.max(1,Math.round(uA/per)), nB=Math.max(1,Math.round(uB/per)), nL=Math.round(lost/per);
+      var list=[],i;
+      for(i=0;i<nA;i++)list.push({to:'A',col:'#89BD99',bag:true});
+      for(i=0;i<nL;i++)list.push({to:'B',col:'#D47882',lostOne:true});
+      for(i=0;i<nB-nL;i++)list.push({to:'B',col:'#8C9EA2'});
+      list.sort(function(){return Math.random()-.5;});
+      var dur=5200, spawnSpan=3600, t0=performance.now(), arrivedA=0;
+      people=list.map(function(p,k){p.start=spawnSpan*k/list.length+Math.random()*60;p.lane=(Math.random()*16-8);p.speed=0.00055+Math.random()*0.00025;p.t=0;p.done=false;return p;});
+      if(nL)setTimeout(function(){soldOut=true;},1400);
+      function frame(now){
+        var el=now-t0; bg();
+        people.forEach(function(p){
+          if(el<p.start||p.done)return; p.t++;
+          var u=(el-p.start)*p.speed; if(p.lostOne&&u>0.55&&!p.turned){p.turned=true;}
+          if(u>=1){p.done=true; if(p.to==='A'){arrivedA++; if(arrivedA%2===0)popups.push({x:shopA.x-40-Math.random()*50,y:shopA.y+40+Math.random()*20,a:1,txt:'+'+price}); ping(880+Math.random()*120,.09,.04);} return;}
+          var pos=path(p,u); p.x=pos.x; p.y=pos.y; person(p);
+        });
+        popups.forEach(function(q){cx.globalAlpha=Math.max(0,q.a);cx.fillStyle='#183E45';cx.font='700 13px Roboto, DejaVu Sans, sans-serif';cx.textAlign='center';cx.fillText(q.txt,q.x,q.y);q.y-=0.6;q.a-=0.018;});
+        cx.globalAlpha=1; popups=popups.filter(function(q){return q.a>0;});
+        onTick(Math.min(1,arrivedA/nA));
+        if(el<dur+600||popups.length) raf=requestAnimationFrame(frame); else onDone();
+      }
+      raf=requestAnimationFrame(frame);
+    }
+  };
+})();
+
+/* ================= FINALE ================= */
+var countRaf=null;
+function countUp(el,to,ms,fmt,done){
+  var t0=performance.now(); cancelAnimationFrame(countRaf);
+  (function f(now){var k=Math.min(1,(now-t0)/ms), e=1-Math.pow(1-k,3); el.textContent=fmt(to*e); if(k<1)countRaf=requestAnimationFrame(f); else if(done)done();})(t0);
+}
+function finale(){
+  $('scrMonth').classList.add('hidden'); $('scrFinal').classList.remove('hidden');
+  $('stage2').classList.add('hidden'); $('card').classList.remove('flipped'); $('flipBtn').classList.remove('hidden');
+  var normal=simulate(MONTHS.map(function(){return {price:249,act:'none'};}));
+  var nRev=sum(normal,'rev'), myRev=sum(results,'rev');
+  var record=myRev>nRev;
+  $('umsTitle').textContent=record?'Umsatzrekord!':'Ihr Umsatz';
+  $('umsBadge').innerHTML=record?'<span class="medal" style="background:var(--lmus);color:var(--p)">Mehr Umsatz als mit Normalpreis</span>':'';
+  $('umsTxt').textContent=num(sum(results,'units'))+' Rucksäcke verkauft. '+(record?'Petra ist begeistert und bestellt schon Champagner.':'Petra hätte sich mehr gewünscht. Aber warten wir die ganze Abrechnung ab.');
+  countUp($('umsNum'),myRev,1800,chf,function(){ if(record){confetti();ping(1046,.25,.06);} });
+  if(!record && sum(results,'units')<sum(normal,'units')){$('umsTitle').textContent='Weniger Umsatz als mit Normalpreis';$('umsTxt').textContent=num(sum(results,'units'))+' Rucksäcke verkauft, '+num(sum(normal,'units')-sum(results,'units'))+' weniger als mit Normalpreis. Petra ist enttäuscht. Aber warten wir die ganze Abrechnung ab.';}
+  reportHeight();
+}
+$('flipBtn').onclick=function(){
+  var myDb=sum(results,'db'), best=bestSeason(), normal=simulate(MONTHS.map(function(){return {price:249,act:'none'};}));
+  var nDb=sum(normal,'db');
+  $('dbNum').textContent=chf(myDb);
+  var ratio=myDb/best.v, medal,mcol;
+  if(ratio>=0.985){medal='Gold: nahezu die beste mögliche Saison';mcol='var(--lmint)';}
+  else if(ratio>=0.93){medal='Silber: solide gewirtschaftet';mcol='var(--lblue)';}
+  else {medal='Bronze: zu wenig Gewinn';mcol='var(--lrose)';}
+  var dN=myDb-nDb; $('dbMedal').innerHTML='<span class="medal" style="background:'+mcol+';color:var(--p)">'+medal+'</span><div style="margin-top:8px;color:var(--p75);font-size:15px">'+(dN<0?chf(-dN)+' weniger als immer zum Normalpreis ohne Massnahmen':chf(dN)+' mehr als immer zum Normalpreis ohne Massnahmen')+'</div>';
+  $('card').classList.add('flipped'); $('flipBtn').classList.add('hidden'); ping(392,.3,.06);
+  if(ratio>=0.985||myDb>nDb*1.06)setTimeout(function(){confetti();ping(1046,.25,.06);},900);
+  setTimeout(function(){
+    $('stage2').classList.remove('hidden');
+    var mx=Math.max(myDb,nDb,best.v);
+    [['b1',myDb],['b2',nDb],['b3',best.v]].forEach(function(b){var el=$(b[0]);el.style.width='0';el.textContent=chf(b[1]);setTimeout(function(){el.style.width=Math.max(18,b[1]/mx*100)+'%';},60);});
+    /* Wirkung der Preisentscheide isolieren: gleiche Massnahmen, immer Normalpreis */
+    var same=simulate(plan.map(function(p){return {price:249,act:p.act};}));
+    var priceEff=myDb-sum(same,'db'), unitEff=sum(results,'units')-sum(same,'units');
+    var discMonths=plan.filter(function(p){return p.price<249;}).length, incMonths=plan.filter(function(p){return p.price>249;}).length;
+    var h='<h2>Was diese Saison zeigt</h2>';
+    if(!discMonths&&!incMonths){
+      h+='<p>Sie haben den Preis die ganze Saison nicht angetastet und dem Rabattdruck standgehalten, auch als der Konkurrent die Preise senkte. Das ist schon viel wert. Ob eine Preiserhöhung mehr gebracht hätte, zeigt die beste mögliche Saison.</p>';
+    } else {
+      h+='<p>Sie haben in '+(discMonths?discMonths+' von 6 Monaten Rabatt gegeben':'')+(discMonths&&incMonths?' und in ':'')+(incMonths?incMonths+' von 6 Monaten den Preis erhöht':'')+'. Verglichen mit denselben Massnahmen zum Normalpreis haben Sie <b>'+(unitEff>=0?num(unitEff)+' Rucksäcke mehr':num(-unitEff)+' Rucksäcke weniger')+'</b> verkauft und <b>'+(priceEff>=0?chf(priceEff)+' mehr':chf(-priceEff)+' weniger')+'</b> verdient.</p>';
+      if(discMonths){
+        var cnt={};plan.forEach(function(q){if(q.price<249)cnt[q.price]=(cnt[q.price]||0)+1;});
+        var dp=+Object.keys(cnt).sort(function(a,b){return cnt[b]-cnt[a];})[0];
+        var needP=Math.round((109/(dp-VC)-1)*100), getP=Math.round(ELAST*(P0-dp)/P0*100);
+        h+='<p>Zu den Rabatten: Bei '+dp+' Franken bleiben pro Stück statt 109 nur noch '+(dp-VC)+' Franken. Damit sich das lohnt, bräuchte es '+needP+' Prozent mehr Absatz, der Markt liefert aber höchstens rund '+getP+' Prozent. Und nach jeder Aktion warten die Kundinnen auf die nächste.</p>';
+      }
+      if(incMonths){
+        var early=plan.some(function(q,i){return q.price>249 && elastOf(i,results[i].next.rep)>=2.3;});
+        h+='<p>Zu den Preiserhöhungen: Eine Erhöhung lohnt sich nur, wenn die Kundschaft wenig preisempfindlich ist. '+(early?'Sie haben den Preis mindestens einmal erhöht, solange die Preisempfindlichkeit noch hoch war. Dann wechseln zu viele Kundinnen zur Konkurrenz.':'Sie haben den Preis erst erhöht, als Testbericht und Reparaturservice den Säntis von der Konkurrenz abgehoben hatten. Genau so funktioniert es: erst Wert schaffen, dann den Preis anheben.')+'</p>';
+      }
+    }
+    var bestTxt=best.plan.map(function(p,i){return MONTHS[i].n+': CHF '+p.price+', '+ACTS.filter(function(a){return a.id===p.act;})[0].t;}).join(' · ');
+    var bestUnits=sum(simulate(best.plan),'units');
+    h+='<p>Die beste mögliche Saison sieht so aus: '+bestTxt+'. Sie verkauft <b>'+num(bestUnits)+' Rucksäcke</b> und verdient <b>'+chf(best.v)+'</b>. Ihr Muster: Sie macht den Säntis vom ersten Monat an mit dem Reparaturservice unverwechselbar, verlangt dafür einen höheren Preis und investiert den Mehrertrag in Werbung und Lieferfähigkeit. Rabatte kommen darin nicht vor. Eine Preiserhöhung ganz ohne Massnahmen würde dagegen Geld kosten, weil die Kundschaft dann noch sehr preisempfindlich ist.</p>';
+    h+='<p style="margin-bottom:0"><b>Die Lehre:</b> Umsatz ist kein Erfolgsmassstab. Der Preis ist der stärkste Hebel auf den Gewinn, in beide Richtungen. Wie er wirkt, hängt davon ab, wie austauschbar Ihr Angebot ist.</p>';
+    $('insight').innerHTML=h;
+    var rows='<tr><th>Monat</th><th>Preis</th><th>Massnahme</th><th>Absatz</th><th>Umsatz</th><th>Deckungsbeitrag</th></tr>';
+    results.forEach(function(r,i){rows+='<tr><td>'+MONTHS[i].n+'</td><td>'+plan[i].price+'</td><td>'+ACTS.filter(function(a){return a.id===plan[i].act;})[0].t+'</td><td>'+num(r.units)+'</td><td>'+chf(r.rev)+'</td><td>'+chf(r.db)+'</td></tr>';});
+    rows+='<tr class="sum"><td>Saison</td><td></td><td></td><td>'+num(sum(results,'units'))+'</td><td>'+chf(sum(results,'rev'))+'</td><td>'+chf(myDb)+'</td></tr>';
+    $('seasonTbl').innerHTML=rows; reportHeight();
+  },1300);
+};
+$('againBtn').onclick=function(){ $('scrFinal').classList.add('hidden'); $('scrIntro').classList.remove('hidden'); reportHeight(); };
+$('toToolBtn').onclick=function(){ showTab('tool'); window.scrollTo(0,0); };
+
+/* ---------- Konfetti ---------- */
+function confetti(){
+  var cv=$('confetti'),cx=cv.getContext('2d'); cv.width=innerWidth; cv.height=innerHeight;
+  var cols=['#89BD99','#86C1CF','#D47882','#E0AF58','#183E45'], ps=[];
+  for(var i=0;i<140;i++)ps.push({x:Math.random()*cv.width,y:-20-Math.random()*cv.height*.4,vx:Math.random()*2-1,vy:2+Math.random()*3,r:Math.random()*6,c:cols[i%5],a:Math.random()*6});
+  var t0=performance.now();
+  (function f(now){cx.clearRect(0,0,cv.width,cv.height);
+    ps.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.a+=.1;cx.save();cx.translate(p.x,p.y);cx.rotate(p.a);cx.fillStyle=p.c;cx.fillRect(-4,-2,8+p.r,4);cx.restore();});
+    if(now-t0<3200)requestAnimationFrame(f); else cx.clearRect(0,0,cv.width,cv.height);})(t0);
+}
+
+/* ================= MEIN PRODUKT ================= */
+function val(id){var v=parseFloat($(id).value);return isNaN(v)?0:v;}
+document.querySelectorAll('[data-step]').forEach(function(b){b.addEventListener('click',function(){var el=$(b.dataset.step);el.value=Math.max(+el.min||0,val(b.dataset.step)+(+b.dataset.d));calcTool();});});
+var tMode='down';
+document.querySelectorAll('.mbtn').forEach(function(b){b.addEventListener('click',function(){
+  tMode=b.dataset.mode; document.querySelectorAll('.mbtn').forEach(function(x){x.classList.toggle('on',x===b);});
+  if(tMode==='up'){$('tChg').value=8;$('tVol').value=10;}else{$('tChg').value=12;$('tVol').value=30;}
+  calcTool();});});
+['tName','tPrice','tVar','tUnits','tChg','tVol'].forEach(function(id){$(id).addEventListener('input',calcTool);});
+function calcTool(){
+  var up=tMode==='up';
+  var p=val('tPrice'),v=val('tVar'),u=val('tUnits'),c=val('tChg')/100,vol=val('tVol')/100;
+  $('tChgLbl').textContent=up?'Geplante Preiserhöhung':'Geplanter Rabatt';
+  $('tVolLbl').textContent=up?'Erwarteter Absatzrückgang durch die Erhöhung':'Erwarteter Mehrabsatz durch die Aktion';
+  $('tVolHint').textContent=up?'Ihre ehrliche Schätzung. Fragen Sie sich: Wie austauschbar ist Ihr Angebot? Wer nichts Besonderes bietet, verliert mehr Kunden.':'Ihre ehrliche Schätzung. Fragen Sie sich: Kaufen wirklich neue Kunden, oder kaufen die bisherigen nur günstiger?';
+  $('tDb1K').textContent=up?'Gewinnbeitrag je Stück nach Erhöhung':'Gewinnbeitrag je Stück mit Rabatt';
+  $('tExpRow').textContent=up?'Ihr erwarteter Absatzrückgang':'Ihr erwarteter Mehrabsatz';
+  $('tMarkExpl').textContent=up?'Die dunkle Linie zeigt, wie viel Absatz Sie höchstens verlieren dürfen.':'Die dunkle Linie zeigt, wie viel Mehrabsatz nötig wäre.';
+  var db0=p-v, p1=up?p*(1+c):p*(1-c), db1=p1-v;
+  var tot0=db0*u, tot1=db1*u*(up?(1-vol):(1+vol));
+  $('tDb0').textContent=chf(db0); $('tDb1').textContent=chf(db1);
+  $('tTot0').textContent=chf(tot0); $('tTot1').textContent=chf(tot1);
+  var R=$('lR'),Y=$('lY'),G=$('lG'); [R,Y,G].forEach(function(l){l.classList.remove('on');});
+  var verdict,sub,tip,mark=null,diff=tot1-tot0;
+  if(db0<=0&&!up){verdict='Schon heute kein Gewinnbeitrag'; sub='Der Preis deckt die variablen Kosten nicht. Ein Rabatt macht es nur schlimmer.'; R.classList.add('on');
+    tip='<p>Prüfen Sie zuerst Preis und Kosten. Jedes verkaufte Stück kostet Sie Geld. Hier wäre eher eine Preiserhöhung zu prüfen.</p>';}
+  else if(db1<=0){verdict='Jedes Stück kostet Geld'; sub='Der neue Preis liegt unter den variablen Kosten. Mehr Absatz vergrössert nur den Verlust.'; R.classList.add('on');
+    tip='<p>Ein Preis unter den variablen Kosten lohnt sich nur in Ausnahmefällen, etwa beim Abverkauf von Ware, die sonst wertlos würde.</p>';}
+  else if(!up){
+    mark=db0/db1-1;
+    if(vol>=mark*1.10){G.classList.add('on');verdict='Die Aktion lohnt sich';sub='Sie verdienen voraussichtlich '+chf(diff)+' mehr, vorausgesetzt, Ihre Schätzung stimmt.';}
+    else if(vol>=mark*0.9){Y.classList.add('on');verdict='Ein Nullsummenspiel';sub='Viel Arbeit, kaum Mehrertrag. Differenz rund '+chf(diff)+'.';}
+    else{R.classList.add('on');verdict='Die Aktion kostet Geld';sub='Sie verdienen voraussichtlich '+chf(-diff)+' weniger als ohne Aktion.';}
+    tip='<p>Damit sich '+Math.round(c*100)+' Prozent Rabatt lohnen, müssen Sie <b>'+Math.round(mark*100)+' Prozent mehr</b> verkaufen, also '+num(u*mark)+' Stück zusätzlich. Ihr Gewinnbeitrag pro Stück sinkt von '+chf(db0)+' auf '+chf(db1)+'.</p><p style="margin-bottom:0">Prüffrage für die Sitzung: Woher kommen die zusätzlichen Käufer? Wenn vor allem bisherige Kunden günstiger kaufen oder Käufe nur vorziehen, ist Ihr erwarteter Mehrabsatz zu hoch.</p>';
+  } else {
+    mark=db0>0?1-db0/db1:1;
+    if(vol<=mark*0.9){G.classList.add('on');verdict='Die Preiserhöhung lohnt sich';sub='Sie verkaufen weniger und verdienen voraussichtlich '+chf(diff)+' mehr.';}
+    else if(vol<=mark*1.1){Y.classList.add('on');verdict='Ein Nullsummenspiel';sub='Weniger Absatz, kaum Mehrertrag. Differenz rund '+chf(diff)+'.';}
+    else{R.classList.add('on');verdict='Sie verlieren zu viele Kunden';sub='Sie verdienen voraussichtlich '+chf(-diff)+' weniger als heute.';}
+    tip='<p>Bei einer Erhöhung um '+Math.round(c*100)+' Prozent dürfen Sie <b>bis zu '+Math.round(mark*100)+' Prozent</b> der Stückzahl verlieren, also '+num(u*mark)+' Stück, und verdienen immer noch gleich viel wie heute. Ihr Gewinnbeitrag pro Stück steigt von '+chf(db0)+' auf '+chf(db1)+'.</p><p style="margin-bottom:0">Prüffrage für die Sitzung: Welche Kundengruppe reagiert am wenigsten auf den Preis, und was bieten Sie ihr, das die Konkurrenz nicht bietet? Je unverwechselbarer das Angebot, desto kleiner der Absatzverlust.</p>';
+  }
+  $('tVerdict').textContent=verdict; $('tVerdictSub').textContent=sub; $('tTip').innerHTML=tip;
+  var scale=Math.max(up?0.5:1,(mark||0)*1.6,vol*1.15);
+  $('tExpLbl').textContent=Math.round(vol*100)+' Prozent';
+  var bar=$('tExpBar'); bar.style.width=Math.min(100,vol/scale*100)+'%';
+  bar.style.background=G.classList.contains('on')?'var(--mint)':Y.classList.contains('on')?'var(--mus)':'var(--rose)';
+  if(mark!==null){$('tMark').style.display='block';$('tMark').style.left='calc('+Math.min(100,mark/scale*100)+'% - 1px)';$('tMarkLbl').textContent=(up?'höchstens: ':'nötig: ')+Math.round(mark*100)+' %';}
+  else $('tMark').style.display='none';
+  reportHeight();
+}
+$('printBtn').onclick=function(){window.print();};
+
+/* Start */
+scene.reset(false);
+})();
+</script>
+</body>
+</html>
