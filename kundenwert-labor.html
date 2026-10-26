@@ -121,6 +121,16 @@ details.model li{font-size:14px;color:var(--p75)}
 .mini div{background:var(--p10);padding:10px 12px}
 .mini .k{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--p50);font-family:var(--head)}
 .mini .v{font-size:19px;font-weight:700;color:var(--p);font-variant-numeric:tabular-nums}
+.brief{display:grid;grid-template-columns:1.2fr .8fr;gap:20px;margin-top:6px}
+@media(max-width:760px){.brief{grid-template-columns:1fr}}
+.brief .box{background:var(--p10);padding:16px 18px;margin-bottom:12px}
+.brief .box.task{background:#fff;border:1.5px solid var(--p25);border-left:6px solid var(--mint)}
+.brief h2{font-size:17px;margin-bottom:6px}
+.brief p{margin:0 0 6px}
+.brief ul,.brief ol{margin:6px 0 0;padding-left:20px}
+.brief li{margin:4px 0}
+.meta{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0 16px}
+.meta span{background:var(--lmint);color:var(--p);font-weight:600;font-size:13px;padding:4px 10px;border-radius:999px}
 .foot{margin-top:22px;border-top:1px solid var(--p25);padding-top:9px;display:flex;justify-content:space-between;font-family:var(--head);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--p50)}
 .printhead{display:none}
 @media print{.tabs,.noprint,#labor,.foot{display:none!important}.printhead{display:block}.app{max-width:none}}
@@ -138,6 +148,43 @@ details.model li{font-size:14px;color:var(--p75)}
 
   <!-- ================= LABOR ================= -->
   <section id="labor">
+    <div id="labIntro">
+      <div class="brief">
+        <div>
+          <div class="box task">
+            <h2>Ihr Auftrag</h2>
+            <p>Die Geschäftsleitung der Alpstein Outdoor AG stellt Ihnen 100'000 Franken pro Jahr zur Verfügung. Ihr Ziel: in drei Jahren möglichst viel Kundenwert schaffen, also Deckungsbeitrag aus Kundinnen und Kunden, die bleiben und wieder kaufen.</p>
+            <p style="margin:0">Petra Lang aus dem Verkauf ist überzeugt, dass das ganze Geld in Werbung gehört. Prüfen Sie, ob sie recht hat.</p>
+          </div>
+          <div class="box">
+            <h2>Warum diese Übung</h2>
+            <p>Viele Unternehmen investieren reflexartig in Reichweite. Dabei geht auf dem Weg vom ersten Kontakt bis zur Stammkundin der grösste Teil der Menschen verloren, oft unbemerkt. Wer weiss, wo diese Lecks liegen, erreicht mit demselben Geld ein Vielfaches.</p>
+            <p style="margin:0">Das Labor verbindet zwei Werkzeuge aus dieser Lerneinheit: die Customer Journey, die zeigt, wo Kunden verloren gehen, und den Customer Lifetime Value, der zeigt, was eine gehaltene Kundin wert ist.</p>
+          </div>
+        </div>
+        <div>
+          <div class="box">
+            <h2>Das nehmen Sie mit</h2>
+            <ul>
+              <li>Sie erkennen, an welcher Stelle der Kundenreise am meisten Wert verloren geht.</li>
+              <li>Sie vergleichen Massnahmen danach, was jeder investierte Franken zurückbringt.</li>
+              <li>Sie wenden die Logik auf Ihr eigenes Angebot an und finden Ihren grössten Hebel.</li>
+            </ul>
+          </div>
+          <div class="box">
+            <h2>So gehen Sie vor</h2>
+            <ol>
+              <li>Verteilen Sie das Budget und beobachten Sie, wie sich der Kundenstrom verändert.</li>
+              <li>Simulieren Sie drei Jahre und vergleichen Sie mit Petras Plan und der besten Kombination.</li>
+              <li>Tragen Sie im Reiter «Meine Kundenreise» die Zahlen Ihres eigenen Angebots ein.</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+      <div class="meta"><span>Dauer: 10 bis 15 Minuten</span><span>Mehrere Durchgänge erwünscht</span><span>Alle Zahlen fiktiv</span></div>
+      <button class="btn big" type="button" id="openLab">Labor öffnen</button>
+    </div>
+    <div id="labMain" class="hidden">
     <p class="lead">Jedes Jahr hören rund 10'000 Menschen zum ersten Mal vom Rucksack «Säntis 45». Unterwegs zur treuen Stammkundin gehen die meisten verloren. Sie haben <b>100'000 Franken pro Jahr</b>. Verteilen Sie das Budget auf Massnahmen und beobachten Sie live, wie sich der Strom verändert. Dann simulieren Sie drei Jahre.</p>
 
     <div class="hud">
@@ -189,6 +236,7 @@ details.model li{font-size:14px;color:var(--p75)}
         <button class="btn ghost" type="button" id="againBtn">Strategie anpassen</button>
         <button class="btn" type="button" id="toMineBtn">Jetzt meine eigene Kundenreise prüfen</button>
       </div>
+    </div>
     </div>
   </section>
 
@@ -468,6 +516,7 @@ function calcMine(){
 $('printBtn').onclick=function(){window.print();};
 
 update(); calcMine();
+$('openLab').onclick=function(){$('labIntro').classList.add('hidden');$('labMain').classList.remove('hidden');reportHeight();window.scrollTo(0,0);};
 })();
 </script>
 </body>
