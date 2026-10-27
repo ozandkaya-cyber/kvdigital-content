@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Das Kundenwert-Labor</title>
 <style>
+
 :root{
   --p:#183E45; --p75:#4E6B70; --p50:#8C9EA2; --p25:#C5CFD0; --p10:#E8ECEC;
   --mint:#89BD99; --blue:#86C1CF; --rose:#D47882; --mus:#E0AF58;
@@ -134,6 +135,50 @@ details.model li{font-size:14px;color:var(--p75)}
 .foot{margin-top:22px;border-top:1px solid var(--p25);padding-top:9px;display:flex;justify-content:space-between;font-family:var(--head);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--p50)}
 .printhead{display:none}
 @media print{.tabs,.noprint,#labor,.foot{display:none!important}.printhead{display:block}.app{max-width:none}}
+
+/* ---- Runden ---- */
+.steps{display:flex;gap:6px;margin:0 0 10px}
+.steps span{flex:1;text-align:center;font-size:13px;padding:6px 0;background:var(--p10);color:var(--p50);font-weight:600}
+.steps span.done{background:var(--p25);color:var(--p)}
+.steps span.now{background:var(--p);color:#fff}
+.voice{display:flex;gap:10px;align-items:flex-start;background:#fff;border:1px dashed var(--p25);padding:10px 12px;margin-top:8px;min-height:54px}
+.voice .av{flex:0 0 36px;height:36px;border-radius:50%;background:var(--lrose);color:var(--p);display:flex;align-items:center;justify-content:center;font-weight:700;font-family:var(--head);font-size:13px}
+.voice .q{font-style:italic;color:var(--p)}
+.voice .tag{font-family:var(--head);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--p50)}
+.event{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;margin:12px 0;border:1.5px solid var(--mus);background:var(--lmus)}
+.event .ic{flex:0 0 38px;height:38px;border-radius:50%;background:var(--mus);display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--p)}
+.sec{margin-top:16px}
+.sec h3 span{font-family:var(--sans);letter-spacing:0;text-transform:none;font-weight:400;color:var(--p75);font-size:13.5px;margin-left:6px}
+.research{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media(max-width:700px){.research{grid-template-columns:1fr}}
+.r{border:1.5px dashed var(--p50);background:#fff;padding:12px;border-radius:12px;cursor:pointer;text-align:left;font-family:var(--sans);color:#2b3a3d;position:relative}
+.r:hover{border-color:var(--p)}
+.r .t{font-weight:700;color:var(--p);display:block;margin:2px 0}
+.r .s{font-size:13px;color:var(--p75);display:block;line-height:1.35}
+.r .c{position:absolute;right:12px;top:10px;font-weight:700;color:var(--p);font-size:14px}
+.r.done{border-style:solid;border-color:var(--mint);background:var(--lmint);cursor:default}
+.r.done .c{color:#2f6b45}
+.r.off{opacity:.45;cursor:not-allowed}
+.report{border:2px solid var(--p);padding:18px;margin-top:14px}
+.report .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0 14px}
+@media(max-width:620px){.report .kpis{grid-template-columns:1fr 1fr}}
+.report .kpis div{background:var(--p10);padding:10px 12px}
+.report .kpis .k{font-family:var(--head);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--p50)}
+.report .kpis .v{font-size:21px;font-weight:700;color:var(--p);font-variant-numeric:tabular-nums}
+.report .kpis .d{font-size:12.5px;color:var(--p75)}
+.say{display:flex;gap:12px;align-items:flex-start;margin:10px 0}
+.say .avatar{flex:0 0 40px;height:40px}
+.quotes{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:8px 0}
+@media(max-width:620px){.quotes{grid-template-columns:1fr}}
+.quotes div{background:var(--lrose);padding:10px 12px;font-style:italic;color:var(--p);font-size:15px}
+.quotes div b{display:block;font-style:normal;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#9a3d47;font-family:var(--head);margin-bottom:3px}
+.chart{width:100%;height:auto;display:block;background:#fff;border:1px solid var(--p10)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13.5px;margin:6px 0 0}
+.legend i{display:inline-block;width:18px;height:4px;vertical-align:middle;margin-right:5px}
+table.path{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}
+table.path th,table.path td{border-bottom:1px solid var(--p25);padding:7px 8px;text-align:left;vertical-align:top}
+table.path th{font-family:var(--head);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--p50)}
+table.path td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -146,97 +191,107 @@ details.model li{font-size:14px;color:var(--p75)}
     <button class="tab" data-tab="mine" type="button">Meine Kundenreise</button>
   </div>
 
-  <!-- ================= LABOR ================= -->
   <section id="labor">
+    <!-- ===== EINFÜHRUNG ===== -->
     <div id="labIntro">
       <div class="brief">
         <div>
           <div class="box task">
             <h2>Ihr Auftrag</h2>
-            <p>Die Geschäftsleitung der Alpstein Outdoor AG stellt Ihnen 100'000 Franken pro Jahr zur Verfügung. Ihr Ziel: in drei Jahren möglichst viel Kundenwert schaffen, also Deckungsbeitrag aus Kundinnen und Kunden, die bleiben und wieder kaufen.</p>
-            <p style="margin:0">Petra Lang aus dem Verkauf ist überzeugt, dass das ganze Geld in Werbung gehört. Prüfen Sie, ob sie recht hat.</p>
+            <p>Sie übernehmen für drei Jahre das Kundenbudget der Alpstein Outdoor AG: 100'000 Franken pro Jahr. Ihr Ziel ist möglichst viel Kundenwert, also Deckungsbeitrag aus Kundinnen und Kunden, die bleiben und wieder kaufen.</p>
+            <p style="margin:0">Das Problem: Irgendwo auf dem Weg vom ersten Kontakt bis zur Stammkundin gehen die meisten verloren. Wo genau, weiss niemand. Petra Lang aus dem Verkauf will trotzdem alles in Werbung stecken.</p>
           </div>
           <div class="box">
             <h2>Warum diese Übung</h2>
-            <p>Viele Unternehmen investieren reflexartig in Reichweite. Dabei geht auf dem Weg vom ersten Kontakt bis zur Stammkundin der grösste Teil der Menschen verloren, oft unbemerkt. Wer weiss, wo diese Lecks liegen, erreicht mit demselben Geld ein Vielfaches.</p>
-            <p style="margin:0">Das Labor verbindet zwei Werkzeuge aus dieser Lerneinheit: die Customer Journey, die zeigt, wo Kunden verloren gehen, und den Customer Lifetime Value, der zeigt, was eine gehaltene Kundin wert ist.</p>
+            <p>Viele Unternehmen investieren reflexartig in Reichweite, ohne zu wissen, wo sie Kunden verlieren. Wer zuerst die Lecks findet und stopft, erreicht mit demselben Geld ein Vielfaches.</p>
+            <p style="margin:0">Das Labor verbindet drei Werkzeuge aus dieser Lerneinheit: Marktforschung, um die Lecks zu finden, die Customer Journey, um sie zu verstehen, und den Customer Lifetime Value, um ihren Wert zu beziffern.</p>
           </div>
         </div>
         <div>
           <div class="box">
             <h2>Das nehmen Sie mit</h2>
             <ul>
+              <li>Sie erleben, warum es sich lohnt, erst zu verstehen und dann zu investieren.</li>
               <li>Sie erkennen, an welcher Stelle der Kundenreise am meisten Wert verloren geht.</li>
-              <li>Sie vergleichen Massnahmen danach, was jeder investierte Franken zurückbringt.</li>
               <li>Sie wenden die Logik auf Ihr eigenes Angebot an und finden Ihren grössten Hebel.</li>
             </ul>
           </div>
           <div class="box">
-            <h2>So gehen Sie vor</h2>
+            <h2>So läuft es ab</h2>
             <ol>
-              <li>Verteilen Sie das Budget und beobachten Sie, wie sich der Kundenstrom verändert.</li>
-              <li>Simulieren Sie drei Jahre und vergleichen Sie mit Petras Plan und der besten Kombination.</li>
-              <li>Tragen Sie im Reiter «Meine Kundenreise» die Zahlen Ihres eigenen Angebots ein.</li>
+              <li>Jedes Jahr planen Sie neu: Marktforschung, Massnahmen, Werbung.</li>
+              <li>Dann läuft das Jahr. Klicken Sie auf rosa Punkte, um zu hören, warum jemand abspringt.</li>
+              <li>In der Jahressitzung sehen Sie, was Ihre Entscheidungen bewirkt haben.</li>
+              <li>Nach drei Jahren vergleichen Sie Ihren Weg mit Petras Plan und dem besten Weg.</li>
             </ol>
           </div>
         </div>
       </div>
-      <div class="meta"><span>Dauer: 10 bis 15 Minuten</span><span>Mehrere Durchgänge erwünscht</span><span>Alle Zahlen fiktiv</span></div>
-      <button class="btn big" type="button" id="openLab">Labor öffnen</button>
+      <div class="meta"><span>Dauer: 15 bis 20 Minuten</span><span>Drei Runden</span><span>Alle Zahlen fiktiv</span></div>
+      <button class="btn big" type="button" id="openLab">Jahr 1 planen</button>
     </div>
+
+    <!-- ===== LABOR ===== -->
     <div id="labMain" class="hidden">
-    <p class="lead">Jedes Jahr hören rund 10'000 Menschen zum ersten Mal vom Rucksack «Säntis 45». Unterwegs zur treuen Stammkundin gehen die meisten verloren. Sie haben <b>100'000 Franken pro Jahr</b>. Verteilen Sie das Budget auf Massnahmen und beobachten Sie live, wie sich der Strom verändert. Dann simulieren Sie drei Jahre.</p>
-
-    <div class="hud">
-      <div><div class="k">Jahr</div><div class="v" id="hYear">Planung</div></div>
-      <div><div class="k">Aktive Kunden</div><div class="v" id="hActive">2'000</div></div>
-      <div><div class="k">Verloren</div><div class="v" id="hLost">0</div></div>
-      <div><div class="k">Kundenwert</div><div class="v" id="hValue">CHF 0</div></div>
-    </div>
-
-    <div class="scene">
-      <canvas id="flow" width="1000" height="330" aria-label="Kundinnen fliessen durch die Phasen der Kundenreise, an den Lecks gehen sie verloren"></canvas>
-      <div class="yearbadge" id="yearBadge">Jahr 1</div>
-    </div>
-
-    <div class="msg" id="msg"><div class="avatar">PL</div><div><div class="who">Petra Lang, Leiterin Verkauf</div><div>Ganz einfach: Wir stecken alles in Werbung. Mehr Leute, die uns kennen, heisst mehr Kunden. Oder?</div></div></div>
-
-    <div id="planner">
-      <div class="budget"><h3 style="margin:0">Budget pro Jahr</h3><div class="btrack"><div class="bfill" id="bFill"></div></div><div class="btxt" id="bTxt">CHF 0 von 100'000</div></div>
-      <div class="measures" id="measures"></div>
-      <div class="go"><button class="btn ghost" type="button" id="resetBtn">Zurücksetzen</button><button class="btn big" type="button" id="runBtn">Drei Jahre simulieren</button></div>
-    </div>
-
-    <div id="result" class="result hidden">
-      <div class="stage">
-        <h3>Kundenwert nach drei Jahren</h3>
-        <div class="bignum" id="rValue">CHF 0</div>
-        <div id="rMedal"></div>
-        <p class="lead" style="margin:10px auto 0;text-align:center" id="rSub"></p>
+      <div class="steps" id="steps"></div>
+      <div class="hud">
+        <div><div class="k">Phase</div><div class="v" id="hYear">Jahr 1</div></div>
+        <div><div class="k">Aktive Kunden</div><div class="v" id="hActive">2'000</div></div>
+        <div><div class="k">Verloren bisher</div><div class="v" id="hLost">0</div></div>
+        <div><div class="k">Kundenwert bisher</div><div class="v" id="hValue">CHF 0</div></div>
       </div>
-      <h2>So schneidet Ihre Strategie ab</h2>
-      <div class="bar"><div class="lbl">Ihre Strategie</div><div class="track"><div class="fill" id="c1" style="background:var(--blue)"></div></div></div>
-      <div class="bar"><div class="lbl">Nichts tun</div><div class="track"><div class="fill" id="c2" style="background:var(--p25)"></div></div></div>
-      <div class="bar"><div class="lbl">Alles in Werbung, Petras Plan</div><div class="track"><div class="fill" id="c3" style="background:var(--lrose)"></div></div></div>
-      <div class="bar"><div class="lbl">Beste Kombination</div><div class="track"><div class="fill" id="c4" style="background:var(--mint)"></div></div></div>
-      <div class="insight" id="rInsight"></div>
-      <h2 style="margin-top:20px">Was jeder Franken gebracht hat</h2>
-      <p class="lead" style="margin-bottom:4px">Zusätzlicher Kundenwert über drei Jahre, wenn man die Massnahme zu Ihrer Strategie hinzufügt oder wegnimmt, geteilt durch ihre Kosten.</p>
-      <div style="overflow-x:auto"><table class="roi" id="roiTbl"></table></div>
-      <details class="model"><summary>Wie rechnet das Labor?</summary>
-        <ul>
-          <li>Jedes Jahr werden 10'000 Menschen auf den Säntis 45 aufmerksam. 40 Prozent informieren sich ernsthaft, davon kaufen 30 Prozent.</li>
-          <li>Zu Beginn gibt es 2'000 aktive Kundinnen und Kunden. Jedes Jahr wandern 25 Prozent ab. Jede aktive Kundin bringt 144 Franken Deckungsbeitrag pro Jahr, wie im Skript.</li>
-          <li>Weiterempfehlungen: Pro Jahr bringen 5 von 100 aktiven Kunden eine neue Interessentin, die direkt in die Abwägung einsteigt.</li>
-          <li>Kundenwert = Summe der Deckungsbeiträge über drei Jahre minus das ausgegebene Budget.</li>
-          <li>Die Wirkungen der Massnahmen sind Annahmen für das Labor und keine Messwerte. Im Reiter «Meine Kundenreise» rechnen Sie mit Ihren eigenen Zahlen.</li>
-        </ul>
-      </details>
-      <div class="go" style="justify-content:center;margin-top:18px">
-        <button class="btn ghost" type="button" id="againBtn">Strategie anpassen</button>
-        <button class="btn" type="button" id="toMineBtn">Jetzt meine eigene Kundenreise prüfen</button>
+      <div class="scene">
+        <canvas id="flow" width="1000" height="330" aria-label="Kundinnen fliessen durch die Phasen der Kundenreise, an den Lecks gehen sie verloren"></canvas>
+        <div class="yearbadge" id="yearBadge">Jahr 1</div>
       </div>
-    </div>
+      <div class="voice" id="voice"><div class="av">?</div><div><div class="tag">Kundenstimme</div><div class="q">Klicken Sie auf einen rosa Punkt, um zu hören, warum diese Person nicht weitergekommen ist.</div></div></div>
+
+      <div class="event hidden" id="eventBox"><div class="ic">!</div><div id="eventTxt"></div></div>
+      <div class="msg" id="msg"></div>
+
+      <div id="planner">
+        <div class="sec">
+          <h3>Erst verstehen: Marktforschung <span>Einmal durchgeführt, gilt das Ergebnis für alle folgenden Jahre.</span></h3>
+          <div class="research" id="research"></div>
+        </div>
+        <div class="sec">
+          <h3>Dann handeln: Massnahmen für dieses Jahr</h3>
+          <div class="measures" id="measures"></div>
+        </div>
+        <div class="budget"><h3 style="margin:0">Budget dieses Jahr</h3><div class="btrack"><div class="bfill" id="bFill"></div></div><div class="btxt" id="bTxt">CHF 0 von 100'000</div></div>
+        <div class="go"><button class="btn big" type="button" id="runBtn">Jahr 1 starten</button></div>
+      </div>
+
+      <div id="report" class="report hidden"></div>
+
+      <div id="final" class="result hidden">
+        <div class="stage">
+          <h3>Kundenwert nach drei Jahren</h3>
+          <div class="bignum" id="fValue">CHF 0</div>
+          <div id="fMedal"></div>
+          <p class="lead" style="margin:10px auto 0;text-align:center" id="fSub"></p>
+        </div>
+        <h2>Ihr Kundenstamm im Verlauf</h2>
+        <svg class="chart" id="chart" viewBox="0 0 1000 320" role="img" aria-label="Verlauf der aktiven Kunden über drei Jahre"></svg>
+        <div class="legend"><span><i style="background:#86C1CF"></i>Ihr Weg</span><span><i style="background:#D47882"></i>Petras Plan, alles in Werbung</span><span><i style="background:#89BD99"></i>Bester Weg mit vollem Wissen</span><span><i style="background:#C5CFD0"></i>Nichts tun</span></div>
+        <h2 style="margin-top:20px">Ihr Weg Jahr für Jahr</h2>
+        <div style="overflow-x:auto"><table class="path" id="pathTbl"></table></div>
+        <div class="insight" id="fInsight"></div>
+        <details class="model"><summary>Wie rechnet das Labor?</summary>
+          <ul>
+            <li>Jedes Jahr werden 10'000 Menschen auf den Säntis 45 aufmerksam. Ohne Massnahmen informieren sich 40 Prozent ernsthaft, davon kaufen 30 Prozent.</li>
+            <li>Zu Beginn gibt es 2'000 aktive Kundinnen und Kunden. Ohne Massnahmen wandern pro Jahr 25 Prozent ab. Jede aktive Kundin bringt 144 Franken Deckungsbeitrag pro Jahr, wie im Skript.</li>
+            <li>Weiterempfehlungen: Pro 100 aktive Kunden kommen jährlich 5 neue Interessenten über Empfehlung. Sie kaufen deutlich häufiger, weil sie jemandem vertrauen.</li>
+            <li>Die Nachkauf-Betreuung wirkt im ersten Jahr nur zur Hälfte, ab dem zweiten Jahr voll.</li>
+            <li>Ereignisse: In Jahr 2 bietet die Konkurrenz Gratis-Reparaturen an, die Abwanderung steigt um 5 Punkte, wenn der eigene Reparaturservice nicht bekannt ist. In Jahr 3 sorgt ein Influencer für 30 Prozent mehr Aufmerksamkeit, und jede Werbestufe wirkt doppelt.</li>
+            <li>Kundenwert = Summe der Deckungsbeiträge über drei Jahre minus das ausgegebene Budget. Alle Wirkungen sind Annahmen für das Labor und keine Messwerte.</li>
+          </ul>
+        </details>
+        <div class="go" style="justify-content:center;margin-top:18px">
+          <button class="btn ghost" type="button" id="againBtn">Nochmals von vorne</button>
+          <button class="btn" type="button" id="toMineBtn">Jetzt meine eigene Kundenreise prüfen</button>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -272,6 +327,7 @@ details.model li{font-size:14px;color:var(--p75)}
     </div>
   </section>
 
+
   <div class="foot"><span>HKV Aarau</span><span>Fiktive Zahlen</span></div>
 </div>
 
@@ -282,193 +338,294 @@ var $=function(id){return document.getElementById(id);};
 function grp(n){return Math.round(Math.abs(n)).toString().replace(/\B(?=(\d{3})+(?!\d))/g,"'");}
 function chf(n){return (n<0?'−CHF ':'CHF ')+grp(n);}
 function num(n){return (n<0?'−':'')+grp(n);}
-
 function reportHeight(){try{parent.postMessage({type:'resize',source:'kundenwert-labor',height:document.documentElement.scrollHeight},'*');}catch(e){}}
 if(window.ResizeObserver){new ResizeObserver(reportHeight).observe(document.body);} window.addEventListener('load',reportHeight);
-
 document.querySelectorAll('.tab').forEach(function(b){b.addEventListener('click',function(){showTab(b.dataset.tab);});});
 function showTab(t){document.querySelectorAll('.tab').forEach(function(b){b.classList.toggle('on',b.dataset.tab===t);});
   $('labor').classList.toggle('hidden',t!=='labor');$('mine').classList.toggle('hidden',t!=='mine');if(t==='mine')calcMine();reportHeight();}
 
 /* ================= MODELL ================= */
-var BUDGET=100000, DB=144, YEARS=3;
+var BUDGET=100000, DB=144, AD=20000, YEARS=3;
 var MEAS=[
- {id:'data',ph:'Abwägung',t:'Datenblatt und Testmuster',s:'Vollständige Masse, Gewicht, Vergleich. Interesse 40 auf 52 Prozent.',cost:15000},
- {id:'stock',ph:'Kauf',t:'Lieferfähigkeit sichern',s:'Alle Grössen jederzeit verfügbar. Kaufquote 30 auf 39 Prozent.',cost:30000},
- {id:'repair',ph:'Nutzung',t:'Reparaturservice bekannt machen',s:'Wer repariert, bleibt. Abwanderung minus 6 Prozentpunkte.',cost:10000},
- {id:'care',ph:'Bindung',t:'Nachkauf-Betreuung',s:'Pflegetipps, Saisonstart-Check. Abwanderung minus 4 Punkte, mehr Empfehlungen.',cost:20000},
- {id:'ref',ph:'Empfehlung',t:'Empfehlungsprogramm',s:'Gutschein für beide Seiten. Empfehlungen 5 auf 12 pro 100 Kunden.',cost:20000}
+ {id:'data',ph:'Abwägung',leak:'cons',t:'Datenblatt und Testmuster',q:'Vollständige Masse, Gewicht, Vergleiche und Testberichte für Interessierte.',n:'Interesse 40 auf 52 Prozent.',cost:15000},
+ {id:'stock',ph:'Kauf',leak:'buy',t:'Lieferfähigkeit sichern',q:'Alle Grössen jederzeit im Fachhandel verfügbar.',n:'Kaufquote 30 auf 39 Prozent.',cost:25000},
+ {id:'repair',ph:'Nutzung',leak:'churn',t:'Reparaturservice bekannt machen',q:'Kundinnen erfahren, dass Alpstein repariert statt ersetzt.',n:'Abwanderung minus 6 Prozentpunkte.',cost:10000},
+ {id:'care',ph:'Bindung',leak:'churn',t:'Nachkauf-Betreuung',q:'Pflegetipps und Saisonstart-Check nach dem Kauf. Wirkt im ersten Jahr nur halb.',n:'Abwanderung bis minus 5 Punkte, etwas mehr Empfehlungen.',cost:20000},
+ {id:'ref',ph:'Empfehlung',leak:null,t:'Empfehlungsprogramm',q:'Gutschein für beide Seiten bei einer Empfehlung.',n:'Empfehlungen 5 auf 17 pro 100 Kunden.',cost:20000}
 ];
-var AD_STEP=20000;
-function params(sel,ads){
-  var p={aware:10000*(1+0.15*ads),cons:.40,buy:.30,churn:.25,ref:.05};
-  if(sel.data)p.cons=.52; if(sel.stock)p.buy=.39; if(sel.repair)p.churn-=.06;
-  if(sel.care){p.churn-=.04;p.ref+=.03;} if(sel.ref)p.ref+=.07;
+var RES=[
+ {id:'buy',t:'Verkaufsdaten auswerten',s:'Interne Zahlen zu Anfragen, Lagerstand und Abschlüssen.',cost:0},
+ {id:'cons',t:'Kundenbefragung',s:'200 Interessierte, die nicht gekauft haben, werden befragt.',cost:5000},
+ {id:'churn',t:'Gespräche mit Abgewanderten',s:'Tiefeninterviews mit ehemaligen Stammkunden.',cost:8000}
+];
+var LEAKNAME={cons:'in der Abwägung',buy:'beim Kauf',churn:'bei der Bindung'};
+var EVENTS=[
+ null,
+ {t:'Die Konkurrenz bietet ab diesem Jahr Gratis-Reparaturen an.',s:'Wer den eigenen Reparaturservice nicht bekannt macht, verliert dieses Jahr 5 Prozentpunkte mehr Stammkunden an die Konkurrenz.'},
+ {t:'Ein bekannter Bergsport-Influencer empfiehlt den Säntis 45.',s:'30 Prozent mehr Menschen werden aufmerksam, und jede Werbestufe wirkt doppelt. Ob der Ansturm ankommt, hängt davon ab, wie dicht Ihre Kundenreise ist.'}
+];
+function yearParams(y,pl,hist){
+  var p={aware:10000,cons:.40,buy:.30,churn:.25,ref:.05}, step=.15;
+  if(y===2){p.aware*=1.3;step=.30;}
+  p.aware*=1+step*pl.ads;
+  if(pl.data)p.cons=.52; if(pl.stock)p.buy=.39; if(pl.repair)p.churn-=.06;
+  var fc=pl.care?(hist.care>=1?1:.5):0; p.churn-=.05*fc; p.ref+=.03*fc+(pl.ref?.12:0);
+  if(y===1&&!pl.repair)p.churn+=.05;
   return p;
 }
-function spendOf(sel,ads){return ads*AD_STEP+MEAS.reduce(function(s,m){return s+(sel[m.id]?m.cost:0);},0);}
-function run(sel,ads){
-  var p=params(sel,ads), spend=spendOf(sel,ads), active=2000, refs=active*p.ref, val=0, years=[], lost=0;
-  for(var y=0;y<YEARS;y++){
-    var c=p.aware*p.cons+refs, b=c*p.buy;
-    var l1=p.aware*(1-p.cons), l2=c*(1-p.buy), l3=active*p.churn;
-    lost+=l1+l2+l3;
-    active=active*(1-p.churn)+b; refs=active*p.ref;
-    var dbY=active*DB; val+=dbY-spend;
-    years.push({active:active,lost:lost,val:val,buyers:b,refs:refs,l1:l1,l2:l2,l3:l3});
-  }
-  return {val:val,spend:spend,years:years,p:p};
+function spendOf(pl){return pl.ads*AD+MEAS.reduce(function(s,m){return s+(pl[m.id]?m.cost:0);},0)+(pl.research||0);}
+function runYear(y,pl,st){
+  var p=yearParams(y,pl,st.hist), rf=st.active*p.ref, c=p.aware*p.cons+rf;
+  var b=p.aware*p.cons*p.buy+rf*Math.min(1,p.buy+.30), churned=st.active*p.churn, active=st.active-churned+b, sp=spendOf(pl);
+  return {p:p,newC:b,churned:churned,lostCons:p.aware*(1-p.cons),lostBuy:p.aware*p.cons*(1-p.buy)+rf*Math.max(0,1-Math.min(1,p.buy+.30)),
+    active:active,db:active*DB,sp:sp,val:active*DB-sp,st:{active:active,hist:{care:st.hist.care+(pl.care?1:0)}}};
 }
-function allCombos(){
-  var out=[];
-  for(var mask=0;mask<32;mask++)for(var ads=0;ads<=5;ads++){
-    var sel={};MEAS.forEach(function(m,i){sel[m.id]=!!(mask&(1<<i));});
-    if(spendOf(sel,ads)>BUDGET)continue;
-    out.push({sel:sel,ads:ads,r:run(sel,ads)});
-  }
-  out.sort(function(a,b){return b.r.val-a.r.val;});
-  return out;
+function runPlans(plans){var st={active:2000,hist:{care:0}},tot=0,out=[];plans.forEach(function(pl,y){var r=runYear(y,pl,st);tot+=r.val;out.push(r);st=r.st;});return {tot:tot,out:out};}
+var COMBOS=(function(){var o=[];for(var m=0;m<32;m++)for(var a=0;a<=5;a++){var pl={ads:a};MEAS.forEach(function(x,i){pl[x.id]=!!(m&(1<<i));});if(spendOf(pl)<=BUDGET)o.push(pl);}return o;})();
+function bestPath(){
+  function f(y,st){if(y===YEARS)return {v:0,p:[]};var b=null;
+    for(var i=0;i<COMBOS.length;i++){var r=runYear(y,COMBOS[i],st),rest=f(y+1,r.st),v=r.val+rest.v;if(!b||v>b.v)b={v:v,p:[COMBOS[i]].concat(rest.p)};}return b;}
+  return f(0,{active:2000,hist:{care:0}});
 }
 
-/* ================= PLANER ================= */
-var sel={data:false,stock:false,repair:false,care:false,ref:false}, ads=0, running=false;
-function used(){return spendOf(sel,ads);}
+/* ================= ZUSTAND ================= */
+var G;
+function newGame(){G={y:0,state:{active:2000,hist:{care:0}},revealed:{},plans:[],results:[],tot:0,lostTot:0,
+  plan:{ads:0,data:false,stock:false,repair:false,care:false,ref:false,research:0,resIds:[]}};}
+newGame();
+
+/* ================= PLANUNG ================= */
+function used(){return spendOf(G.plan);}
+function renderSteps(phase){
+  var h='';for(var i=0;i<YEARS;i++){h+='<span class="'+(i<G.y?'done':i===G.y?'now':'')+'">Jahr '+(i+1)+'</span>';}
+  h+='<span class="'+(phase==='final'?'now':'')+'">Abrechnung</span>';$('steps').innerHTML=h;
+}
+function renderResearch(){
+  var free=BUDGET-used(), h='';
+  RES.forEach(function(r){var done=G.revealed[r.id], dis=!done&&r.cost>free;
+    h+='<button type="button" class="r'+(done?' done':'')+(dis?' off':'')+'" data-r="'+r.id+'"><span class="c">'+(done?'✓ erledigt':r.cost?grp(r.cost/1000)+'k':'gratis')+'</span><span class="t">'+r.t+'</span><span class="s">'+(done?'Ergebnis: '+leakText(r.id):r.s)+'</span></button>';});
+  $('research').innerHTML=h;
+  $('research').querySelectorAll('[data-r]').forEach(function(b){b.onclick=function(){
+    var id=b.dataset.r, r=RES.filter(function(x){return x.id===id;})[0]; if(G.revealed[id]||r.cost>BUDGET-used())return;
+    G.revealed[id]=true; G.plan.research+=r.cost; G.plan.resIds.push(id); update(); flashLeak(id);};});
+}
+function leakText(id){var p=yearParams(G.y,G.plan,G.state.hist);
+  if(id==='cons')return Math.round((1-p.cons)*100)+' Prozent der Aufmerksamen verlieren unterwegs das Interesse.';
+  if(id==='buy')return Math.round((1-p.buy)*100)+' Prozent der Interessierten kaufen am Ende nicht.';
+  return Math.round(p.churn*100)+' Prozent der Stammkunden wandern pro Jahr ab.';}
 function renderMeasures(){
   var free=BUDGET-used();
-  var h='<div class="m'+(ads>0?' on':'')+'" style="cursor:default"><span class="ph">Bewusstsein</span><span class="t">Werbekampagne</span><span class="s">Pro Stufe CHF 20\'000: 15 Prozent mehr Menschen hören vom Säntis.</span>'+
-    '<div class="ads"><button type="button" id="adMinus" aria-label="Weniger Werbung">−</button><div class="lvl">'+[0,1,2,3,4].map(function(i){return '<i class="'+(i<ads?'on':'')+'"></i>';}).join('')+'</div><button type="button" id="adPlus" aria-label="Mehr Werbung">+</button><b style="color:var(--p);margin-left:4px">'+chf(ads*AD_STEP)+'</b></div></div>';
-  MEAS.forEach(function(m){
-    var on=sel[m.id], dis=!on&&m.cost>free;
-    h+='<button type="button" class="m'+(on?' on':'')+(dis?' off':'')+'" data-m="'+m.id+'"'+(dis?' aria-disabled="true"':'')+'><span class="c">'+grp(m.cost/1000)+'k</span><span class="ph">'+m.ph+'</span><span class="t">'+m.t+'</span><span class="s">'+m.s+'</span><span class="tick">✓</span></button>';
-  });
+  var h='<div class="m'+(G.plan.ads>0?' on':'')+'" style="cursor:default"><span class="ph">Bewusstsein</span><span class="t">Werbekampagne</span><span class="s">Pro Stufe CHF 20\'000: '+(G.y===2?'30':'15')+' Prozent mehr Menschen hören vom Säntis.</span>'+
+    '<div class="ads"><button type="button" id="adMinus" aria-label="Weniger Werbung">−</button><div class="lvl">'+[0,1,2,3,4].map(function(i){return '<i class="'+(i<G.plan.ads?'on':'')+'"></i>';}).join('')+'</div><button type="button" id="adPlus" aria-label="Mehr Werbung">+</button><b style="color:var(--p);margin-left:4px">'+chf(G.plan.ads*AD)+'</b></div></div>';
+  MEAS.forEach(function(m){var on=G.plan[m.id], dis=!on&&m.cost>free, known=m.leak===null||G.revealed[m.leak];
+    h+='<button type="button" class="m'+(on?' on':'')+(dis?' off':'')+'" data-m="'+m.id+'"><span class="c">'+grp(m.cost/1000)+'k</span><span class="ph">'+m.ph+'</span><span class="t">'+m.t+'</span><span class="s">'+m.q+(known?' <b>'+m.n+'</b>':'')+'</span><span class="tick">✓</span></button>';});
   $('measures').innerHTML=h;
   $('measures').querySelectorAll('[data-m]').forEach(function(b){b.onclick=function(){
-    if(running)return; var id=b.dataset.m, m=MEAS.filter(function(x){return x.id===id;})[0];
-    if(!sel[id]&&m.cost>BUDGET-used())return; sel[id]=!sel[id]; update();};});
-  $('adPlus').onclick=function(){if(!running&&ads<5&&used()+AD_STEP<=BUDGET){ads++;update();}};
-  $('adMinus').onclick=function(){if(!running&&ads>0){ads--;update();}};
-  $('bFill').style.width=(used()/BUDGET*100)+'%';
-  $('bTxt').textContent=chf(used())+' von 100\'000';
+    var id=b.dataset.m, m=MEAS.filter(function(x){return x.id===id;})[0];
+    if(!G.plan[id]&&m.cost>BUDGET-used())return; G.plan[id]=!G.plan[id]; update();};});
+  $('adPlus').onclick=function(){if(G.plan.ads<5&&used()+AD<=BUDGET){G.plan.ads++;update();}};
+  $('adMinus').onclick=function(){if(G.plan.ads>0){G.plan.ads--;update();}};
 }
-function update(){renderMeasures(); flow.setParams(params(sel,ads),sel); reportHeight();}
-$('resetBtn').onclick=function(){if(running)return;sel={data:false,stock:false,repair:false,care:false,ref:false};ads=0;update();};
+function update(){
+  renderResearch(); renderMeasures();
+  $('bFill').style.width=Math.min(100,used()/BUDGET*100)+'%'; $('bTxt').textContent=chf(used())+' von 100\'000';
+  flow.setParams(yearParams(G.y,G.plan,G.state.hist),G.plan,G.revealed,G.state.active); reportHeight();
+}
+var MSG=[
+ {av:'PL',who:'Petra Lang, Leiterin Verkauf',txt:'Ganz einfach: Wir stecken alles in Werbung. Mehr Leute, die uns kennen, heisst mehr Kunden. Wozu Geld für Befragungen ausgeben?'},
+ {av:'MS',who:'Marco Steiner, Leiter Produktion',txt:'Haben Sie gehört? Die Konkurrenz repariert jetzt gratis. Ich wette, das kostet uns Stammkunden.'},
+ {av:'PL',who:'Petra Lang, Leiterin Verkauf',txt:'Endlich! Ein Influencer redet über uns. Jetzt Vollgas Werbung, das ist unsere Chance!'}
+];
+function planYear(){
+  renderSteps(); $('hYear').textContent='Planung Jahr '+(G.y+1);
+  $('report').classList.add('hidden'); $('planner').classList.remove('hidden');
+  var ev=EVENTS[G.y]; $('eventBox').classList.toggle('hidden',!ev); if(ev)$('eventTxt').innerHTML='<b>Ereignis in Jahr '+(G.y+1)+':</b> '+ev.t+'<br><span style="font-size:14.5px">'+ev.s+'</span>';
+  var m=MSG[G.y]; $('msg').innerHTML='<div class="avatar">'+m.av+'</div><div><div class="who">'+m.who+'</div><div>'+m.txt+'</div></div>';
+  $('runBtn').textContent='Jahr '+(G.y+1)+' starten'; $('runBtn').disabled=false;
+  update();
+}
+$('openLab').onclick=function(){$('labIntro').classList.add('hidden');$('labMain').classList.remove('hidden');planYear();window.scrollTo(0,0);};
 
 /* ================= STROM ================= */
+var QUOTES={
+ cons:[['Thomas, 38','Ich wollte wissen, wie schwer er ist. Stand nirgends.'],['Sarah, 34','Auf der Website fehlten die Masse. Bei der Konkurrenz war alles angegeben.'],['Nina, 41','Ich fand keinen einzigen Testbericht. Da war ich mir unsicher.']],
+ buy:[['Lea, 29','Grösse M war wieder nicht da. Also habe ich bei der Konkurrenz gekauft.'],['Thomas, 38','Der Händler sagte: in zehn Wochen. Ich gehe aber nächste Woche auf Tour.'],['Jonas, 26','Ich wollte ihn anprobieren, aber es gab nur noch ein Ausstellungsmodell.']],
+ churn:[['Lea, 29','Der Hüftgurt war durch. Dass man ihn reparieren kann, wusste ich nicht.'],['Peter, 52','Nach dem Kauf habe ich nie mehr etwas von Alpstein gehört.'],['Sarah, 34','Ich habe einfach einen neuen gekauft. Den Säntis hatte ich nicht mehr im Kopf.']],
+ comp:[['Marc, 45','Die Konkurrenz repariert gratis. Da bin ich gewechselt.']]
+};
 var flow=(function(){
   var cv=$('flow'), cx=cv.getContext('2d'), W=1000, H=330, Y=150;
   var ST=[{x:70,n:'Bewusstsein'},{x:235,n:'Abwägung'},{x:400,n:'Kauf'},{x:565,n:'Erhalt'},{x:730,n:'Nutzung'},{x:900,n:'Bindung'}];
-  var P={aware:10000,cons:.4,buy:.3,churn:.25,ref:.05}, S={}, parts=[], acc=0, last=performance.now(), speedMul=1, fixes=[];
   var LEAK=[{x:152,key:'cons'},{x:317,key:'buy'},{x:815,key:'churn'}];
+  var P=yearParams(0,{ads:0},{care:0}), PL={}, REV={}, ACT=2000, parts=[], acc=0, last=performance.now(), speedMul=1, flash={};
   function spawn(type){
-    if(type==='ref'){parts.push({x:900,y:Y,phase:'loop',t:0,col:'#89BD99',r:4});return;}
+    if(type==='ref'){parts.push({phase:'loop',t:0,col:'#89BD99',r:4});return;}
     parts.push({x:20,y:Y+(Math.random()*24-12),vx:2.6+Math.random()*.9,col:'#86C1CF',r:3.6,dec:{}});
   }
-  function drawBase(){
+  function drawBase(now){
     cx.clearRect(0,0,W,H); cx.fillStyle='#f4f7f7'; cx.fillRect(0,0,W,H);
-    /* Rohr */
     cx.fillStyle='#E8ECEC'; cx.fillRect(20,Y-22,920,44);
-    /* Becken Verloren */
     cx.fillStyle='#f2d6d9'; cx.fillRect(110,282,760,40);
     cx.fillStyle='#9a3d47'; cx.font='600 12px Montserrat, DejaVu Sans, sans-serif'; cx.textAlign='left'; cx.fillText('VERLOREN',120,306);
-    /* Empfehlungsbogen */
     cx.strokeStyle='#89BD99'; cx.lineWidth=2; cx.setLineDash([6,6]); cx.beginPath(); cx.moveTo(900,Y-26); cx.bezierCurveTo(880,20,260,20,235,Y-26); cx.stroke(); cx.setLineDash([]);
     cx.fillStyle='#4E6B70'; cx.font='13px Roboto, DejaVu Sans, sans-serif'; cx.textAlign='center'; cx.fillText('Weiterempfehlungen',568,40);
-    /* Stationen */
-    ST.forEach(function(s){cx.fillStyle='#183E45';cx.beginPath();cx.arc(s.x,Y,9,0,7);cx.fill();
-      cx.fillStyle='#183E45';cx.font='700 14px Roboto, DejaVu Sans, sans-serif';cx.textAlign='center';cx.fillText(s.n,s.x,Y+44);});
-    /* Lecks */
-    LEAK.forEach(function(l){var v=l.key==='churn'?P.churn:1-P[l.key];
-      var fixed=fixes.indexOf(l.key)>=0;
-      cx.fillStyle=fixed?'#89BD99':'#D47882'; cx.fillRect(l.x-14,Y+20,28,7);
-      cx.fillStyle=fixed?'#183E45':'#9a3d47'; cx.font='700 14px Roboto, DejaVu Sans, sans-serif'; cx.textAlign='center';
-      cx.fillText(Math.round(v*100)+' % verloren',l.x,Y+74);
-      if(fixed){cx.fillStyle='#2f6b45';cx.font='700 13px Roboto, DejaVu Sans, sans-serif';cx.fillText('✓ Leck verkleinert',l.x,Y+94);}
+    ST.forEach(function(s){cx.fillStyle='#183E45';cx.beginPath();cx.arc(s.x,Y,9,0,7);cx.fill();cx.font='700 14px Roboto, DejaVu Sans, sans-serif';cx.textAlign='center';cx.fillText(s.n,s.x,Y+44);});
+    LEAK.forEach(function(l){var v=l.key==='churn'?P.churn:1-P[l.key], known=REV[l.key];
+      var fixed=(l.key==='cons'&&PL.data)||(l.key==='buy'&&PL.stock)||(l.key==='churn'&&(PL.repair||PL.care));
+      var fl=flash[l.key]&&now-flash[l.key]<1600;
+      if(fl){cx.fillStyle='rgba(224,175,88,.35)';cx.beginPath();cx.arc(l.x,Y+60,46,0,7);cx.fill();}
+      cx.fillStyle=fixed&&known?'#89BD99':'#D47882'; cx.fillRect(l.x-14,Y+20,28,7);
+      cx.fillStyle=known?(fixed?'#183E45':'#9a3d47'):'#8C9EA2'; cx.font='700 14px Roboto, DejaVu Sans, sans-serif'; cx.textAlign='center';
+      cx.fillText(known?Math.round(v*100)+' % verloren':'? verloren',l.x,Y+74);
+      if(known&&fixed){cx.fillStyle='#2f6b45';cx.font='700 13px Roboto, DejaVu Sans, sans-serif';cx.fillText('✓ Leck verkleinert',l.x,Y+94);}
+      if(!known){cx.fillStyle='#8C9EA2';cx.font='12px Roboto, DejaVu Sans, sans-serif';cx.fillText('noch unerforscht',l.x,Y+93);}
     });
   }
   function step(now){
-    var dt=Math.min(50,now-last); last=now;
-    drawBase();
-    acc+=dt*(P.aware/10000)*0.030*speedMul;
-    while(acc>1){spawn();acc-=1;}
-    var refRate=P.ref*(S.active||2000)/2000;
-    if(Math.random()<dt*0.0022*refRate*10*speedMul) spawn('ref');
-    for(var i=parts.length-1;i>=0;i--){
-      var q=parts[i];
-      if(q.phase==='loop'){
-        q.t+=dt*0.0009*speedMul; var t=q.t, x=Math.pow(1-t,3)*900+3*Math.pow(1-t,2)*t*880+3*(1-t)*t*t*260+t*t*t*235,
-          y=Math.pow(1-t,3)*(Y-26)+3*Math.pow(1-t,2)*t*20+3*(1-t)*t*t*20+t*t*t*(Y-26);
+    var dt=Math.min(50,now-last); last=now; drawBase(now);
+    acc+=dt*(P.aware/10000)*0.030*speedMul; while(acc>1){spawn();acc-=1;}
+    if(Math.random()<dt*0.0022*(P.ref*ACT/2000)*10*speedMul) spawn('ref');
+    for(var i=parts.length-1;i>=0;i--){var q=parts[i];
+      if(q.phase==='loop'){q.t+=dt*0.0009*speedMul;var t=q.t,
+        x=Math.pow(1-t,3)*900+3*Math.pow(1-t,2)*t*880+3*(1-t)*t*t*260+t*t*t*235,
+        y=Math.pow(1-t,3)*(Y-26)+3*Math.pow(1-t,2)*t*20+3*(1-t)*t*t*20+t*t*t*(Y-26);
         cx.fillStyle=q.col;cx.beginPath();cx.arc(x,y,q.r,0,7);cx.fill();
-        if(t>=1){parts[i]={x:235,y:Y+(Math.random()*20-10),vx:2.8,col:'#89BD99',r:3.8,dec:{cons:true}};}
-        continue;
-      }
-      if(q.fall){q.vy+=0.12;q.y+=q.vy;q.x+=q.vx*0.3; if(q.y>298){q.y=298+Math.random()*16;q.dead=(q.dead||0)+1; if(q.dead>40){parts.splice(i,1);continue;}}
-        cx.fillStyle='#D47882';cx.beginPath();cx.arc(q.x,q.y,q.r,0,7);cx.fill();continue;}
+        if(t>=1)parts[i]={x:235,y:Y+(Math.random()*20-10),vx:2.8,col:'#89BD99',r:3.8,dec:{cons:true},ref:true};continue;}
+      if(q.fall){q.vy+=0.12;q.y+=q.vy;q.x+=q.vx*0.3;if(q.y>298){q.y=298+Math.random()*16;q.vy=0;q.vx=0;q.dead=(q.dead||0)+1;if(q.dead>140){parts.splice(i,1);continue;}}
+        cx.fillStyle='#D47882';cx.beginPath();cx.arc(q.x,q.y,q.r+.6,0,7);cx.fill();continue;}
       q.x+=q.vx*speedMul*dt/16;
-      LEAK.forEach(function(l){ if(!q.dec[l.key]&&q.x>=l.x){ q.dec[l.key]=true;
-        var pl=l.key==='churn'?P.churn:1-P[l.key]; if(Math.random()<pl){q.fall=true;q.vy=0.5;} }});
+      for(var k=0;k<LEAK.length;k++){var l=LEAK[k]; if(!q.dec[l.key]&&q.x>=l.x){q.dec[l.key]=true;
+        var pl=l.key==='churn'?P.churn:(l.key==='buy'&&q.ref?Math.max(0,1-Math.min(1,P.buy+.3)):1-P[l.key]);
+        if(Math.random()<pl){q.fall=true;q.vy=0.5;q.leak=l.key;}}}
       if(q.x>400&&!q.bought){q.bought=true;q.col='#183E45';}
       if(q.x>935){parts.splice(i,1);continue;}
-      cx.fillStyle=q.col;cx.beginPath();cx.arc(q.x,q.y,q.r,0,7);cx.fill();
-    }
+      cx.fillStyle=q.col;cx.beginPath();cx.arc(q.x,q.y,q.r,0,7);cx.fill();}
     requestAnimationFrame(step);
   }
   requestAnimationFrame(step);
-  return {setParams:function(p,s){P=p;fixes=[];if(s.data)fixes.push('cons');if(s.stock)fixes.push('buy');if(s.repair||s.care)fixes.push('churn');},
-          setState:function(st){S=st;}, speed:function(m){speedMul=m;}};
+  cv.addEventListener('click',function(e){
+    var rc=cv.getBoundingClientRect(), x=(e.clientX-rc.left)*W/rc.width, y=(e.clientY-rc.top)*H/rc.height, best=null,bd=22*22;
+    parts.forEach(function(q){if(!q.fall)return;var d=(q.x-x)*(q.x-x)+(q.y-y)*(q.y-y);if(d<bd){bd=d;best=q;}});
+    if(!best)return; var key=best.leak, pool=QUOTES[key];
+    if(key==='churn'&&G.y===1&&!G.plan.repair&&Math.random()<.5)pool=QUOTES.comp;
+    var qq=pool[Math.floor(Math.random()*pool.length)];
+    $('voice').innerHTML='<div class="av">'+qq[0].split(' ')[0].slice(0,2)+'</div><div><div class="tag">Kundenstimme · ausgestiegen '+LEAKNAME[key]+'</div><div class="q">«'+qq[1]+'» <span style="font-style:normal;color:var(--p50);font-size:13px">'+qq[0]+'</span></div></div>';
+  });
+  return {setParams:function(p,pl,rev,act){P=p;PL=pl;REV=rev;ACT=act||ACT;},speed:function(m){speedMul=m;},flash:function(k){flash[k]=performance.now();}};
 })();
+function flashLeak(k){flow.flash(k);}
 
-/* ================= SIMULATION ================= */
+/* ================= JAHR LAUFEN LASSEN ================= */
 function anim(el,from,to,ms,fmt){var t0=performance.now();(function f(n){var k=Math.min(1,(n-t0)/ms),e=1-Math.pow(1-k,3);el.textContent=fmt(from+(to-from)*e);if(k<1)requestAnimationFrame(f);})(t0);}
 $('runBtn').onclick=function(){
-  if(running)return; running=true; $('runBtn').disabled=true; $('resetBtn').disabled=true; $('result').classList.add('hidden');
-  var r=run(sel,ads), y=0, prevA=2000, prevL=0, prevV=0; flow.speed(1.8);
-  $('msg').innerHTML='<div class="avatar">MS</div><div><div class="who">Marco Steiner, Leiter Produktion</div><div>Die Simulation läuft. Schauen Sie auf die Lecks: Dort entscheidet sich, ob Ihr Geld ankommt.</div></div>';
-  (function nextYear(){
-    if(y>=YEARS){finish(r);return;}
-    var yr=r.years[y]; $('hYear').textContent='Jahr '+(y+1); $('yearBadge').textContent='Jahr '+(y+1); $('yearBadge').classList.add('show');
-    setTimeout(function(){$('yearBadge').classList.remove('show');},900);
-    flow.setState({active:yr.active});
-    anim($('hActive'),prevA,yr.active,2600,num); anim($('hLost'),prevL,yr.lost,2600,num); anim($('hValue'),prevV,yr.val,2600,chf);
-    prevA=yr.active;prevL=yr.lost;prevV=yr.val; y++; setTimeout(nextYear,3000);
-  })();
+  $('runBtn').disabled=true; $('planner').classList.add('hidden'); $('eventBox').classList.add('hidden');
+  $('msg').innerHTML='<div class="avatar">MS</div><div><div class="who">Marco Steiner, Leiter Produktion</div><div>Das Jahr läuft. Klicken Sie auf rosa Punkte: Jede Kundenstimme ist ein Hinweis, wo das Geld versickert.</div></div>';
+  var pl=JSON.parse(JSON.stringify(G.plan)), r=runYear(G.y,pl,G.state);
+  var prevA=G.state.active, prevL=G.lostTot, prevV=G.tot;
+  G.plans.push(pl); G.results.push(r); G.state=r.st; G.tot+=r.val; G.lostTot+=r.lostCons+r.lostBuy+r.churned;
+  $('hYear').textContent='Jahr '+(G.y+1); $('yearBadge').textContent='Jahr '+(G.y+1); $('yearBadge').classList.add('show');
+  setTimeout(function(){$('yearBadge').classList.remove('show');},1000);
+  flow.speed(1.8); flow.setParams(r.p,pl,G.revealed,prevA);
+  anim($('hActive'),prevA,r.active,4200,num); anim($('hLost'),prevL,G.lostTot,4200,num); anim($('hValue'),prevV,G.tot,4200,chf);
+  setTimeout(function(){flow.speed(1);showReport(r,pl);},4600);
 };
-function finish(r){
-  running=false; flow.speed(1); $('runBtn').disabled=false; $('resetBtn').disabled=false; $('planner').classList.add('hidden');
-  var combos=allCombos(), best=combos[0], none=run({},0), allAds=run({},5);
-  $('result').classList.remove('hidden');
-  anim($('rValue'),0,r.val,1600,chf);
-  var ratio=r.val/best.r.val, medal,col;
-  if(ratio>=0.985){medal='Gold: die beste Kombination gefunden';col='var(--lmint)';}
-  else if(ratio>=0.9){medal='Silber: nah am Optimum';col='var(--lblue)';}
-  else{medal='Bronze: da liegt noch viel Geld im Leck';col='var(--lrose)';}
-  $('rMedal').innerHTML='<span class="medal" style="background:'+col+'">'+medal+'</span>';
-  $('rSub').textContent=num(r.years[2].active)+' aktive Kunden nach drei Jahren, statt 2\'000 zu Beginn. '+(Math.abs(r.val-allAds.val)<1?'Sie sind Petras Plan gefolgt und haben alles in Werbung gesteckt.':r.val>allAds.val?chf(r.val-allAds.val)+' mehr als Petras Plan, alles in Werbung zu stecken.':chf(allAds.val-r.val)+' weniger als Petras Plan, alles in Werbung zu stecken.');
-  if(ratio>=0.985) setTimeout(confetti,600);
-  var mx=Math.max(r.val,none.val,allAds.val,best.r.val);
-  [['c1',r.val],['c2',none.val],['c3',allAds.val],['c4',best.r.val]].forEach(function(b){var el=$(b[0]);el.style.width='0';el.textContent=chf(b[1]);setTimeout(function(){el.style.width=Math.max(20,b[1]/mx*100)+'%';},80);});
-  /* Rendite je Massnahme */
-  var rows='<tr><th>Massnahme</th><th>Kosten pro Jahr</th><th>Wirkung über 3 Jahre</th><th>Pro investierten Franken</th></tr>', roi=[];
-  MEAS.forEach(function(m){
-    var a=JSON.parse(JSON.stringify(sel)),b=JSON.parse(JSON.stringify(sel)); a[m.id]=true; b[m.id]=false;
-    var gain=run(a,ads).val+m.cost*YEARS-(run(b,ads).val);
-    roi.push({t:m.t,ph:m.ph,cost:m.cost,gain:gain,per:gain/(m.cost*YEARS),on:sel[m.id]});
-  });
-  var a2=ads+1, ga=run(sel,a2).val+AD_STEP*YEARS-run(sel,ads).val; roi.push({t:'Eine Stufe mehr Werbung',ph:'Bewusstsein',cost:AD_STEP,gain:ga,per:ga/(AD_STEP*YEARS),on:false});
-  roi.sort(function(x,y){return y.per-x.per;});
-  roi.forEach(function(o,i){rows+='<tr><td>'+o.t+(o.on?' <span class="pill" style="background:var(--lmint)">gewählt</span>':'')+'<br><span style="font-size:12px;color:var(--p50)">'+o.ph+'</span></td><td>'+chf(o.cost)+'</td><td>'+chf(o.gain)+'</td><td><b style="color:'+(o.per>=1?'#2f6b45':'#9a3d47')+'">CHF '+o.per.toFixed(2)+'</b></td></tr>';});
-  $('roiTbl').innerHTML=rows;
-  /* Erkenntnis */
-  var p=params(sel,ads), leaks=[{n:'in der Abwägung',v:(1-p.cons)},{n:'beim Kauf',v:(1-p.buy)},{n:'bei der Bindung (pro Jahr)',v:p.churn}];
-  var bestTxt=MEAS.filter(function(m){return best.sel[m.id];}).map(function(m){return m.t;}).concat(best.ads?[best.ads+' Stufen Werbung']:[]).join(', ');
-  var h='<h2>Was das Labor zeigt</h2>';
-  h+='<p>Petras Plan, alles in Werbung zu stecken, bringt '+chf(allAds.val)+'. Das ist mehr als nichts zu tun, aber deutlich weniger als die beste Kombination mit '+chf(best.r.val)+'. Der Grund: Werbung schüttet oben mehr Menschen in einen Trichter, der unten leckt. 60 Prozent gehen schon in der Abwägung verloren, 70 Prozent beim Kauf.</p>';
-  h+='<p>Die beste Kombination: '+bestTxt+'. Sie stopft zuerst die grössten Lecks und investiert erst danach in Reichweite. Jede gestopfte Stelle macht auch jeden Werbefranken wertvoller, weil mehr von den gewonnenen Interessenten tatsächlich ankommen.</p>';
-  h+='<p style="margin-bottom:0"><b>Die Lehre:</b> Bevor Sie mehr Kunden anlocken, sorgen Sie dafür, dass Sie die gewonnenen nicht verlieren. Betreuung und Empfehlungen wirken langsamer, in drei Jahren schlagen sie noch nicht voll durch. Wer länger plant, gewichtet sie höher.</p>';
-  $('rInsight').innerHTML=h; reportHeight();
-  $('result').scrollIntoView({behavior:'smooth',block:'start'});
+
+function showReport(r,pl){
+  var y=G.y, prev=G.results[y-1], h='';
+  var adsShare=pl.ads*AD/Math.max(1,spendOf(pl));
+  h+='<h2>Jahressitzung Jahr '+(y+1)+'</h2>';
+  h+='<div class="kpis">'+
+    '<div><div class="k">Neue Kunden</div><div class="v">'+num(r.newC)+'</div><div class="d">'+(prev?(r.newC>=prev.newC?'+':'')+num(r.newC-prev.newC)+' zum Vorjahr':'')+'</div></div>'+
+    '<div><div class="k">Abgewandert</div><div class="v">'+num(r.churned)+'</div><div class="d">'+Math.round(r.p.churn*100)+' Prozent des Stamms</div></div>'+
+    '<div><div class="k">Aktive Kunden</div><div class="v">'+num(r.active)+'</div><div class="d">'+(r.active>=r.st.active?'':'')+'Ende Jahr '+(y+1)+'</div></div>'+
+    '<div><div class="k">Kundenwert dieses Jahr</div><div class="v">'+chf(r.val)+'</div><div class="d">Deckungsbeitrag minus Budget</div></div></div>';
+  /* Petra */
+  var pt;
+  if(pl.ads>=4) pt='Die Reichweite ist gestiegen, '+num(r.p.aware)+' Menschen kennen uns jetzt! '+(r.newC<3000?'Ich verstehe nur nicht, warum so wenige davon kaufen.':'Werbung wirkt eben.');
+  else if(pl.ads===0) pt='Kein Franken für Werbung? Ich hoffe, Sie wissen, was Sie tun.';
+  else if(y===2&&pl.ads<3) pt='Wir hatten einen Influencer, der über uns spricht, und Sie sparen bei der Werbung? Das verstehe ich nicht.';
+  else if(prev&&r.newC>prev.newC) pt='Mehr neue Kunden als letztes Jahr. Ich gebe zu: weniger Werbung, als ich wollte, aber es läuft.';
+  else pt='Etwas Werbung, etwas anderes. Ich bin gespannt, ob sich das auszahlt.';
+  h+='<div class="say"><div class="avatar">PL</div><div><div class="who">Petra Lang, Leiterin Verkauf</div><div>'+pt+'</div></div></div>';
+  /* Marco */
+  var unknown=RES.filter(function(x){return !G.revealed[x.id];}).length, mt;
+  if(unknown===3) mt='Wir wissen immer noch nicht, wo wir die Leute verlieren. Wir investieren blind. Eine Auswertung der Verkaufsdaten würde nicht einmal etwas kosten.';
+  else{
+    var open=[]; if(G.revealed.cons&&!pl.data)open.push('in der Abwägung'); if(G.revealed.buy&&!pl.stock)open.push('beim Kauf'); if(G.revealed.churn&&!pl.repair&&!pl.care)open.push('bei der Bindung');
+    mt=open.length?'Wir kennen jetzt Lecks '+open.join(' und ')+', haben sie aber nicht gestopft. Da läuft Geld weg.':(unknown?'Die bekannten Lecks sind angegangen. '+unknown+' Stelle'+(unknown>1?'n sind':' ist')+' aber noch unerforscht.':'Wir wissen, wo es klemmt, und handeln danach. So macht Planung Sinn.');
+  }
+  if(y===1&&!pl.repair) mt+=' Und die Gratis-Reparaturen der Konkurrenz haben uns zusätzlich Stammkunden gekostet.';
+  if(y===1&&pl.repair) mt+=' Gut, dass wir unseren Reparaturservice bekannt gemacht haben. Die Konkurrenz konnte uns kaum Kunden abjagen.';
+  h+='<div class="say"><div class="avatar">MS</div><div><div class="who">Marco Steiner, Leiter Produktion</div><div>'+mt+'</div></div></div>';
+  /* Kundenstimmen aus den zwei grössten Verlusten */
+  var losses=[['cons',r.lostCons],['buy',r.lostBuy],['churn',r.churned]].sort(function(a,b){return b[1]-a[1];}).slice(0,2);
+  h+='<h3 style="margin-top:12px">Stimmen von Kundinnen, die abgesprungen sind</h3><div class="quotes">'+losses.map(function(l,i){var q=QUOTES[l[0]][(y+i)%QUOTES[l[0]].length];
+    return '<div><b>'+(G.revealed[l[0]]?'Ausgestiegen '+LEAKNAME[l[0]]+', '+num(l[1])+' Personen':'Ausgestiegen an unbekannter Stelle')+'</b>«'+q[1]+'» <span style="font-style:normal;font-size:13px;color:var(--p75)">'+q[0]+'</span></div>';}).join('')+'</div>';
+  if(y<YEARS-1){var ev=EVENTS[y+1]; h+='<div class="event" style="margin-top:14px"><div class="ic">!</div><div><b>Vorschau Jahr '+(y+2)+':</b> '+ev.t+'</div></div>';}
+  h+='<div class="go"><button class="btn big" type="button" id="nextBtn">'+(y<YEARS-1?'Jahr '+(y+2)+' planen':'Zur Schlussabrechnung')+'</button></div>';
+  $('report').innerHTML=h; $('report').classList.remove('hidden');
+  $('msg').innerHTML='<div class="avatar">GL</div><div><div class="who">Geschäftsleitung</div><div>Die Jahressitzung beginnt. Hier sehen Sie, was Ihre Entscheidungen bewirkt haben.</div></div>';
+  $('nextBtn').onclick=function(){
+    if(y<YEARS-1){G.y++; G.plan.research=0; G.plan.resIds=[]; planYear(); $('labMain').scrollIntoView({behavior:'smooth'});}
+    else finale();
+  };
+  reportHeight(); $('report').scrollIntoView({behavior:'smooth',block:'start'});
 }
-$('againBtn').onclick=function(){$('result').classList.add('hidden');$('planner').classList.remove('hidden');$('hYear').textContent='Planung';$('hActive').textContent='2\'000';$('hLost').textContent='0';$('hValue').textContent='CHF 0';
-  $('msg').innerHTML='<div class="avatar">PL</div><div><div class="who">Petra Lang, Leiterin Verkauf</div><div>Neuer Versuch? Ich bleibe dabei: Werbung, Werbung, Werbung.</div></div>';reportHeight();};
+
+/* ================= ABRECHNUNG ================= */
+function finale(){
+  G.y=YEARS; renderSteps('final'); $('hYear').textContent='Abrechnung';
+  $('report').classList.add('hidden'); $('planner').classList.add('hidden'); $('msg').innerHTML='<div class="avatar">GL</div><div><div class="who">Geschäftsleitung</div><div>Drei Jahre sind vorbei. Zeit für die Bilanz.</div></div>';
+  var best=bestPath(), petra=runPlans([{ads:5},{ads:5},{ads:5}]), none=runPlans([{ads:0},{ads:0},{ads:0}]), mine=G.tot;
+  $('final').classList.remove('hidden');
+  anim($('fValue'),0,mine,1600,chf);
+  var ratio=mine/best.v, medal,col;
+  if(ratio>=0.95){medal='Gold: fast so gut wie mit vollem Wissen';col='var(--lmint)';}
+  else if(ratio>=0.85){medal='Silber: gut gesteuert';col='var(--lblue)';}
+  else{medal='Bronze: da versickert noch viel Geld';col='var(--lrose)';}
+  $('fMedal').innerHTML='<span class="medal" style="background:'+col+'">'+medal+'</span>';
+  $('fSub').textContent=num(G.state.active)+' aktive Kunden nach drei Jahren statt 2\'000 zu Beginn. '+(Math.abs(mine-petra.tot)<1?'Sie sind Petras Plan gefolgt.':(mine>petra.tot?chf(mine-petra.tot)+' mehr':chf(petra.tot-mine)+' weniger')+' als Petras Plan.');
+  if(ratio>=0.95)setTimeout(confetti,600);
+  drawChart([[2000].concat(G.results.map(function(r){return r.active;})),[2000].concat(petra.out.map(function(r){return r.active;})),
+    [2000].concat(runPlans(best.p).out.map(function(r){return r.active;})),[2000].concat(none.out.map(function(r){return r.active;}))]);
+  /* Weg */
+  var rows='<tr><th>Jahr</th><th>Marktforschung</th><th>Massnahmen</th><th>Werbung</th><th style="text-align:right">Kundenwert</th></tr>';
+  G.plans.forEach(function(pl,i){
+    var res=pl.resIds.map(function(id){return RES.filter(function(x){return x.id===id;})[0].t;}).join(', ')||'keine';
+    var ms=MEAS.filter(function(m){return pl[m.id];}).map(function(m){return m.t;}).join(', ')||'keine';
+    rows+='<tr><td>'+(i+1)+'</td><td>'+res+'</td><td>'+ms+'</td><td>'+pl.ads+(pl.ads===1?' Stufe':' Stufen')+'</td><td class="n">'+chf(G.results[i].val)+'</td></tr>';});
+  rows+='<tr><td colspan="4" style="font-weight:700;color:var(--p)">Total</td><td class="n" style="font-weight:700;color:var(--p)">'+chf(mine)+'</td></tr>';
+  rows+='<tr><td colspan="5" style="padding-top:14px;font-family:var(--head);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--p50)">Zum Vergleich: der beste Weg mit vollem Wissen</td></tr>';
+  best.p.forEach(function(pl,i){var ms=MEAS.filter(function(m){return pl[m.id];}).map(function(m){return m.t;}).join(', ')||'keine';
+    rows+='<tr style="color:var(--p75)"><td>'+(i+1)+'</td><td>nicht nötig</td><td>'+ms+'</td><td>'+pl.ads+(pl.ads===1?' Stufe':' Stufen')+'</td><td class="n">'+chf(runPlans(best.p).out[i].val)+'</td></tr>';});
+  $('pathTbl').innerHTML=rows;
+  /* Erkenntnisse */
+  var firstRes=-1; G.plans.forEach(function(pl,i){if(firstRes<0&&pl.resIds.length)firstRes=i;});
+  var h='<h2>Was Ihr Weg zeigt</h2>';
+  if(firstRes===0)h+='<p>Sie haben schon im ersten Jahr geforscht, bevor Sie investiert haben. Genau so arbeitet gute Marktforschung: zuerst die vorhandenen Daten, dann gezielt nachfragen, dann handeln.</p>';
+  else if(firstRes>0)h+='<p>Sie haben in Jahr '+(firstRes+1)+' mit Marktforschung begonnen. Ein Jahr früher, und Ihre Massnahmen hätten länger gewirkt. Die Auswertung der Verkaufsdaten hätte nicht einmal etwas gekostet.</p>';
+  else h+='<p>Sie haben drei Jahre ohne Marktforschung entschieden. Damit haben Sie investiert, ohne zu wissen, wo die Kunden verloren gehen. Die Auswertung der Verkaufsdaten hätte nicht einmal etwas gekostet.</p>';
+  h+=G.plans[1].repair?'<p>Auf die Gratis-Reparaturen der Konkurrenz in Jahr 2 haben Sie reagiert und Ihren eigenen Service bekannt gemacht. Das hat Stammkunden gehalten.</p>':'<p>In Jahr 2 hat die Konkurrenz mit Gratis-Reparaturen Stammkunden abgeworben. Ein bekannt gemachter eigener Reparaturservice für 10\'000 Franken hätte das weitgehend verhindert.</p>';
+  var p3=G.plans[2], dicht=p3.data&&p3.stock;
+  h+=p3.ads>=2&&dicht?'<p>Den Influencer-Effekt in Jahr 3 haben Sie genutzt: mehr Werbung in eine dichte Kundenreise. So kam der Ansturm auch an.</p>':p3.ads>=2?'<p>In Jahr 3 haben Sie den Influencer-Effekt mit Werbung verstärkt, aber die Lecks in Abwägung und Kauf waren nicht ganz gestopft. Ein Teil des Ansturms ist versickert.</p>':'<p>Den Influencer-Effekt in Jahr 3 haben Sie kaum genutzt. Gerade dann, wenn die Kundenreise dicht ist, wirkt jede Werbestufe doppelt.</p>';
+  h+='<p>Petras Plan, drei Jahre alles in Werbung, bringt '+chf(petra.tot)+'. Der beste Weg mit vollem Wissen bringt '+chf(best.v)+'. Er stopft zuerst die Lecks in Abwägung und Kauf, reagiert auf die Ereignisse und investiert erst dann in Reichweite.</p>';
+  h+='<p style="margin-bottom:0"><b>Die Lehre:</b> Erst verstehen, dann investieren. Mehr Menschen in eine undichte Kundenreise zu schicken, ist der teuerste Weg zu mehr Kunden.</p>';
+  $('fInsight').innerHTML=h; reportHeight(); $('final').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function drawChart(series){
+  var cols=['#86C1CF','#D47882','#89BD99','#C5CFD0'], W=1000,H=320,l=80,r=40,t=24,b=48, mx=0;
+  series.forEach(function(s){s.forEach(function(v){mx=Math.max(mx,v);});}); mx=Math.ceil(mx/2000)*2000;
+  var X=function(i){return l+i*(W-l-r)/3;}, Yv=function(v){return H-b-v/mx*(H-t-b);}, s='';
+  for(var g=0;g<=mx;g+=2000){s+='<line x1="'+l+'" x2="'+(W-r)+'" y1="'+Yv(g)+'" y2="'+Yv(g)+'" stroke="#E8ECEC"/><text x="'+(l-10)+'" y="'+(Yv(g)+4)+'" text-anchor="end" font-size="13" fill="#8C9EA2">'+grp(g)+'</text>';}
+  ['Start','Jahr 1','Jahr 2','Jahr 3'].forEach(function(n,i){s+='<text x="'+X(i)+'" y="'+(H-18)+'" text-anchor="middle" font-size="14" fill="#4E6B70">'+n+'</text>';});
+  [3,1,2,0].forEach(function(k){var pts=series[k].map(function(v,i){return X(i)+','+Yv(v);}).join(' ');
+    s+='<polyline points="'+pts+'" fill="none" stroke="'+cols[k]+'" stroke-width="'+(k===0?5:3)+'" stroke-linejoin="round" stroke-linecap="round"'+(k===3?' stroke-dasharray="6 6"':'')+' pathLength="1" style="stroke-dasharray:'+(k===3?'0.02 0.02':'1')+';stroke-dashoffset:1;animation:draw 1.6s '+(k===0?'.6s':'0s')+' forwards"/>';
+    series[k].forEach(function(v,i){if(i)s+='<circle cx="'+X(i)+'" cy="'+Yv(v)+'" r="'+(k===0?6:4)+'" fill="'+cols[k]+'"/>';});});
+  var v=series[0][3]; s+='<text x="'+(X(3)-10)+'" y="'+(Yv(v)-14)+'" text-anchor="end" font-size="15" font-weight="700" fill="#183E45">'+grp(v)+' Kunden</text>';
+  $('chart').innerHTML='<style>@keyframes draw{to{stroke-dashoffset:0}}</style>'+s;
+}
+$('againBtn').onclick=function(){newGame();$('final').classList.add('hidden');$('hActive').textContent='2\'000';$('hLost').textContent='0';$('hValue').textContent='CHF 0';
+  $('voice').innerHTML='<div class="av">?</div><div><div class="tag">Kundenstimme</div><div class="q">Klicken Sie auf einen rosa Punkt, um zu hören, warum diese Person nicht weitergekommen ist.</div></div>';planYear();window.scrollTo(0,0);};
 $('toMineBtn').onclick=function(){showTab('mine');window.scrollTo(0,0);};
 
 function confetti(){
@@ -515,8 +672,8 @@ function calcMine(){
 }
 $('printBtn').onclick=function(){window.print();};
 
-update(); calcMine();
-$('openLab').onclick=function(){$('labIntro').classList.add('hidden');$('labMain').classList.remove('hidden');reportHeight();window.scrollTo(0,0);};
+
+calcMine();
 })();
 </script>
 </body>
