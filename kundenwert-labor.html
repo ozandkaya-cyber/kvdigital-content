@@ -220,7 +220,7 @@ table.path td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:n
             <h2>So läuft es ab</h2>
             <ol>
               <li>Jedes Jahr planen Sie neu: Marktforschung, Massnahmen, Werbung.</li>
-              <li>Dann läuft das Jahr. Klicken Sie auf rosa Punkte, um zu hören, warum jemand abspringt.</li>
+              <li>Dann läuft das Jahr. Klicken Sie auf rosa Punkte, um zu hören, warum jemand abspringt. Ist ein Leck gestopft, hören Sie dort nur noch normale Restverluste.</li>
               <li>In der Jahressitzung sehen Sie, was Ihre Entscheidungen bewirkt haben.</li>
               <li>Nach drei Jahren vergleichen Sie Ihren Weg mit Petras Plan und dem besten Weg.</li>
             </ol>
@@ -256,6 +256,7 @@ table.path td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:n
         </div>
         <div class="sec">
           <h3>Dann handeln: Massnahmen für dieses Jahr</h3>
+          <p style="margin:-2px 0 10px;font-size:14px;color:var(--p75)">Jede Massnahme setzt an einer bestimmten Stelle der Kundenreise an. Wenn Sie eine Massnahme wählen, leuchtet diese Stelle im Strom kurz auf, und dort fallen danach weniger Menschen heraus. Ein Rest geht immer verloren: Nicht jeder, der sich informiert, will am Ende kaufen. Was jede Massnahme in Zahlen gebracht hat, sehen Sie in der Jahressitzung.</p>
           <div class="measures" id="measures"></div>
         </div>
         <div class="budget"><h3 style="margin:0">Budget dieses Jahr</h3><div class="btrack"><div class="bfill" id="bFill"></div></div><div class="btxt" id="bTxt">CHF 0 von 100'000</div></div>
@@ -415,14 +416,15 @@ function leakText(id){var p=yearParams(G.y,G.plan,G.state.hist);
   return Math.round(p.churn*100)+' Prozent der Stammkunden wandern pro Jahr ab.';}
 function renderMeasures(){
   var free=BUDGET-used();
-  var h='<div class="m'+(G.plan.ads>0?' on':'')+'" style="cursor:default"><span class="ph">Bewusstsein</span><span class="t">Werbekampagne</span><span class="s">Pro Stufe CHF 20\'000: '+(G.y===2?'30':'15')+' Prozent mehr Menschen hören vom Säntis.</span>'+
+  var h='<div class="m'+(G.plan.ads>0?' on':'')+'" style="cursor:default"><span class="ph">Bewusstsein</span><span class="t">Werbekampagne</span><span class="s" style="color:var(--p);font-weight:600;margin-bottom:3px">Schickt mehr Menschen vorne in die Kundenreise</span><span class="s">Pro Stufe CHF 20\'000: '+(G.y===2?'30':'15')+' Prozent mehr Menschen hören vom Säntis. Ob sie ankommen, hängt von den Lecks ab.</span>'+
     '<div class="ads"><button type="button" id="adMinus" aria-label="Weniger Werbung">−</button><div class="lvl">'+[0,1,2,3,4].map(function(i){return '<i class="'+(i<G.plan.ads?'on':'')+'"></i>';}).join('')+'</div><button type="button" id="adPlus" aria-label="Mehr Werbung">+</button><b style="color:var(--p);margin-left:4px">'+chf(G.plan.ads*AD)+'</b></div></div>';
   MEAS.forEach(function(m){var on=G.plan[m.id], dis=!on&&m.cost>free, known=m.leak===null||G.revealed[m.leak];
-    h+='<button type="button" class="m'+(on?' on':'')+(dis?' off':'')+'" data-m="'+m.id+'"><span class="c">'+grp(m.cost/1000)+'k</span><span class="ph">'+m.ph+'</span><span class="t">'+m.t+'</span><span class="s">'+m.q+(known?' <b>'+m.n+'</b>':'')+'</span><span class="tick">✓</span></button>';});
+    var target=m.leak?'Stopft das Leck '+LEAKNAME[m.leak]:'Bringt neue Interessenten über Empfehlungen';
+    h+='<button type="button" class="m'+(on?' on':'')+(dis?' off':'')+'" data-m="'+m.id+'"><span class="c">'+grp(m.cost/1000)+'k</span><span class="ph">'+m.ph+'</span><span class="t">'+m.t+'</span><span class="s" style="color:var(--p);font-weight:600;margin-bottom:3px">'+target+'</span><span class="s">'+m.q+(known?' <b>'+m.n+'</b>':' Wie stark es wirkt, zeigt die Marktforschung.')+'</span><span class="tick">✓</span></button>';});
   $('measures').innerHTML=h;
   $('measures').querySelectorAll('[data-m]').forEach(function(b){b.onclick=function(){
     var id=b.dataset.m, m=MEAS.filter(function(x){return x.id===id;})[0];
-    if(!G.plan[id]&&m.cost>BUDGET-used())return; G.plan[id]=!G.plan[id]; update();};});
+    if(!G.plan[id]&&m.cost>BUDGET-used())return; G.plan[id]=!G.plan[id]; update(); if(m.leak)flashLeak(m.leak);};});
   $('adPlus').onclick=function(){if(G.plan.ads<5&&used()+AD<=BUDGET){G.plan.ads++;update();}};
   $('adMinus').onclick=function(){if(G.plan.ads>0){G.plan.ads--;update();}};
 }
@@ -453,6 +455,18 @@ var QUOTES={
  churn:[['Lea, 29','Der Hüftgurt war durch. Dass man ihn reparieren kann, wusste ich nicht.'],['Peter, 52','Nach dem Kauf habe ich nie mehr etwas von Alpstein gehört.'],['Sarah, 34','Ich habe einfach einen neuen gekauft. Den Säntis hatte ich nicht mehr im Kopf.']],
  comp:[['Marc, 45','Die Konkurrenz repariert gratis. Da bin ich gewechselt.']]
 };
+var REST={
+ cons:[['Marta, 47','Gute Infos, wirklich. Aber 45 Liter sind mir zu gross, ich brauche einen Tagesrucksack.'],['Kevin, 23','Alles klar beschrieben. Er ist mir im Moment einfach zu teuer.'],['Ursula, 60','Ich habe mich informiert und dann entschieden: Mein alter tut es noch.']],
+ buy:[['Daniel, 35','Er war vorrätig, ich habe ihn anprobiert. Er passt einfach nicht zu meinem Rücken.'],['Sabine, 44','Am Schluss habe ich doch lieber ein Zelt gekauft als einen neuen Rucksack.']],
+ churn:[['Hans, 67','Ich gehe nicht mehr in die Berge. Der Rucksack hält aber immer noch.'],['Mia, 31','Wir sind ins Ausland gezogen, dort gibt es Alpstein nicht.']]
+};
+function isFixed(key,pl){return (key==='cons'&&pl.data)||(key==='buy'&&pl.stock)||(key==='churn'&&(pl.repair||pl.care));}
+function quoteFor(key,pl,idx,yr){
+  var fixed=isFixed(key,pl), pool=fixed?REST[key]:QUOTES[key];
+  if(!fixed&&key==='churn'&&yr===1&&!pl.repair&&(idx===undefined?Math.random()<.5:idx%2===0))pool=QUOTES.comp;
+  var i=idx===undefined?Math.floor(Math.random()*pool.length):idx%pool.length;
+  return {q:pool[i],fixed:fixed};
+}
 var flow=(function(){
   var cv=$('flow'), cx=cv.getContext('2d'), W=1000, H=330, Y=150;
   var ST=[{x:70,n:'Bewusstsein'},{x:235,n:'Abwägung'},{x:400,n:'Kauf'},{x:565,n:'Erhalt'},{x:730,n:'Nutzung'},{x:900,n:'Bindung'}];
@@ -478,7 +492,7 @@ var flow=(function(){
       cx.fillStyle=known?(fixed?'#183E45':'#9a3d47'):'#8C9EA2'; cx.font='700 14px Roboto, DejaVu Sans, sans-serif'; cx.textAlign='center';
       cx.fillText(known?Math.round(v*100)+' % verloren':'? verloren',l.x,Y+74);
       if(known&&fixed){cx.fillStyle='#2f6b45';cx.font='700 13px Roboto, DejaVu Sans, sans-serif';cx.fillText('✓ Leck verkleinert',l.x,Y+94);}
-      if(!known){cx.fillStyle='#8C9EA2';cx.font='12px Roboto, DejaVu Sans, sans-serif';cx.fillText('noch unerforscht',l.x,Y+93);}
+      if(!known){cx.fillStyle=fixed?'#2f6b45':'#8C9EA2';cx.font=(fixed?'700 ':'')+'12px Roboto, DejaVu Sans, sans-serif';cx.fillText(fixed?'✓ Massnahme aktiv, Wirkung unerforscht':'noch unerforscht',l.x,Y+93);}
     });
   }
   function step(now){
@@ -506,10 +520,8 @@ var flow=(function(){
   cv.addEventListener('click',function(e){
     var rc=cv.getBoundingClientRect(), x=(e.clientX-rc.left)*W/rc.width, y=(e.clientY-rc.top)*H/rc.height, best=null,bd=22*22;
     parts.forEach(function(q){if(!q.fall)return;var d=(q.x-x)*(q.x-x)+(q.y-y)*(q.y-y);if(d<bd){bd=d;best=q;}});
-    if(!best)return; var key=best.leak, pool=QUOTES[key];
-    if(key==='churn'&&G.y===1&&!G.plan.repair&&Math.random()<.5)pool=QUOTES.comp;
-    var qq=pool[Math.floor(Math.random()*pool.length)];
-    $('voice').innerHTML='<div class="av">'+qq[0].split(' ')[0].slice(0,2)+'</div><div><div class="tag">Kundenstimme · ausgestiegen '+LEAKNAME[key]+'</div><div class="q">«'+qq[1]+'» <span style="font-style:normal;color:var(--p50);font-size:13px">'+qq[0]+'</span></div></div>';
+    if(!best)return; var key=best.leak, res=quoteFor(key,PL,undefined,G.y), qq=res.q;
+    $('voice').innerHTML='<div class="av" style="'+(res.fixed?'background:var(--lmint)':'')+'">'+qq[0].split(' ')[0].slice(0,2)+'</div><div><div class="tag">Kundenstimme · ausgestiegen '+LEAKNAME[key]+(res.fixed?' · normaler Restverlust, dieses Leck ist bereits angegangen':'')+'</div><div class="q">«'+qq[1]+'» <span style="font-style:normal;color:var(--p50);font-size:13px">'+qq[0]+'</span></div></div>';
   });
   return {setParams:function(p,pl,rev,act){P=p;PL=pl;REV=rev;ACT=act||ACT;},speed:function(m){speedMul=m;},flash:function(k){flash[k]=performance.now();}};
 })();
@@ -520,17 +532,17 @@ function anim(el,from,to,ms,fmt){var t0=performance.now();(function f(n){var k=M
 $('runBtn').onclick=function(){
   $('runBtn').disabled=true; $('planner').classList.add('hidden'); $('eventBox').classList.add('hidden');
   $('msg').innerHTML='<div class="avatar">MS</div><div><div class="who">Marco Steiner, Leiter Produktion</div><div>Das Jahr läuft. Klicken Sie auf rosa Punkte: Jede Kundenstimme ist ein Hinweis, wo das Geld versickert.</div></div>';
-  var pl=JSON.parse(JSON.stringify(G.plan)), r=runYear(G.y,pl,G.state);
+  var pl=JSON.parse(JSON.stringify(G.plan)), before=JSON.parse(JSON.stringify(G.state)), r=runYear(G.y,pl,G.state);
   var prevA=G.state.active, prevL=G.lostTot, prevV=G.tot;
   G.plans.push(pl); G.results.push(r); G.state=r.st; G.tot+=r.val; G.lostTot+=r.lostCons+r.lostBuy+r.churned;
   $('hYear').textContent='Jahr '+(G.y+1); $('yearBadge').textContent='Jahr '+(G.y+1); $('yearBadge').classList.add('show');
   setTimeout(function(){$('yearBadge').classList.remove('show');},1000);
   flow.speed(1.8); flow.setParams(r.p,pl,G.revealed,prevA);
   anim($('hActive'),prevA,r.active,4200,num); anim($('hLost'),prevL,G.lostTot,4200,num); anim($('hValue'),prevV,G.tot,4200,chf);
-  setTimeout(function(){flow.speed(1);showReport(r,pl);},4600);
+  setTimeout(function(){flow.speed(1);showReport(r,pl,before);},4600);
 };
 
-function showReport(r,pl){
+function showReport(r,pl,before){
   var y=G.y, prev=G.results[y-1], h='';
   var adsShare=pl.ads*AD/Math.max(1,spendOf(pl));
   h+='<h2>Jahressitzung Jahr '+(y+1)+'</h2>';
@@ -557,10 +569,18 @@ function showReport(r,pl){
   if(y===1&&!pl.repair) mt+=' Und die Gratis-Reparaturen der Konkurrenz haben uns zusätzlich Stammkunden gekostet.';
   if(y===1&&pl.repair) mt+=' Gut, dass wir unseren Reparaturservice bekannt gemacht haben. Die Konkurrenz konnte uns kaum Kunden abjagen.';
   h+='<div class="say"><div class="avatar">MS</div><div><div class="who">Marco Steiner, Leiter Produktion</div><div>'+mt+'</div></div></div>';
+  /* Wirkung je Massnahme */
+  var eff=[];
+  MEAS.forEach(function(m){if(!pl[m.id])return;var q=JSON.parse(JSON.stringify(pl));q[m.id]=false;var r2=runYear(y,q,before);
+    eff.push({t:m.t,dc:r.active-r2.active,dv:r.val-r2.val,note:m.id==='care'?'wirkt im ersten Jahr nur halb':m.id==='ref'?'Empfohlene kaufen häufiger':m.leak?'Leck '+LEAKNAME[m.leak]:''});});
+  if(pl.ads>0){var q=JSON.parse(JSON.stringify(pl));q.ads=0;var r3=runYear(y,q,before);eff.push({t:'Werbung, '+pl.ads+(pl.ads===1?' Stufe':' Stufen'),dc:r.active-r3.active,dv:r.val-r3.val,note:'mehr Menschen am Anfang'});}
+  if(eff.length){eff.sort(function(a,b){return b.dv-a.dv;});
+    h+='<h3 style="margin-top:12px">Was Ihre Massnahmen dieses Jahr bewirkt haben</h3><p style="font-size:13.5px;color:var(--p75);margin:0 0 4px">Vergleich mit demselben Jahr ohne die jeweilige Massnahme. Gehaltene Kunden wirken auch in den Folgejahren weiter.</p><table class="path"><tr><th>Massnahme</th><th style="text-align:right">Zusätzliche aktive Kunden</th><th style="text-align:right">Kundenwert nach Kosten</th></tr>'+
+    eff.map(function(e){return '<tr><td>'+e.t+'<br><span style="font-size:12px;color:var(--p50)">'+e.note+'</span></td><td class="n">'+(e.dc>=0?'+':'')+num(e.dc)+'</td><td class="n" style="color:'+(e.dv>=0?'#2f6b45':'#9a3d47')+';font-weight:700">'+(e.dv>=0?'+':'')+chf(e.dv)+'</td></tr>';}).join('')+'</table>';}
   /* Kundenstimmen aus den zwei grössten Verlusten */
   var losses=[['cons',r.lostCons],['buy',r.lostBuy],['churn',r.churned]].sort(function(a,b){return b[1]-a[1];}).slice(0,2);
-  h+='<h3 style="margin-top:12px">Stimmen von Kundinnen, die abgesprungen sind</h3><div class="quotes">'+losses.map(function(l,i){var q=QUOTES[l[0]][(y+i)%QUOTES[l[0]].length];
-    return '<div><b>'+(G.revealed[l[0]]?'Ausgestiegen '+LEAKNAME[l[0]]+', '+num(l[1])+' Personen':'Ausgestiegen an unbekannter Stelle')+'</b>«'+q[1]+'» <span style="font-style:normal;font-size:13px;color:var(--p75)">'+q[0]+'</span></div>';}).join('')+'</div>';
+  h+='<h3 style="margin-top:12px">Stimmen von Kundinnen, die abgesprungen sind</h3><div class="quotes">'+losses.map(function(l,i){var rq=quoteFor(l[0],pl,y+i,y), q=rq.q;
+    return '<div'+(rq.fixed?' style="background:var(--lmint)"':'')+'><b'+(rq.fixed?' style="color:#2f6b45"':'')+'>'+(G.revealed[l[0]]?'Ausgestiegen '+LEAKNAME[l[0]]+', '+num(l[1])+' Personen':'Ausgestiegen an unbekannter Stelle')+(rq.fixed?' · Restverlust trotz Massnahme':'')+'</b>«'+q[1]+'» <span style="font-style:normal;font-size:13px;color:var(--p75)">'+q[0]+'</span></div>';}).join('')+'</div>';
   if(y<YEARS-1){var ev=EVENTS[y+1]; h+='<div class="event" style="margin-top:14px"><div class="ic">!</div><div><b>Vorschau Jahr '+(y+2)+':</b> '+ev.t+'</div></div>';}
   h+='<div class="go"><button class="btn big" type="button" id="nextBtn">'+(y<YEARS-1?'Jahr '+(y+2)+' planen':'Zur Schlussabrechnung')+'</button></div>';
   $('report').innerHTML=h; $('report').classList.remove('hidden');
