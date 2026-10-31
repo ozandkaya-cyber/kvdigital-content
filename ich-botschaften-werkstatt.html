@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ich-Botschaften-Werkstatt</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display&family=Montserrat:wght@500;600&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --p:#183E45; --p75:#4E6B70; --p50:#8C9EA2; --p25:#C5CFD0; --p10:#E8ECEC;
+  --mint:#89BD99; --blue:#86C1CF; --rose:#D47882; --mus:#E0AF58;
+  --lmint:#d0e6d7; --lblue:#d6ebf0; --lrose:#f2d6d9; --lmus:#f5e3bf;
+  --serif:'Playfair Display','Liberation Serif','DejaVu Serif',Georgia,serif;
+  --sans:Roboto,'Segoe UI','DejaVu Sans',Arial,sans-serif;
+  --head:Montserrat,'Segoe UI','DejaVu Sans',Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:var(--sans);color:#2b3a3d;background:#fff;font-size:16px;line-height:1.5}
+.app{max-width:900px;margin:0 auto;padding:18px 16px 26px}
+.rub{font-family:var(--head);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--p50);border-bottom:1px solid var(--p25);padding-bottom:7px;margin-bottom:6px;display:flex;justify-content:space-between;gap:10px}
+h1{font-family:var(--serif);font-weight:400;color:var(--p);font-size:clamp(26px,4.4vw,36px);margin:4px 0 6px;line-height:1.15}
+.lead{color:var(--p75);margin:0 0 14px;max-width:70ch}
+.hidden{display:none!important}
+.btn{border:0;background:var(--p);color:#fff;font-weight:600;font-size:16px;padding:12px 22px;border-radius:10px;cursor:pointer;font-family:var(--sans)}
+.btn:hover{background:#0f2b30}.btn:disabled{opacity:.35;cursor:default}
+.btn.ghost{background:#fff;color:var(--p);border:1.5px solid var(--p)}
+.btn:focus-visible,textarea:focus-visible{outline:3px solid var(--mus);outline-offset:2px}
+.go{display:flex;justify-content:flex-end;gap:10px;margin-top:16px;flex-wrap:wrap}
+.prog{height:6px;background:var(--p10);margin:10px 0 16px}.prog i{display:block;height:100%;background:var(--mus);transition:width .3s}
+.vw{background:var(--p);color:#fff;padding:16px 18px}
+.vw .k{font-family:var(--head);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--p25)}
+.vw .q{font-family:var(--serif);font-size:24px;margin:4px 0}
+.vw .ctx{font-size:14px;color:var(--p25)}
+.steps{display:grid;gap:10px;margin-top:14px}
+.step label{display:block;font-family:var(--head);font-weight:600;color:var(--p);font-size:15px}
+.step label span{font-family:var(--sans);font-weight:400;color:var(--p75);font-size:14px}
+textarea{width:100%;min-height:56px;border:1.5px solid var(--p25);border-radius:10px;padding:10px 12px;font:inherit;color:#2b3a3d;resize:vertical}
+.flag{font-size:14px;margin-top:4px;padding:6px 10px;border-radius:6px}
+.flag.warn{background:var(--lrose);color:var(--p)}
+.flag.ok{background:var(--lmint);color:var(--p)}
+.model{margin-top:16px;border:1px solid var(--p25)}
+.model .hd{background:var(--lmus);padding:8px 14px;font-family:var(--head);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--p)}
+.model .bd{padding:12px 14px}
+.model .bd p{margin:4px 0}
+.model .bd b{color:var(--p)}
+.self{margin-top:12px;font-size:15px}
+.self label{display:flex;gap:8px;align-items:flex-start;margin:4px 0;cursor:pointer}
+.take{background:var(--p);color:#fff;padding:16px 18px;margin-top:14px}
+.take b{font-family:var(--head);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--p25);display:block;margin-bottom:4px;font-weight:600}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="rub"><span>Das Konfliktgespräch</span><span id="cnt"></span></div>
+  <h1>Ich-Botschaften-Werkstatt</h1>
+
+  <section id="intro">
+    <p class="lead">Sechs Vorwürfe, wie sie in jedem Betrieb fallen. Übersetzen Sie jeden Vorwurf in eine Ich-Botschaft mit den vier Schritten nach Marshall Rosenberg: Beobachtung, Gefühl, Bedürfnis, Bitte.</p>
+    <p class="lead">Die Werkstatt prüft Ihren Text auf typische Stolperfallen und zeigt Ihnen danach eine mögliche Formulierung. Es gibt nicht die eine richtige Lösung. Wichtig ist, dass Sie Ihre Formulierung so auch sagen würden.</p>
+    <div class="go"><button class="btn" id="start">Werkstatt starten</button></div>
+  </section>
+
+  <section id="work" class="hidden">
+    <div class="prog"><i id="bar"></i></div>
+    <div class="vw"><div class="k">Der Vorwurf</div><div class="q" id="vw"></div><div class="ctx" id="ctx"></div></div>
+    <div class="steps">
+      <div class="step"><label for="f0">1. Beobachtung <span>Was genau ist passiert, ohne Bewertung?</span></label><textarea id="f0" placeholder="Zum Beispiel: Diese Woche …"></textarea><div id="w0"></div></div>
+      <div class="step"><label for="f1">2. Gefühl <span>Was löst das bei Ihnen aus?</span></label><textarea id="f1" placeholder="Zum Beispiel: Das ärgert mich …"></textarea><div id="w1"></div></div>
+      <div class="step"><label for="f2">3. Bedürfnis <span>Was ist Ihnen wichtig?</span></label><textarea id="f2" placeholder="Zum Beispiel: Mir ist wichtig, dass …"></textarea><div id="w2"></div></div>
+      <div class="step"><label for="f3">4. Bitte <span>Was wünschen Sie sich konkret?</span></label><textarea id="f3" placeholder="Zum Beispiel: Kannst du …?"></textarea><div id="w3"></div></div>
+    </div>
+    <div id="model" class="model hidden"></div>
+    <div class="go">
+      <button class="btn" id="check">Prüfen und Vorschlag zeigen</button>
+      <button class="btn hidden" id="next">Nächster Vorwurf</button>
+    </div>
+  </section>
+
+  <section id="end" class="hidden">
+    <p class="lead">Sie haben alle sechs Vorwürfe übersetzt. Bevor Sie weitergehen, ein paar Gedanken zur Praxis.</p>
+    <div class="take"><b>Für den Alltag</b>Im echten Gespräch klingt eine Ich-Botschaft selten so vollständig wie in dieser Werkstatt. Das muss sie auch nicht. Wenn Sie nur eines mitnehmen, dann dies: Beginnen Sie mit einer Beobachtung statt mit einem Urteil. Allein das verändert die Reaktion Ihres Gegenübers spürbar.</div>
+    <div class="go"><button class="btn ghost" id="again">Nochmals von vorne</button></div>
+  </section>
+</div>
+
+<script>
+const V=[
+ {q:'«Du hältst dich nie an Abmachungen.»',ctx:'Ein Kollege liefert die Zahlen für den Monatsbericht zum zweiten Mal zu spät.',
+  m:['Die Zahlen für den Monatsbericht waren diesen und letzten Monat zwei Tage nach dem vereinbarten Termin bei mir.','Das setzt mich unter Druck und ärgert mich ehrlich gesagt auch.','Mir ist wichtig, dass ich den Bericht pünktlich an die Geschäftsleitung schicken kann.','Kannst du mir die Zahlen künftig bis zum 3. des Monats schicken, oder mir früh Bescheid geben, wenn das nicht geht?']},
+ {q:'«Schon wieder ist das Lager ein Chaos. Typisch Montage.»',ctx:'Die Monteure haben am Freitag Material nicht zurückgeräumt.',
+  m:['Heute Morgen lagen im Lager drei Kisten Befestigungsmaterial und zwei Profile im Durchgang.','Das stresst mich, weil ich so am Montagmorgen zuerst aufräumen muss.','Mir ist wichtig, dass ich am Wochenstart direkt mit der Kommissionierung beginnen kann.','Könnt ihr das Material am Freitag vor Feierabend zurück an den Platz stellen?']},
+ {q:'«Du ignorierst meine Vorschläge in jeder Sitzung.»',ctx:'Eine Mitarbeiterin hat den Eindruck, ihre Teamleiterin übergehe sie.',
+  m:['In den letzten zwei Sitzungen habe ich je einen Vorschlag gemacht. Wir sind jedes Mal direkt zum nächsten Punkt übergegangen.','Das enttäuscht mich und verunsichert mich auch.','Mir ist wichtig, dass meine Ideen gehört werden, auch wenn sie am Ende nicht umgesetzt werden.','Kannst du mir in der nächsten Sitzung kurz sagen, was du von meinem Vorschlag hältst?']},
+ {q:'«Ihr im Büro habt ja keine Ahnung, wie es auf der Baustelle läuft.»',ctx:'Marco Rüegg zu Sandra Keller, nachdem die Pläne für Wohlen nicht gepasst haben.',
+  m:['Am Donnerstag hatten wir in Wohlen drei Stunden Wartezeit, weil die Geländerpfosten zu kurz waren.','Das hat mich frustriert. Meine Leute waren sauer.','Mir ist wichtig, dass meine Monteure ohne Leerlauf arbeiten können und dass mein Wissen von der Baustelle in die Planung einfliesst.','Können wir zusammen anschauen, wie Änderungen von der Baustelle schneller bei dir ankommen?']},
+ {q:'«Du bist einfach unzuverlässig.»',ctx:'Ein Lernender hat vergessen, eine Kundin zurückzurufen.',
+  m:['Frau Bühler hat heute angerufen und gesagt, dass sie seit Montag auf deinen Rückruf wartet.','Das ist mir unangenehm. Ich mache mir Sorgen, dass sie unzufrieden ist.','Mir ist wichtig, dass sich unsere Kundschaft auf uns verlassen kann.','Rufst du sie bitte heute noch an? Und lass uns kurz besprechen, wie du dir Rückrufe künftig notierst.']},
+ {q:'«Wie kannst du so etwas vor allen sagen?»',ctx:'Sandra Keller zu Marco Rüegg, nachdem er beim Znüni über die AVOR gespottet hat.',
+  m:['Am Dienstag beim Znüni hast du vor fünf Monteuren gesagt, wenn ihr auf die Pläne von oben wartet, seid ihr 2030 noch nicht fertig. Und das Bild mit der Schnecke habe ich auch gesehen.','Das hat mich verletzt und wütend gemacht.','Mir ist wichtig, dass meine Arbeit und die von Petra respektiert werden, auch wenn wir uns nicht einig sind.','Kannst du Kritik an der Planung künftig direkt mit mir besprechen statt vor dem Team?']}
+];
+const BAD0=[/\bimmer\b/i,/\bnie\b/i,/\bständig\b/i,/\bdauernd\b/i,/\btypisch\b/i,/schon wieder/i,/jedes mal/i,/\bdu bist\b/i,/\bihr seid\b/i,/\bunzuverlässig\b/i,/\bfaul\b/i,/\bchaos\b/i,/keine ahnung/i];
+const PSEUDO=[/übergangen/i,/ignoriert/i,/angegriffen/i,/manipuliert/i,/ausgenutzt/i,/im stich gelassen/i,/gefühl,? dass du/i,/gefühl,? dass ihr/i,/nicht ernst genommen/i];
+const NEG=[/nicht mehr/i,/hör auf/i,/lass das/i,/\bnie wieder\b/i,/sollst/i,/musst/i];
+let i=0; const $=id=>document.getElementById(id);
+function reportHeight(){try{parent.postMessage({type:'resize',source:'ich-botschaften-werkstatt',height:document.documentElement.scrollHeight},'*');}catch(e){}}
+function render(){
+  const v=V[i]; $('cnt').textContent='Vorwurf '+(i+1)+' von '+V.length; $('bar').style.width=(i/V.length*100)+'%';
+  $('vw').textContent=v.q; $('ctx').textContent=v.ctx;
+  for(let k=0;k<4;k++){$('f'+k).value='';$('f'+k).disabled=false;$('w'+k).innerHTML=''}
+  $('model').classList.add('hidden'); $('check').classList.remove('hidden'); $('next').classList.add('hidden');
+  window.scrollTo(0,0); reportHeight();
+}
+const flag=(el,cls,txt)=>{el.innerHTML+=`<div class="flag ${cls}">${txt}</div>`};
+function check(){
+  const v=V[i], t=[0,1,2,3].map(k=>$('f'+k).value.trim());
+  for(let k=0;k<4;k++){$('w'+k).innerHTML='';$('f'+k).disabled=true}
+  if(!t[0]) flag($('w0'),'warn','Die Beobachtung fehlt. Sie ist der wichtigste Schritt.');
+  else { const hit=BAD0.filter(r=>r.test(t[0])).map(r=>t[0].match(r)[0]);
+    hit.length?flag($('w0'),'warn','Achtung: «'+hit.join('», «')+'» klingt nach Bewertung oder Verallgemeinerung. Was genau ist wann passiert?')
+              :flag($('w0'),'ok','Keine typischen Vorwurfswörter gefunden. Prüfen Sie noch: Könnte eine Kamera das so aufnehmen?'); }
+  if(!t[1]) flag($('w1'),'warn','Das Gefühl fehlt. Es macht Ihr Anliegen für die andere Person nachvollziehbar.');
+  else { const hit=PSEUDO.filter(r=>r.test(t[1])).map(r=>t[1].match(r)[0]);
+    hit.length?flag($('w1'),'warn','«'+hit[0]+'» beschreibt eher, was der andere Ihnen angetan hat, als was Sie fühlen. Versuchen Sie ein echtes Gefühl: ärgerlich, enttäuscht, besorgt, verunsichert.')
+              :flag($('w1'),'ok','Gut, ein Gefühl in eigener Sache.'); }
+  if(!t[2]) flag($('w2'),'warn','Das Bedürfnis fehlt. Was ist Ihnen eigentlich wichtig?');
+  else if(/\bdu\b|\bihr\b/i.test(t[2])&&!/mir ist wichtig|ich brauche|wichtig/i.test(t[2])) flag($('w2'),'warn','Das Bedürfnis sollte von Ihnen handeln, nicht vom Verhalten der anderen Person.');
+  else flag($('w2'),'ok','Das Bedürfnis ist benannt.');
+  if(!t[3]) flag($('w3'),'warn','Die Bitte fehlt. Ohne Bitte weiss die andere Person nicht, was Sie sich wünschen.');
+  else { const neg=NEG.filter(r=>r.test(t[3]));
+    if(neg.length) flag($('w3'),'warn','Ihre Bitte klingt nach Forderung oder Verbot. Formulieren Sie, was die Person tun soll, nicht was sie lassen soll.');
+    else if(!t[3].includes('?')) flag($('w3'),'warn','Eine Bitte als Frage formuliert lässt der anderen Person die Wahl und wirkt weniger wie eine Anweisung.');
+    else flag($('w3'),'ok','Eine konkrete Bitte als Frage. Gut.'); }
+  $('model').innerHTML='<div class="hd">So könnte es klingen</div><div class="bd">'+['Beobachtung','Gefühl','Bedürfnis','Bitte'].map((l,k)=>`<p><b>${l}:</b> ${v.m[k]}</p>`).join('')+
+   '<div class="self"><label><input type="checkbox"> Ich würde meine Version so auch tatsächlich sagen.</label><label><input type="checkbox"> Meine Beobachtung enthält kein immer, nie oder typisch.</label></div></div>';
+  $('model').classList.remove('hidden'); $('check').classList.add('hidden'); $('next').classList.remove('hidden');
+  $('next').textContent=i===V.length-1?'Abschliessen':'Nächster Vorwurf'; $('bar').style.width=((i+1)/V.length*100)+'%'; reportHeight();
+}
+$('start').onclick=()=>{$('intro').classList.add('hidden');$('work').classList.remove('hidden');render()};
+$('check').onclick=check;
+$('next').onclick=()=>{if(i<V.length-1){i++;render()}else{$('work').classList.add('hidden');$('end').classList.remove('hidden');$('cnt').textContent='Abschluss';window.scrollTo(0,0);reportHeight()}};
+$('again').onclick=()=>{i=0;$('end').classList.add('hidden');$('work').classList.remove('hidden');render()};
+window.addEventListener('load',reportHeight);window.addEventListener('resize',reportHeight);
+if(window.ResizeObserver)new ResizeObserver(reportHeight).observe(document.body);
+</script>
+</body>
+</html>

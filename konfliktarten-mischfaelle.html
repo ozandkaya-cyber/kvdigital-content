@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Konfliktarten: Mischfälle aus dem Alltag</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display&family=Montserrat:wght@500;600&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --p:#183E45; --p75:#4E6B70; --p50:#8C9EA2; --p25:#C5CFD0; --p10:#E8ECEC;
+  --mint:#89BD99; --blue:#86C1CF; --rose:#D47882; --mus:#E0AF58;
+  --lmint:#d0e6d7; --lblue:#d6ebf0; --lrose:#f2d6d9; --lmus:#f5e3bf;
+  --serif:'Playfair Display','Liberation Serif','DejaVu Serif',Georgia,serif;
+  --sans:Roboto,'Segoe UI','DejaVu Sans',Arial,sans-serif;
+  --head:Montserrat,'Segoe UI','DejaVu Sans',Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:var(--sans);color:#2b3a3d;background:#fff;font-size:16px;line-height:1.5}
+.app{max-width:900px;margin:0 auto;padding:18px 16px 26px}
+.rub{font-family:var(--head);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--p50);border-bottom:1px solid var(--p25);padding-bottom:7px;margin-bottom:6px;display:flex;justify-content:space-between;gap:10px}
+h1{font-family:var(--serif);font-weight:400;color:var(--p);font-size:clamp(26px,4.4vw,36px);margin:4px 0 6px;line-height:1.15}
+h2{font-family:var(--head);color:var(--p);font-size:18px;margin:18px 0 8px;font-weight:600}
+.lead{color:var(--p75);margin:0 0 14px;max-width:70ch}
+.hidden{display:none!important}
+.btn{border:0;background:var(--p);color:#fff;font-weight:600;font-size:16px;padding:12px 22px;border-radius:10px;cursor:pointer;font-family:var(--sans)}
+.btn:hover{background:#0f2b30}
+.btn:disabled{opacity:.35;cursor:default}
+.btn.ghost{background:#fff;color:var(--p);border:1.5px solid var(--p)}
+.go{display:flex;justify-content:flex-end;gap:10px;margin-top:16px;flex-wrap:wrap}
+.prog{height:6px;background:var(--p10);margin:10px 0 16px}
+.prog i{display:block;height:100%;background:var(--blue);transition:width .3s}
+.case{background:var(--p10);border-left:6px solid var(--blue);padding:16px 18px}
+.case .who{font-family:var(--head);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--p50);margin-bottom:4px}
+.case p{margin:0}
+.opts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+@media(max-width:620px){.opts{grid-template-columns:repeat(2,1fr)}}
+.opt{border:1.5px solid var(--p25);background:#fff;color:var(--p);border-radius:10px;padding:10px 12px;font-size:15px;font-weight:500;cursor:pointer;text-align:left;font-family:var(--sans)}
+.opt:hover:not(:disabled){border-color:var(--p50)}
+.opt.on{background:var(--p);border-color:var(--p);color:#fff}
+.opt.ok{background:var(--lmint);border-color:var(--mint);color:var(--p)}
+.opt.bad{background:var(--lrose);border-color:var(--rose);color:var(--p)}
+.opt.also{background:var(--lmus);border-color:var(--mus);color:var(--p)}
+.opt:disabled{cursor:default}
+.opt:focus-visible,.btn:focus-visible{outline:3px solid var(--mus);outline-offset:2px}
+.hint{font-size:14px;color:var(--p75);margin:-2px 0 8px}
+.yn{display:flex;gap:8px}
+.yn .opt{flex:0 0 120px;text-align:center}
+.fb{margin-top:16px;border:1px solid var(--p25);padding:14px 16px;background:#fff}
+.fb .row{display:flex;gap:10px;align-items:flex-start;margin:4px 0}
+.dot{flex:0 0 22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:var(--p);margin-top:1px}
+.dot.ok{background:var(--mint)}.dot.bad{background:var(--rose)}.dot.part{background:var(--mus)}
+.fb .ex{margin-top:10px;padding-top:10px;border-top:1px solid var(--p10);color:#2b3a3d}
+.score{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:14px 0}
+.score div{background:var(--p10);padding:12px 14px}
+.score .k{font-family:var(--head);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--p50)}
+.score .v{font-size:30px;font-weight:700;color:var(--p);font-variant-numeric:tabular-nums}
+.take{background:var(--p);color:#fff;padding:16px 18px;margin-top:14px}
+.take b{font-family:var(--head);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--p25);display:block;margin-bottom:4px;font-weight:600}
+.legend{font-size:13px;color:var(--p75);display:flex;gap:14px;flex-wrap:wrap;margin-top:8px}
+.legend span::before{content:"";display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px;background:var(--c)}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="rub"><span>Konflikte verstehen</span><span id="cnt"></span></div>
+  <h1>Mischfälle aus dem Alltag</h1>
+
+  <section id="intro">
+    <p class="lead">Echte Konflikte passen selten sauber in eine Schublade. In dieser Übung lesen Sie acht kurze Fälle aus kleinen und mittleren Unternehmen. Bei jedem Fall entscheiden Sie drei Dinge: Welche Art steht im Vordergrund? Was schwingt mit? Und steckt eine strukturelle Ursache dahinter?</p>
+    <div class="case"><div class="who">Zur Erinnerung</div><p>Sachkonflikt, Zielkonflikt, Verteilungskonflikt, Rollenkonflikt, Wertekonflikt und Beziehungskonflikt unterscheiden sich nach dem Streitpunkt. Ein struktureller Konflikt entsteht durch Aufbau, Ziele oder Abläufe der Organisation und sieht oft aus wie ein persönlicher.</p></div>
+    <div class="go"><button class="btn" id="start">Übung starten</button></div>
+  </section>
+
+  <section id="quiz" class="hidden">
+    <div class="prog"><i id="bar"></i></div>
+    <div class="case"><div class="who" id="who"></div><p id="txt"></p></div>
+
+    <h2>1. Welche Art steht im Vordergrund?</h2>
+    <div class="opts" id="main"></div>
+
+    <h2>2. Was schwingt mit?</h2>
+    <p class="hint">Wählen Sie keine, eine oder mehrere Arten.</p>
+    <div class="opts" id="side"></div>
+
+    <h2>3. Steckt eine strukturelle Ursache dahinter?</h2>
+    <div class="yn" id="struct"></div>
+
+    <div class="fb hidden" id="fb"></div>
+    <div class="go">
+      <button class="btn" id="check" disabled>Prüfen</button>
+      <button class="btn hidden" id="next">Nächster Fall</button>
+    </div>
+  </section>
+
+  <section id="end" class="hidden">
+    <p class="lead">Sie haben alle acht Fälle bearbeitet. So sieht Ihr Ergebnis aus:</p>
+    <div class="score">
+      <div><span class="k">Art im Vordergrund</span><div class="v" id="s1"></div></div>
+      <div><span class="k">Strukturelle Ursache</span><div class="v" id="s2"></div></div>
+    </div>
+    <p id="endtxt"></p>
+    <div class="take"><b>Das Wichtigste</b>In vier von acht Fällen ist die Beziehung mit im Spiel, als Hauptart oder als das, was mitschwingt. Das ist kein Zufall: Sach-, Ziel- und Verteilungskonflikte, die zu lange ungeklärt bleiben, werden persönlich. Und in drei Fällen liegt die Ursache in der Struktur. Dort hilft kein klärendes Gespräch allein, sondern nur eine klarere Regel, Rolle oder Zielvorgabe.</div>
+    <div class="go"><button class="btn ghost" id="again">Nochmals von vorne</button></div>
+  </section>
+</div>
+
+<script>
+const ARTEN=['Sachkonflikt','Zielkonflikt','Verteilungskonflikt','Rollenkonflikt','Wertekonflikt','Beziehungskonflikt'];
+const F=[
+ {who:'Bäckerei mit drei Filialen',txt:'Die Filialleiterinnen in Aarau und Lenzburg wollen beide die neue Lernende für den Sommer. Die Inhaberin entscheidet jedes Jahr nach Gefühl. Die Leiterin in Lenzburg sagt in der Teamsitzung: «Wie immer bekommt Aarau alles. Wir sind halt die Filiale zweiter Klasse.»',
+  main:'Verteilungskonflikt',side:['Beziehungskonflikt'],struct:true,
+  ex:'Im Vordergrund steht eine knappe Ressource: eine Lernende für zwei Filialen. Der Satz «Filiale zweiter Klasse» zeigt, dass schon eine Kränkung mitschwingt. Strukturell fehlt eine nachvollziehbare Regel für die Verteilung. Solange die Inhaberin nach Gefühl entscheidet, wird sich jede Filiale irgendwann benachteiligt fühlen.'},
+ {who:'Treuhandbüro mit zwölf Mitarbeitenden',txt:'Simon ist seit Januar Teamleiter. Bis Dezember war er Sachbearbeiter im selben Team. Seine frühere Kollegin Andrea erledigt seine Aufträge nur noch, wenn sie ihr passen. Sie sagt: «Du warst gestern noch einer von uns. Jetzt spielst du plötzlich den Chef.»',
+  main:'Rollenkonflikt',side:['Beziehungskonflikt'],struct:false,
+  ex:'Der Kern ist die neue Rolle von Simon. Andrea erlebt ihn noch als Kollegen, die Organisation erwartet von ihm Führung. Die Beziehung leidet mit. Eine strukturelle Ursache im engeren Sinn gibt es nicht: Die Rolle ist klar definiert, sie muss aber zwischen den beiden erst neu ausgehandelt werden. Hilfreich wäre ein offenes Gespräch über die veränderte Rolle.'},
+ {who:'Autogarage',txt:'Der Inhaber möchte der preisbewussten Kundschaft günstigere Nachbauteile anbieten. Der Werkstattchef weigert sich: «Ich setze meinen Namen nicht unter Pfusch. Bei uns kommen Originalteile rein, Punkt.»',
+  main:'Wertekonflikt',side:['Zielkonflikt'],struct:false,
+  ex:'Es geht um eine Überzeugung, was gute Arbeit ist. Der Satz «meinen Namen nicht unter Pfusch» zeigt, dass für den Werkstattchef seine berufliche Ehre auf dem Spiel steht. Daneben gibt es einen Zielkonflikt zwischen Preis und Qualität. Wertekonflikte lassen sich selten durch Argumente lösen. Eher hilft es, gemeinsame Werte zu finden, etwa Ehrlichkeit gegenüber der Kundschaft. Die Entscheidung sollte transparent sein.'},
+ {who:'Malerbetrieb mit 25 Mitarbeitenden',txt:'Der Verkaufsleiter erhält einen Bonus auf das Auftragsvolumen. Die Bauleiter werden an der Marge ihrer Baustellen gemessen. Ein Bauleiter schimpft: «Der verkauft uns Baustellen, auf denen wir nur draufzahlen. Hauptsache, er hat seine Unterschrift.»',
+  main:'Zielkonflikt',side:['Beziehungskonflikt'],struct:true,
+  ex:'Die beiden verfolgen unterschiedliche Ziele, die sich gegenseitig behindern: Volumen gegen Marge. Der Ton zeigt, dass der Konflikt persönlich zu werden beginnt. Die Ursache liegt aber klar in der Struktur, nämlich im Anreizsystem. Solange der Verkauf nur auf Volumen bonusiert wird, entsteht dieser Konflikt mit jedem neuen Verkaufsleiter wieder.'},
+ {who:'Physiotherapiepraxis',txt:'Zwei Praxisassistentinnen streiten seit Monaten darüber, wer die Ablage und die Wäsche macht. Begonnen hat es am Weihnachtsessen, als die eine der anderen vor allen einen Abrechnungsfehler vorgehalten hat. Seither wird jede Kleinigkeit zum Thema.',
+  main:'Beziehungskonflikt',side:['Verteilungskonflikt'],struct:false,
+  ex:'Ablage und Wäsche sind nur der Anlass. Der eigentliche Konflikt ist die Kränkung am Weihnachtsessen, also ein Beziehungskonflikt. Wer hier nur einen Ämtliplan einführt, löst den Anlass und nicht die Ursache. Die Verteilung der Arbeit schwingt mit, eine strukturelle Ursache gibt es nicht.'},
+ {who:'Schreinerei',txt:'Zwei Projektleiter sind uneinig, ob die neue CNC-Maschine neu oder als Occasion gekauft werden soll. Der eine rechnet mit tiefen Wartungskosten bei einer Occasion, der andere mit doppelt so hohen. Beide haben ihre Zahlen von unterschiedlichen Lieferanten.',
+  main:'Sachkonflikt',side:[],struct:false,
+  ex:'Ein klassischer Sachkonflikt: Beide wollen dasselbe, nämlich eine wirtschaftlich sinnvolle Maschine. Sie streiten über Fakten und den richtigen Weg. Solche Konflikte lassen sich gut mit gemeinsamen Kriterien und überprüfbaren Zahlen lösen, zum Beispiel mit einer dritten, unabhängigen Offerte. Gefährlich werden sie erst, wenn sie zu lange liegen bleiben.'},
+ {who:'Elektroinstallationsfirma',txt:'Der Chefmonteur ist gleichzeitig Berufsbildner. Die Geschäftsleitung erwartet, dass seine Baustellen voll produktiv laufen. Die Berufsbildung erwartet, dass er sich Zeit für die Lernenden nimmt. In letzter Zeit reagiert er auf Fragen des Lernenden zunehmend gereizt.',
+  main:'Rollenkonflikt',side:['Zielkonflikt'],struct:true,
+  ex:'Der Chefmonteur steckt in zwei Rollen mit widersprüchlichen Erwartungen. Er erlebt einen Rollenkonflikt, der sich als innere Spannung zeigt und am schwächsten Glied ausgetragen wird, dem Lernenden. Die Ursache ist strukturell: Niemand hat geklärt, wie viel Zeit für die Ausbildung eingerechnet wird. Ein Gespräch mit dem Lernenden ändert daran nichts, eine Anpassung der Zielvorgaben schon.'},
+ {who:'Gartenbaufirma, Familienbetrieb',txt:'Die Inhaberin möchte einen 62-jährigen Mitarbeiter trotz nachlassender Leistung bis zur Pensionierung behalten: «Er hat 30 Jahre für uns gearbeitet.» Der Produktionsleiter will ihn ersetzen, weil das Team die Mehrarbeit übernehmen muss und langsam murrt.',
+  main:'Wertekonflikt',side:['Zielkonflikt','Verteilungskonflikt'],struct:false,
+  ex:'Hier prallen zwei berechtigte Werte aufeinander: Loyalität gegenüber langjährigen Mitarbeitenden und Fairness gegenüber dem Team. Dazu kommen ein Zielkonflikt (Produktivität) und ein Verteilungskonflikt (wer trägt die Mehrarbeit). Eine strukturelle Ursache im engeren Sinn liegt nicht vor. Lösungen liegen oft darin, beiden Werten gerecht zu werden, etwa mit einer angepassten Aufgabe für den Mitarbeiter.'}
+];
+let i=0, sel={main:null,side:new Set(),struct:null}, sc={m:0,s:0}, done=false;
+const $=id=>document.getElementById(id);
+function reportHeight(){try{parent.postMessage({type:'resize',source:'konfliktarten-mischfaelle',height:document.documentElement.scrollHeight},'*');}catch(e){}}
+function mk(parent,label,fn,cls='opt'){const b=document.createElement('button');b.className=cls;b.type='button';b.textContent=label;b.onclick=fn;parent.appendChild(b);return b}
+function render(){
+  const f=F[i]; done=false; sel={main:null,side:new Set(),struct:null};
+  $('cnt').textContent='Fall '+(i+1)+' von '+F.length; $('bar').style.width=((i)/F.length*100)+'%';
+  $('who').textContent=f.who; $('txt').textContent=f.txt;
+  ['main','side','struct'].forEach(k=>$(k).innerHTML='');
+  ARTEN.forEach(a=>mk($('main'),a,()=>{if(done)return;sel.main=a;sel.side.delete(a);upd()}));
+  ARTEN.forEach(a=>mk($('side'),a,()=>{if(done||a===sel.main)return;sel.side.has(a)?sel.side.delete(a):sel.side.add(a);upd()}));
+  [['Ja',true],['Nein',false]].forEach(([l,v])=>mk($('struct'),l,()=>{if(done)return;sel.struct=v;upd()}));
+  $('fb').classList.add('hidden'); $('check').classList.remove('hidden'); $('next').classList.add('hidden');
+  upd(); window.scrollTo(0,0); reportHeight();
+}
+function upd(){
+  [...$('main').children].forEach(b=>b.classList.toggle('on',b.textContent===sel.main));
+  [...$('side').children].forEach(b=>{b.classList.toggle('on',sel.side.has(b.textContent));b.disabled=b.textContent===sel.main;b.style.opacity=b.textContent===sel.main?.35:1});
+  [...$('struct').children].forEach(b=>b.classList.toggle('on',sel.struct===(b.textContent==='Ja')));
+  $('check').disabled=!(sel.main&&sel.struct!==null);
+}
+function check(){
+  const f=F[i]; done=true;
+  const mOk=sel.main===f.main, sOk=sel.struct===f.struct;
+  if(mOk)sc.m++; if(sOk)sc.s++;
+  [...$('main').children].forEach(b=>{b.classList.remove('on');b.disabled=true;
+    if(b.textContent===f.main)b.classList.add('ok');else if(b.textContent===sel.main)b.classList.add('bad')});
+  [...$('side').children].forEach(b=>{b.classList.remove('on');b.disabled=true;b.style.opacity=1;
+    if(f.side.includes(b.textContent))b.classList.add('also')});
+  [...$('struct').children].forEach(b=>{const v=b.textContent==='Ja';b.classList.remove('on');b.disabled=true;
+    if(v===f.struct)b.classList.add('ok');else if(v===sel.struct)b.classList.add('bad')});
+  const hit=[...sel.side].filter(a=>f.side.includes(a)).length;
+  const sideTxt=f.side.length?('Mit schwingt: '+f.side.join(', ')+'.'+(hit?' Davon haben Sie '+hit+' erkannt.':'')):'Hier schwingt keine weitere Art deutlich mit.';
+  $('fb').innerHTML=
+   `<div class="row"><span class="dot ${mOk?'ok':'bad'}">${mOk?'✓':'✗'}</span><span>${mOk?'Richtig eingeordnet: ':'Im Vordergrund steht hier: '}<b>${f.main}</b>.</span></div>`+
+   `<div class="row"><span class="dot part">+</span><span>${sideTxt}</span></div>`+
+   `<div class="row"><span class="dot ${sOk?'ok':'bad'}">${sOk?'✓':'✗'}</span><span>Strukturelle Ursache: <b>${f.struct?'ja':'nein'}</b>.</span></div>`+
+   `<div class="ex">${f.ex}</div>`+
+   `<div class="legend"><span style="--c:var(--mint)">richtig</span><span style="--c:var(--mus)">schwingt mit</span><span style="--c:var(--rose)">Ihre abweichende Wahl</span></div>`;
+  $('fb').classList.remove('hidden'); $('check').classList.add('hidden'); $('next').classList.remove('hidden');
+  $('next').textContent=i===F.length-1?'Zum Ergebnis':'Nächster Fall';
+  $('bar').style.width=((i+1)/F.length*100)+'%';
+  reportHeight();
+}
+function end(){
+  $('quiz').classList.add('hidden'); $('end').classList.remove('hidden'); $('cnt').textContent='Ergebnis';
+  $('s1').textContent=sc.m+' von '+F.length; $('s2').textContent=sc.s+' von '+F.length;
+  $('endtxt').textContent= sc.m>=6 ? 'Sie erkennen den Schwerpunkt eines Konflikts zuverlässig. Achten Sie in der Praxis besonders darauf, was mitschwingt, denn dort liegt oft der Grund, warum eine Lösung nicht hält.'
+   : 'Lassen Sie sich nicht entmutigen. Die Fälle sind bewusst mehrdeutig. Auch Fachleute ordnen sie nicht immer gleich ein. Wichtiger als die richtige Schublade ist die Gewohnheit, nach dem Schwerpunkt und nach strukturellen Ursachen zu fragen.';
+  window.scrollTo(0,0); reportHeight();
+}
+$('start').onclick=()=>{$('intro').classList.add('hidden');$('quiz').classList.remove('hidden');render()};
+$('check').onclick=check;
+$('next').onclick=()=>{if(i<F.length-1){i++;render()}else end()};
+$('again').onclick=()=>{i=0;sc={m:0,s:0};$('end').classList.add('hidden');$('quiz').classList.remove('hidden');render()};
+window.addEventListener('load',reportHeight); window.addEventListener('resize',reportHeight);
+if(window.ResizeObserver) new ResizeObserver(reportHeight).observe(document.body);
+</script>
+</body>
+</html>

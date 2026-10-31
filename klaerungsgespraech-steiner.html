@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Das Klärungsgespräch</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display&family=Montserrat:wght@500;600&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --p:#183E45; --p75:#4E6B70; --p50:#8C9EA2; --p25:#C5CFD0; --p10:#E8ECEC;
+  --mint:#89BD99; --blue:#86C1CF; --rose:#D47882; --mus:#E0AF58;
+  --lmint:#d0e6d7; --lblue:#d6ebf0; --lrose:#f2d6d9; --lmus:#f5e3bf;
+  --serif:'Playfair Display','Liberation Serif','DejaVu Serif',Georgia,serif;
+  --sans:Roboto,'Segoe UI','DejaVu Sans',Arial,sans-serif;
+  --head:Montserrat,'Segoe UI','DejaVu Sans',Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:var(--sans);color:#2b3a3d;background:#fff;font-size:16px;line-height:1.5}
+.app{max-width:900px;margin:0 auto;padding:18px 16px 26px}
+.rub{font-family:var(--head);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--p50);border-bottom:1px solid var(--p25);padding-bottom:7px;margin-bottom:6px;display:flex;justify-content:space-between;gap:10px}
+h1{font-family:var(--serif);font-weight:400;color:var(--p);font-size:clamp(26px,4.4vw,36px);margin:4px 0 6px;line-height:1.15}
+h2{font-family:var(--head);color:var(--p);font-size:18px;margin:16px 0 8px;font-weight:600}
+.lead{color:var(--p75);margin:0 0 14px;max-width:70ch}
+.hidden{display:none!important}
+.btn{border:0;background:var(--p);color:#fff;font-weight:600;font-size:16px;padding:12px 22px;border-radius:10px;cursor:pointer;font-family:var(--sans)}
+.btn:hover{background:#0f2b30}
+.btn.ghost{background:#fff;color:var(--p);border:1.5px solid var(--p)}
+.btn:focus-visible,.opt:focus-visible{outline:3px solid var(--mus);outline-offset:2px}
+.go{display:flex;justify-content:flex-end;gap:10px;margin-top:16px;flex-wrap:wrap}
+.hud{display:grid;grid-template-columns:1fr 160px;gap:12px;align-items:center;margin:8px 0 14px}
+.meter{height:14px;background:var(--p10);position:relative}
+.meter i{position:absolute;left:0;top:0;bottom:0;transition:width .5s,background .5s}
+.hud .lab{font-family:var(--head);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--p50)}
+.hud .val{font-weight:700;color:var(--p);text-align:right}
+.scene{background:var(--p10);padding:14px 16px;border-left:6px solid var(--blue)}
+.scene p{margin:4px 0}
+.say{display:flex;gap:10px;margin:10px 0}
+.av{flex:0 0 38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;font-family:var(--head)}
+.av.s{background:var(--mus);color:var(--p)}.av.m{background:var(--blue);color:var(--p)}.av.d{background:var(--p);color:#fff}
+.bub{background:#fff;border:1px solid var(--p25);padding:8px 12px;border-radius:0 12px 12px 12px}
+.bub small{display:block;font-weight:700;color:var(--p);font-size:13px}
+.opts{display:grid;gap:8px}
+.opt{border:1.5px solid var(--p25);background:#fff;color:#2b3a3d;border-radius:10px;padding:12px 14px;font-size:16px;cursor:pointer;text-align:left;font-family:var(--sans)}
+.opt:hover{border-color:var(--p50)}
+.fb{margin-top:14px;border:1px solid var(--p25);padding:14px 16px}
+.fb .tag{font-family:var(--head);font-weight:600;font-size:12px;letter-spacing:.14em;text-transform:uppercase;display:inline-block;padding:4px 10px;border-radius:999px;color:var(--p);margin-bottom:6px}
+.t-ok{background:var(--mint)}.t-mid{background:var(--mus)}.t-bad{background:var(--rose)}
+.endbox{padding:18px;margin:12px 0;color:var(--p)}
+.endbox h2{margin-top:0}
+.e-good{background:var(--lmint)}.e-mid{background:var(--lmus)}.e-bad{background:var(--lrose)}
+.path{display:grid;gap:8px;margin-top:10px}
+.path div{border-left:4px solid var(--c);padding:6px 12px;background:#fff;font-size:15px}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="rub"><span>Klären als Führungsperson</span><span id="cnt"></span></div>
+  <h1>Das Klärungsgespräch</h1>
+
+  <section id="intro">
+    <p class="lead">Mittwoch, 7.30 Uhr, Sitzungszimmer der Steiner Metallbau AG. Sie sind Daniel Steiner. Vor Ihnen sitzen Sandra Keller als Leiterin AVOR und Marco Rüegg als Leiter Montage. Sie haben beide einzeln angehört. Jetzt führen Sie das gemeinsame Gespräch.</p>
+    <p class="lead">Sie treffen sechs Entscheidungen. Die Anzeige «Gesprächsklima» zeigt, wie offen Sandra und Marco gerade sind. Am Ende steht eine tragfähige Vereinbarung, ein fauler Frieden oder ein Eklat.</p>
+    <div class="go"><button class="btn" id="start">Gespräch beginnen</button></div>
+  </section>
+
+  <section id="play" class="hidden">
+    <div class="hud"><div><span class="lab">Gesprächsklima</span><div class="meter"><i id="mt"></i></div></div><div class="val" id="mv"></div></div>
+    <div class="scene" id="scene"></div>
+    <h2 id="qq"></h2>
+    <div class="opts" id="opts"></div>
+    <div class="fb hidden" id="fb"></div>
+    <div class="go"><button class="btn hidden" id="next">Weiter</button></div>
+  </section>
+
+  <section id="end" class="hidden">
+    <div class="endbox" id="endbox"></div>
+    <h2>Ihr Weg durch das Gespräch</h2>
+    <div class="path" id="path"></div>
+    <div class="go"><button class="btn ghost" id="again">Anderen Weg ausprobieren</button></div>
+  </section>
+</div>
+
+<script>
+const say=(c,n,t)=>`<div class="say"><div class="av ${c}">${n.split(' ').map(w=>w[0]).join('')}</div><div class="bub"><small>${n}</small>${t}</div></div>`;
+const N=[
+ {scene:'<p>Sandra sitzt aufrecht, die Arme verschränkt. Marco schaut aufs Handy und legt es dann hin. Alle warten darauf, dass Sie beginnen.</p>',q:'Wie steigen Sie ein?',o:[
+  {t:'«Danke, dass ihr beide da seid. Ich möchte, dass wir heute eine Lösung finden, mit der ihr beide wieder gut arbeiten könnt. Mein Vorschlag: Zuerst erzählt jede Person ihre Sicht, ohne Unterbruch. Dann suchen wir gemeinsam nach Lösungen. Einverstanden?»',d:20,
+   r:say('s','Sandra Keller','Einverstanden.')+say('m','Marco Rüegg','Ja, passt.'),f:'Ein klarer Einstieg: Ziel, Ablauf, Regel und die Frage nach Zustimmung. Beide wissen jetzt, was sie erwartet.'},
+  {t:'«So, ich will, dass dieser Kindergarten jetzt aufhört. Wer hat angefangen?»',d:-20,
+   r:say('m','Marco Rüegg','Ich sicher nicht.')+'<p>Sandra presst die Lippen zusammen und schaut zum Fenster.</p>',f:'Die Frage nach der Schuld führt direkt zurück in den Kreislauf. Und das Wort Kindergarten wertet beide ab.'},
+  {t:'«Ich habe gehört, es gab ein paar Missverständnisse. Aber eigentlich läuft es ja ganz gut, oder?»',d:-10,
+   r:say('s','Sandra Keller','Nein, Daniel. Es läuft nicht gut. Sonst hätte ich dir nicht geschrieben.'),f:'Herunterspielen ist eine Form von Vermeiden. Sandra fühlt sich damit noch weniger ernst genommen.'}]},
+ {scene:'<p>Sandra beginnt. Nach etwa einer halben Minute unterbricht Marco:</p>'+say('m','Marco Rüegg','Das stimmt doch so gar nicht! Die Masse waren richtig.'),q:'Wie reagieren Sie?',o:[
+  {t:'«Marco, du kommst gleich dran. Lass Sandra bitte ausreden. Das gilt nachher auch für dich.»',d:20,
+   r:'<p>Marco hebt die Hände: «Okay, okay.» Sandra erzählt weiter, ruhiger als vorher.</p>',f:'Sie schützen die vereinbarte Regel, ohne Marco blosszustellen. Der Hinweis «gilt auch für dich» zeigt, dass Sie fair sind.'},
+  {t:'Sie sagen nichts und hoffen, dass sich die beiden wieder beruhigen.',d:-10,
+   r:say('s','Sandra Keller','Siehst du, Daniel, genau so läuft das immer.')+'<p>Die beiden reden jetzt gleichzeitig.</p>',f:'Wer die eigene Regel nicht durchsetzt, verliert die Leitung des Gesprächs. Die Moderation ist jetzt Ihre Aufgabe.'},
+  {t:'«Marco, ehrlich gesagt war das mit dem Meme ziemlich daneben.»',d:-20,
+   r:say('m','Marco Rüegg','Ah, so ist das. Dann ist ja schon alles entschieden.')+'<p>Marco lehnt sich zurück und verschränkt die Arme.</p>',f:'In der Sache haben Sie vielleicht recht. Aber Sie haben in dieser Phase Partei ergriffen. Damit sind Sie für Marco nicht mehr allparteilich.'}]},
+ {scene:'<p>Sandra erzählt von der Fehlbestellung, die 18\'000 Franken gekostet hat. Sie erzählt auch, dass sie das Meme in der WhatsApp-Gruppe gesehen hat. Ihre Stimme wird leiser.</p>'+say('s','Sandra Keller','Ich habe 14 Jahre in dieses System gesteckt. Und dann lachen alle darüber.'),q:'Was sagen Sie, bevor Marco an der Reihe ist?',o:[
+  {t:'«Wenn ich dich richtig verstehe, geht es dir um zwei Dinge. Du willst die Verantwortung für die Bestellungen tragen können. Und das Meme hat dich verletzt. Stimmt das?»',d:20,
+   r:say('s','Sandra Keller','Ja. Genau das.')+'<p>Sandra lehnt sich zum ersten Mal zurück. Marco schaut auf den Tisch.</p>',f:'Paraphrasieren zeigt, dass Sie zugehört haben. Und es lässt Marco hören, worum es Sandra wirklich geht, ohne dass Sie werten.'},
+  {t:'«Gut, das haben wir gehört. Marco, jetzt du.»',d:0,
+   r:'<p>Sandra nickt knapp. Marco beginnt sofort.</p>',f:'Nicht falsch, aber eine verpasste Chance. Eine kurze Zusammenfassung hätte Sandra gezeigt, dass sie verstanden wurde.'},
+  {t:'«Ach Sandra, das Meme war doch nur ein Witz. Das darf man nicht so ernst nehmen.»',d:-60,fatal:true,
+   r:say('s','Sandra Keller','Nur ein Witz. Gut zu wissen, wie du das siehst, Daniel.')+'<p>Sandra steht auf und verlässt den Raum. Marco schaut Sie überrascht an.</p>',f:'Das Gefühl einer Person kleinzureden ist im Klärungsgespräch das Schlimmste, was passieren kann. Sandra erlebt jetzt auch Sie als Teil des Problems.'}]},
+ {scene:'<p>Jetzt ist Marco an der Reihe. Er klingt gereizt.</p>'+say('m','Marco Rüegg','Ich mache nur meinen Job. Die Bauleitung ruft mich an, nicht Sandra. Ohne mich wäre Wohlen längst im Verzug. Hier im Büro zählt offenbar nur, was auf dem Papier steht.'),q:'Wie gehen Sie auf Marco ein?',o:[
+  {t:'«Du stehst unter Druck von der Bauleitung und willst, dass deine Leute nicht warten müssen. Und du hast den Eindruck, dass dein Wissen von der Baustelle hier wenig zählt. Habe ich das richtig verstanden?»',d:20,
+   r:say('m','Marco Rüegg','Ja. Genau.')+'<p>Nach einer Pause sagt er leiser: «Das mit dem Meme war nicht gut. Das tut mir leid, Sandra.»</p>',f:'Sie geben Marco dieselbe Aufmerksamkeit wie Sandra. Wer sich verstanden fühlt, kann den eigenen Anteil eher sehen.'},
+  {t:'«Das ist keine Entschuldigung dafür, einfach in die Planung einzugreifen.»',d:-20,
+   r:say('m','Marco Rüegg','Dann weiss ich ja, woran ich bin.'),f:'Sie bewerten, bevor Sie verstanden haben. Marco fühlt sich jetzt doppelt nicht ernst genommen.'},
+  {t:'«Da hast du recht, Marco. Ohne dich wären wir in Wohlen nicht so weit.»',d:-10,
+   r:'<p>Marco lächelt. Sandra schaut Sie lange an und sagt nichts.</p>',f:'Anerkennung ist wichtig, aber hier wirkt sie wie Parteinahme. Sandra hört: Der Chef steht auf Marcos Seite.'}]},
+ {scene:'<p>Beide haben ihre Sicht geschildert. Es ist ruhiger geworden im Raum.</p>',q:'Wie leiten Sie zur Lösung über?',o:[
+  {t:'«Ich höre bei euch beiden dasselbe Ziel: Wohlen soll pünktlich und ohne Fehlbestellungen fertig werden. Und ich muss etwas zugeben: Ich habe bei der Einführung der Software nie geklärt, wer was ändern darf. Das war mein Fehler.»',d:30,
+   r:'<p>Sandra und Marco schauen sich zum ersten Mal direkt an.</p>'+say('s','Sandra Keller','Danke, dass du das sagst.'),f:'Sie benennen das Gemeinsame und übernehmen Verantwortung für die strukturelle Ursache. Damit nehmen Sie beiden die Last ab, allein schuld zu sein.'},
+  {t:'«Ihr wollt ja eigentlich beide dasselbe. Also vertragt euch jetzt.»',d:-10,
+   r:'<p>Beide nicken, ohne überzeugt zu wirken.</p>',f:'Der Hinweis auf das Gemeinsame ist richtig. Aber «vertragt euch» schiebt die Verantwortung zurück und lässt die Struktur ausser Acht.'},
+  {t:'«Ich entscheide jetzt: Marco bekommt Schreibrechte, Sandra kontrolliert am Schluss.»',d:-10,
+   r:say('s','Sandra Keller','Dann brauche ich ja eigentlich gar nicht mehr hier zu sein.'),f:'Ein Entscheid von oben kann nötig sein, aber nicht in einem Klärungsgespräch auf dieser Stufe. Sie übergehen Sandras Interesse und die Chance auf eine gemeinsame Lösung.'}]},
+ {scene:'<p>Jetzt geht es um die konkrete Vereinbarung.</p>',q:'Wie kommen Sie zum Abschluss?',o:[
+  {t:'«Was schlagt ihr vor? Ich schreibe mit. Am Schluss klären wir, wer was bis wann macht. In vier Wochen setzen wir uns wieder zusammen.»',d:20,
+   r:'<p>Marco schlägt ein Zeitfenster für Änderungen vor. Sandra ergänzt eine Notfallregel per Telefon. Gemeinsam kommen sie auf eine kurze Montagssitzung zu dritt.</p>',f:'Die Lösung kommt von den beiden selbst. Das erhöht die Chance, dass sie hält. Der Termin für den Rückblick macht die Vereinbarung verbindlich.'},
+  {t:'«Gut, dann machen wir es einfach besser in Zukunft. Danke euch beiden.»',d:-20,
+   r:'<p>Alle stehen auf. Draussen fragt Petra Sandra: «Und? Was ist jetzt anders?» Sandra zuckt mit den Schultern.</p>',f:'Ohne konkrete Vereinbarung bleibt alles beim Alten. Spätestens bei der nächsten Planänderung beginnt der Kreislauf von vorne.'},
+  {t:'Sie legen selbst einen ausgearbeiteten Vorschlag auf den Tisch und fragen, ob beide einverstanden sind.',d:5,
+   r:'<p>Beide sind einverstanden. Marco fragt noch, ob man das Zeitfenster etwas später legen könnte.</p>',f:'Ein solider Weg, besonders unter Zeitdruck. Lösungen, die die Beteiligten selbst entwickeln, tragen allerdings meist besser.'}]}
+];
+let k=0, klima=50, path=[]; const $=id=>document.getElementById(id);
+function reportHeight(){try{parent.postMessage({type:'resize',source:'klaerungsgespraech-steiner',height:document.documentElement.scrollHeight},'*');}catch(e){}}
+function meter(){const v=Math.max(0,Math.min(100,klima));$('mt').style.width=v+'%';$('mt').style.background=v>=70?'var(--mint)':v>=40?'var(--mus)':'var(--rose)';$('mv').textContent=v>=70?'offen':v>=40?'angespannt':'blockiert'}
+function render(){
+  const n=N[k]; $('cnt').textContent='Entscheidung '+(k+1)+' von '+N.length; meter();
+  $('scene').innerHTML=n.scene; $('qq').textContent=n.q; const o=$('opts'); o.innerHTML=''; o.classList.remove('hidden');
+  const idx=[0,1,2].sort(()=>Math.random()-.5);
+  idx.forEach(j=>{const op=n.o[j];const b=document.createElement('button');b.type='button';b.className='opt';b.textContent=op.t;b.onclick=()=>choose(op);o.appendChild(b)});
+  $('fb').classList.add('hidden'); $('next').classList.add('hidden'); window.scrollTo(0,0); reportHeight();
+}
+function choose(op){
+  klima+=op.d; meter(); path.push({q:N[k].q,t:op.t,d:op.d,f:op.f});
+  $('opts').classList.add('hidden');
+  const tag=op.d>=15?['t-ok','Das wirkt']:op.d>=0?['t-mid','Geht so']:['t-bad','Das kostet Vertrauen'];
+  $('fb').innerHTML=`<div><b>Sie:</b> ${op.t}</div>${op.r}<p><span class="tag ${tag[0]}">${tag[1]}</span><br>${op.f}</p>`;
+  $('fb').classList.remove('hidden');
+  const done=op.fatal||k===N.length-1; $('next').textContent=done?'Zum Ergebnis':'Weiter'; $('next').classList.remove('hidden');
+  $('next').onclick=()=>{if(done)end(!!op.fatal);else{k++;render()}}; reportHeight();
+}
+function end(fatal){
+  $('play').classList.add('hidden');$('end').classList.remove('hidden');$('cnt').textContent='Ergebnis';
+  let c,h,t;
+  if(fatal||klima<40){c='e-bad';h='Eklat';t=fatal?'Sandra hat den Raum verlassen. Am Nachmittag liegt eine Kündigung auf Ihrem Tisch, oder zumindest die Drohung damit. Der Konflikt steht jetzt auf einer höheren Stufe als vorher. Sie sind jetzt Teil davon. Jetzt braucht es eine externe Mediation.':'Das Gespräch endet ohne Ergebnis, beide fühlen sich nicht gehört. Der Konflikt ist eher eskaliert als entschärft. Für einen nächsten Versuch braucht es vermutlich eine neutrale Person von aussen.'}
+  else if(klima<80){c='e-mid';h='Fauler Frieden';t='Das Gespräch verläuft ohne Eklat. Es gibt sogar eine Abmachung. Aber mindestens eine Seite fühlt sich nicht ganz verstanden. Die Chancen stehen gut, dass der Konflikt in einigen Wochen in neuer Form zurückkommt.'}
+  else {c='e-good';h='Tragfähige Vereinbarung';t='Sandra und Marco haben einander zugehört, das Meme ist ausgesprochen und die strukturelle Ursache benannt. Die Vereinbarung stammt von den beiden selbst und hat einen Termin für den Rückblick. Genau so ist es bei Steiner weitergegangen.'}
+  $('endbox').className='endbox '+c; $('endbox').innerHTML=`<h2>${h}</h2><p>${t}</p>`;
+  $('path').innerHTML=path.map(p=>`<div style="--c:${p.d>=15?'var(--mint)':p.d>=0?'var(--mus)':'var(--rose)'}"><b>${p.q}</b><br>${p.f}</div>`).join('');
+  window.scrollTo(0,0); reportHeight();
+}
+$('start').onclick=()=>{$('intro').classList.add('hidden');$('play').classList.remove('hidden');render()};
+$('again').onclick=()=>{k=0;klima=50;path=[];$('end').classList.add('hidden');$('play').classList.remove('hidden');render()};
+window.addEventListener('load',reportHeight);window.addEventListener('resize',reportHeight);
+if(window.ResizeObserver)new ResizeObserver(reportHeight).observe(document.body);
+</script>
+</body>
+</html>

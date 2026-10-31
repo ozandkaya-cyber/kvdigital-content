@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Konfliktstile-Check</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display&family=Montserrat:wght@500;600&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --p:#183E45; --p75:#4E6B70; --p50:#8C9EA2; --p25:#C5CFD0; --p10:#E8ECEC;
+  --mint:#89BD99; --blue:#86C1CF; --rose:#D47882; --mus:#E0AF58;
+  --lmint:#d0e6d7; --lblue:#d6ebf0; --lrose:#f2d6d9; --lmus:#f5e3bf;
+  --serif:'Playfair Display','Liberation Serif','DejaVu Serif',Georgia,serif;
+  --sans:Roboto,'Segoe UI','DejaVu Sans',Arial,sans-serif;
+  --head:Montserrat,'Segoe UI','DejaVu Sans',Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:var(--sans);color:#2b3a3d;background:#fff;font-size:16px;line-height:1.5}
+.app{max-width:900px;margin:0 auto;padding:18px 16px 26px}
+.rub{font-family:var(--head);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--p50);border-bottom:1px solid var(--p25);padding-bottom:7px;margin-bottom:6px;display:flex;justify-content:space-between;gap:10px}
+h1{font-family:var(--serif);font-weight:400;color:var(--p);font-size:clamp(26px,4.4vw,36px);margin:4px 0 6px;line-height:1.15}
+h2{font-family:var(--head);color:var(--p);font-size:18px;margin:18px 0 8px;font-weight:600}
+.lead{color:var(--p75);margin:0 0 14px;max-width:70ch}
+.hidden{display:none!important}
+.btn{border:0;background:var(--p);color:#fff;font-weight:600;font-size:16px;padding:12px 22px;border-radius:10px;cursor:pointer;font-family:var(--sans)}
+.btn:hover{background:#0f2b30}.btn:disabled{opacity:.35;cursor:default}
+.btn.ghost{background:#fff;color:var(--p);border:1.5px solid var(--p)}
+.go{display:flex;justify-content:space-between;gap:10px;margin-top:16px;flex-wrap:wrap}
+.prog{height:6px;background:var(--p10);margin:10px 0 16px}.prog i{display:block;height:100%;background:var(--blue);transition:width .3s}
+.sit{background:var(--p10);border-left:6px solid var(--blue);padding:16px 18px;font-size:17px;color:var(--p)}
+.opts{display:grid;gap:8px;margin-top:14px}
+.opt{border:1.5px solid var(--p25);background:#fff;color:#2b3a3d;border-radius:10px;padding:12px 14px;font-size:16px;cursor:pointer;text-align:left;font-family:var(--sans)}
+.opt:hover{border-color:var(--p50)}
+.opt.on{background:var(--p);border-color:var(--p);color:#fff}
+.opt:focus-visible,.btn:focus-visible{outline:3px solid var(--mus);outline-offset:2px}
+.prof{display:grid;gap:10px;margin:14px 0}
+.pr{display:grid;grid-template-columns:170px 1fr 34px;gap:10px;align-items:center}
+@media(max-width:560px){.pr{grid-template-columns:110px 1fr 30px}}
+.pr .n{font-weight:700;color:var(--p)}
+.pr .t{height:22px;background:var(--p10);position:relative}
+.pr .f{position:absolute;left:0;top:0;bottom:0;background:var(--blue);transition:width .5s}
+.pr .c{font-weight:700;color:var(--p);text-align:right;font-variant-numeric:tabular-nums}
+.pr.top .f{background:var(--p)}
+.card{border:1px solid var(--p25);padding:14px 16px;margin-top:12px}
+.card .k{font-family:var(--head);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--p50)}
+.card h3{font-family:var(--head);color:var(--p);margin:2px 0 6px;font-size:17px}
+.card p{margin:4px 0}
+.note{font-size:14px;color:var(--p75);margin-top:14px}
+.take{background:var(--p);color:#fff;padding:16px 18px;margin-top:14px}
+.take b{font-family:var(--head);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--p25);display:block;margin-bottom:4px;font-weight:600}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="rub"><span>Das eigene Konfliktverhalten</span><span id="cnt"></span></div>
+  <h1>Konfliktstile-Check</h1>
+
+  <section id="intro">
+    <p class="lead">Acht Situationen aus dem Führungsalltag, je fünf mögliche Reaktionen. Wählen Sie jeweils die Reaktion, die Ihrem spontanen Verhalten am nächsten kommt. Nicht die, die Sie für die beste halten.</p>
+    <p class="lead">Am Schluss sehen Sie, welche der fünf Stile nach Thomas und Kilmann Sie bevorzugen und welche Sie eher meiden. Ihre Antworten werden nicht gespeichert und sind nur für Sie sichtbar.</p>
+    <p class="note">Dieser Check ist eine Selbsteinschätzung zur Reflexion. Er ist nicht das offizielle, lizenzierte Instrument von Thomas und Kilmann und ersetzt keine fundierte Diagnostik.</p>
+    <div class="go"><span></span><button class="btn" id="start">Check starten</button></div>
+  </section>
+
+  <section id="quiz" class="hidden">
+    <div class="prog"><i id="bar"></i></div>
+    <div class="sit" id="sit"></div>
+    <div class="opts" id="opts"></div>
+    <div class="go"><button class="btn ghost" id="back">Zurück</button><button class="btn" id="next" disabled>Weiter</button></div>
+  </section>
+
+  <section id="end" class="hidden">
+    <p class="lead">So verteilen sich Ihre acht Antworten auf die fünf Stile:</p>
+    <div class="prof" id="prof"></div>
+    <div id="cards"></div>
+    <div class="take"><b>Zum Nachdenken</b>Kein Stil ist an sich gut oder schlecht. Ein Profil mit einem klaren Schwerpunkt zeigt Ihre Gewohnheit, nicht Ihre Grenze. Fragen Sie sich: In welcher Situation der letzten Wochen hätte ein Stil, den Sie selten wählen, besser gepasst?</div>
+    <div class="go"><span></span><button class="btn ghost" id="again">Nochmals von vorne</button></div>
+  </section>
+</div>
+
+<script>
+const STYLES={D:'Durchsetzen',N:'Nachgeben',V:'Vermeiden',K:'Kompromiss',Z:'Zusammenarbeiten'};
+const INFO={
+ D:['Sie vertreten Ihre Position klar und entscheiden rasch.','Das gibt Orientierung, besonders in Krisen und bei Sicherheitsfragen.','Wer immer durchsetzt, erhält mit der Zeit weniger Widerspruch und damit weniger Information. Andere ziehen sich zurück oder leisten verdeckt Widerstand.'],
+ N:['Sie stellen eigene Anliegen zurück, damit die Beziehung keinen Schaden nimmt.','Das schafft Goodwill und ist richtig, wenn Sie im Unrecht sind oder das Thema für andere wichtiger ist.','Wer zu oft nachgibt, wird für andere unsichtbar und baut innerlich Ärger auf, der sich später entlädt.'],
+ V:['Sie weichen Konflikten aus, verschieben oder warten ab.','Das ist klug bei Bagatellen und wenn die Gemüter zuerst abkühlen müssen.','Vermiedene Konflikte verschwinden selten. Sie wachsen im Verborgenen und kommen später auf einer höheren Eskalationsstufe zurück.'],
+ K:['Sie suchen pragmatisch die Mitte, beide geben etwas nach.','Das ist effizient, fair und unter Zeitdruck oft die beste Wahl.','Wer zu schnell den Kompromiss sucht, verschenkt Lösungen, die für beide Seiten besser wären. Manchmal ist der Kompromiss für beide unbefriedigend.'],
+ Z:['Sie suchen gemeinsam nach einer Lösung, die beide Anliegen ganz erfüllt.','Das schafft tragfähige Lösungen und Vertrauen, besonders bei wichtigen und langfristigen Themen.','Zusammenarbeit kostet Zeit und Energie. Bei Kleinigkeiten oder unter grossem Zeitdruck kann sie lähmen.']
+};
+const S=[
+ {t:'Ein Mitarbeiter kommt diese Woche zum dritten Mal zu spät zur Frühschicht.',o:{
+  D:'Ich mache ihm unmissverständlich klar, dass das ab morgen aufhört.',
+  N:'Ich sage nichts. Er hat es privat gerade nicht leicht, ich übernehme den Start selbst.',
+  V:'Ich warte noch ab. Vielleicht erledigt sich das von selbst.',
+  K:'Ich biete ihm an, zweimal pro Woche später zu beginnen, wenn er dafür länger bleibt.',
+  Z:'Ich frage ihn, was los ist. Dann suche ich mit ihm eine Lösung, die für ihn und das Team funktioniert.'}},
+ {t:'Eine Kollegin aus der Geschäftsleitung möchte Ihr Weiterbildungsbudget kürzen, um ihr eigenes Projekt zu finanzieren.',o:{
+  D:'Ich mache klar, dass das Budget bewilligt ist und so bleibt.',
+  N:'Ich gebe das Geld frei. Ihr Projekt ist für die Firma vermutlich wichtiger.',
+  V:'Ich gehe nicht darauf ein und hoffe, dass das Thema nicht mehr aufkommt.',
+  K:'Ich schlage vor, dass wir uns die Kürzung teilen.',
+  Z:'Ich setze mich mit ihr zusammen und schaue, ob es eine Lösung gibt, die beide Vorhaben ermöglicht.'}},
+ {t:'In der Teamsitzung kritisiert ein Mitarbeiter Ihren Vorschlag vor allen scharf.',o:{
+  D:'Ich halte dagegen und mache klar, dass wir es so machen.',
+  N:'Ich ziehe meinen Vorschlag zurück und übernehme seinen.',
+  V:'Ich gehe zum nächsten Traktandum über.',
+  K:'Ich schlage vor, beide Ideen je zur Hälfte umzusetzen.',
+  Z:'Ich frage nach, was ihn an meinem Vorschlag stört. Dann entwickeln wir ihn gemeinsam weiter.'}},
+ {t:'Zwei Mitarbeitende wollen beide die gleiche Ferienwoche im Herbst. Eine Person muss im Büro sein.',o:{
+  D:'Ich entscheide nach Dienstalter und teile das beiden mit.',
+  N:'Ich verschiebe meine eigenen Ferien und übernehme die Stellvertretung selbst.',
+  V:'Ich sage, sie sollen das unter sich ausmachen.',
+  K:'Jede Person bekommt die Hälfte der gewünschten Woche.',
+  Z:'Ich spreche mit beiden, frage nach ihren Gründen und suche mit ihnen eine Lösung.'}},
+ {t:'Ihr Vorgesetzter verlangt eine Massnahme, die Sie für falsch halten.',o:{
+  D:'Ich sage ihm klar, dass ich das nicht umsetze. Und ich begründe es.',
+  N:'Ich setze die Massnahme um. Er wird seine Gründe haben.',
+  V:'Ich sage nichts und setze die Massnahme so langsam wie möglich um.',
+  K:'Ich schlage vor, die Massnahme in abgeschwächter Form umzusetzen.',
+  Z:'Ich bitte um ein Gespräch, um seine Ziele zu verstehen und gemeinsam einen besseren Weg zu finden.'}},
+ {t:'Ein langjähriger Kunde verlangt einen Rabatt, den Sie eigentlich nicht geben wollen.',o:{
+  D:'Ich lehne ab. Unsere Preise sind fair kalkuliert.',
+  N:'Ich gebe den Rabatt. Die Beziehung ist mir wichtiger.',
+  V:'Ich vertröste ihn und melde mich vorerst nicht mehr.',
+  K:'Ich biete ihm die Hälfte des gewünschten Rabatts an.',
+  Z:'Ich frage, was hinter seinem Wunsch steckt. Dann suche ich eine Lösung, die für beide stimmt, etwa eine andere Leistung.'}},
+ {t:'Ein Teammitglied hält sich wiederholt nicht an die vereinbarte Ablageregel. Die anderen ärgern sich.',o:{
+  D:'Ich weise ihn an, sich ab sofort an die Regel zu halten.',
+  N:'Ich räume seine Ablage selbst auf, damit Ruhe herrscht.',
+  V:'Ich spreche es nicht an. Es gibt wichtigere Themen.',
+  K:'Ich vereinbare mit ihm, dass er die wichtigsten Dokumente korrekt ablegt, den Rest nicht.',
+  Z:'Ich frage ihn, warum die Regel für ihn nicht funktioniert. Dann passen wir sie gemeinsam an.'}},
+ {t:'Ein Kollege aus einer anderen Abteilung präsentiert Ihre Idee in der Geschäftsleitung als seine eigene.',o:{
+  D:'Ich stelle in der nächsten Sitzung klar, von wem die Idee stammt.',
+  N:'Ich lasse es gut sein. Hauptsache, die Idee wird umgesetzt.',
+  V:'Ich ärgere mich, sage aber nichts.',
+  K:'Ich schlage ihm vor, die Idee künftig gemeinsam zu vertreten.',
+  Z:'Ich spreche ihn direkt darauf an und kläre mit ihm, wie wir künftig zusammenarbeiten wollen.'}}
+];
+const order=S.map(()=>{const k=Object.keys(STYLES);for(let j=k.length-1;j>0;j--){const r=Math.floor(Math.random()*(j+1));[k[j],k[r]]=[k[r],k[j]]}return k});
+let i=0, ans=Array(S.length).fill(null);
+const $=id=>document.getElementById(id);
+function reportHeight(){try{parent.postMessage({type:'resize',source:'konfliktstile-check',height:document.documentElement.scrollHeight},'*');}catch(e){}}
+function render(){
+  $('cnt').textContent='Situation '+(i+1)+' von '+S.length; $('bar').style.width=(i/S.length*100)+'%';
+  $('sit').textContent=S[i].t; const o=$('opts'); o.innerHTML='';
+  order[i].forEach(k=>{const b=document.createElement('button');b.type='button';b.className='opt'+(ans[i]===k?' on':'');b.textContent=S[i].o[k];
+    b.onclick=()=>{ans[i]=k;[...o.children].forEach(x=>x.classList.remove('on'));b.classList.add('on');$('next').disabled=false};o.appendChild(b)});
+  $('next').disabled=!ans[i]; $('back').style.visibility=i?'visible':'hidden';
+  $('next').textContent=i===S.length-1?'Profil anzeigen':'Weiter'; window.scrollTo(0,0); reportHeight();
+}
+function end(){
+  $('quiz').classList.add('hidden');$('end').classList.remove('hidden');$('cnt').textContent='Ihr Profil';
+  const c={};Object.keys(STYLES).forEach(k=>c[k]=0);ans.forEach(k=>c[k]++);
+  const max=Math.max(...Object.values(c)), min=Math.min(...Object.values(c));
+  const sorted=Object.keys(STYLES).sort((a,b)=>c[b]-c[a]);
+  $('prof').innerHTML=sorted.map(k=>`<div class="pr ${c[k]===max?'top':''}"><span class="n">${STYLES[k]}</span><span class="t"><span class="f" style="width:${c[k]/S.length*100}%"></span></span><span class="c">${c[k]}</span></div>`).join('');
+  const tops=sorted.filter(k=>c[k]===max), lows=sorted.filter(k=>c[k]===min);
+  let h='';
+  tops.forEach(k=>{h+=`<div class="card"><span class="k">${tops.length>1?'Einer Ihrer häufigsten Stile':'Ihr häufigster Stil'}</span><h3>${STYLES[k]}</h3><p>${INFO[k][0]}</p><p><b>Stärke:</b> ${INFO[k][1]}</p><p><b>Risiko bei Übergebrauch:</b> ${INFO[k][2]}</p></div>`});
+  if(min<max) lows.forEach(k=>{h+=`<div class="card"><span class="k">Selten gewählt</span><h3>${STYLES[k]}</h3><p>${INFO[k][1]} Prüfen Sie, ob Ihnen dieser Stil in manchen Situationen fehlt.</p></div>`});
+  $('cards').innerHTML=h; window.scrollTo(0,0); reportHeight();
+}
+$('start').onclick=()=>{$('intro').classList.add('hidden');$('quiz').classList.remove('hidden');render()};
+$('next').onclick=()=>{if(i<S.length-1){i++;render()}else end()};
+$('back').onclick=()=>{if(i>0){i--;render()}};
+$('again').onclick=()=>{i=0;ans=Array(S.length).fill(null);$('end').classList.add('hidden');$('quiz').classList.remove('hidden');render()};
+window.addEventListener('load',reportHeight);window.addEventListener('resize',reportHeight);
+if(window.ResizeObserver)new ResizeObserver(reportHeight).observe(document.body);
+</script>
+</body>
+</html>
