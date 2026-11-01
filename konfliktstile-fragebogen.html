@@ -56,6 +56,23 @@ h2{font-family:var(--head);color:var(--p);font-size:18px;margin:20px 0 8px;font-
 .card p{margin:4px 0}
 .note{font-size:14px;color:var(--p75);margin-top:14px}
 .take{background:var(--p);color:#fff;padding:16px 18px;margin-top:16px}
+.acts{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+.acts .btn{font-size:15px;padding:11px 16px}
+.saved{font-size:13px;color:var(--p50);margin-top:6px;min-height:1em}
+.ponly{display:none}
+@media print{
+  @page{margin:16mm}
+  body{font-size:12px}
+  .app{max-width:none;padding:0}
+  #ask,.go,.acts,.saved,.note,.rub span:last-child{display:none!important}
+  #res{display:block!important}
+  .ponly{display:block}
+  .pr .f{transition:none}
+  .take{background:#fff!important;color:var(--p)!important;border:1.5px solid var(--p)}
+  .take b{color:var(--p50)!important}
+  .card,.take,.prof{break-inside:avoid}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
 .take b{font-family:var(--head);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--p25);display:block;margin-bottom:4px;font-weight:600}
 </style>
 </head>
@@ -69,12 +86,13 @@ h2{font-family:var(--head);color:var(--p);font-size:18px;margin:20px 0 8px;font-
     <div class="prog"><i id="bar" style="width:0"></i></div>
     <div id="list"></div>
     <div class="go">
-      <span class="note" id="hint">Beantworten Sie alle Aussagen, dann sehen Sie Ihr Profil.</span>
+      <span class="note" id="hint">Beantworten Sie alle Aussagen, dann sehen Sie Ihr Profil. Ihre Antworten bleiben gespeichert, auch wenn Sie die Folie wechseln.</span>
       <button class="btn" id="show">Profil anzeigen</button>
     </div>
   </section>
 
   <section id="res" class="hidden">
+    <p class="ponly lead" id="pdate"></p>
     <p class="lead">So verteilen sich Ihre Antworten auf die fünf Stile nach Kenneth Thomas und Ralph Kilmann. Jeder Stil kann höchstens 12 Punkte erreichen.</p>
     <div class="prof" id="prof"></div>
     <div class="cards">
@@ -82,7 +100,13 @@ h2{font-family:var(--head);color:var(--p);font-size:18px;margin:20px 0 8px;font-
       <div class="card"><div class="k">Ihr schwächster Stil</div><h3 id="lN"></h3><p id="lS"></p></div>
     </div>
     <div class="take"><b>Zum Nachdenken</b>Kein Stil ist immer richtig. Wer bewusst zwischen den Stilen wählen kann, führt Konflikte besser als jemand, der aus Gewohnheit immer gleich reagiert. Welchen Stil möchten Sie als Führungsperson öfter einsetzen?</div>
-    <p class="note">Ihre Antworten werden nicht gespeichert und nicht übermittelt. Der Fragebogen ist eine Selbsteinschätzung zur Reflexion, kein wissenschaftlicher Test.</p>
+    <div class="acts">
+      <button class="btn" id="print">Drucken oder als PDF speichern</button>
+      <button class="btn ghost" id="png">Als Bild herunterladen</button>
+      <button class="btn ghost" id="win">In neuem Fenster öffnen</button>
+    </div>
+    <p class="saved" id="msg"></p>
+    <p class="note">Ihre Antworten bleiben in diesem Browser gespeichert, auch wenn Sie die Folie wechseln. Sie werden nicht übermittelt. Der Fragebogen ist eine Selbsteinschätzung zur Reflexion, kein wissenschaftlicher Test.</p>
     <div class="go"><button class="btn ghost" id="back">Antworten ansehen</button><button class="btn ghost" id="reset">Neu beginnen</button></div>
   </section>
 </div>
@@ -120,11 +144,19 @@ const Q=[
 const LBL=['trifft nicht zu','eher nicht','eher','trifft zu'];
 const A=new Array(Q.length).fill(null);
 const $=id=>document.getElementById(id);
+const KEY='kvd-konfliktstile-fragebogen-v1';
+function enc(){return A.map(x=>x===null?'x':x).join('')}
+function dec(t){if(!t||t.length!==Q.length)return false;t.split('').forEach((c,i)=>{A[i]=/[0-3]/.test(c)?+c:null});return true}
+function save(){try{localStorage.setItem(KEY,enc())}catch(e){}}
+function load(){const m=location.hash.match(/a=([0-3x]{20})/);if(m&&dec(m[1]))return true;try{return dec(localStorage.getItem(KEY))}catch(e){return false}}
+function done(){return A.every(x=>x!==null)}
+let SUM=null,TOP=null,LOW=null,TIES=[];
 function post(){try{parent.postMessage({type:'resize',source:'konfliktstile-fragebogen',height:document.documentElement.scrollHeight},'*')}catch(e){}}
 function build(){
   $('list').innerHTML=Q.map((q,i)=>`<div class="it" id="it${i}"><div class="q"><b>${i+1}</b>${q[1]}</div><div class="sc" role="radiogroup" aria-label="Aussage ${i+1}">${LBL.map((l,v)=>`<button type="button" role="radio" aria-checked="false" data-i="${i}" data-v="${v}">${l}</button>`).join('')}</div></div>`).join('');
+  A.forEach((v,i)=>{if(v!==null){const b=$('list').querySelector(`button[data-i="${i}"][data-v="${v}"]`);if(b){b.classList.add('on');b.setAttribute('aria-checked','true')}}});
   $('list').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{
-    const i=+b.dataset.i,v=+b.dataset.v;A[i]=v;
+    const i=+b.dataset.i,v=+b.dataset.v;A[i]=v;save();
     b.parentNode.querySelectorAll('button').forEach(x=>{const on=+x.dataset.v===v;x.classList.toggle('on',on);x.setAttribute('aria-checked',on)});
     $('it'+i).classList.remove('miss');upd();
   }));
@@ -142,6 +174,9 @@ $('show').addEventListener('click',()=>{
     $('hint').textContent=miss.length===1?'Eine Aussage ist noch offen, sie ist rot markiert.':miss.length+' Aussagen sind noch offen, sie sind rot markiert.';
     $('it'+miss[0]).scrollIntoView({behavior:'smooth',block:'center'});post();return;
   }
+  showResult();
+});
+function showResult(){
   const sum={D:0,N:0,V:0,K:0,Z:0};Q.forEach((q,i)=>sum[q[0]]+=A[i]);
   const order=Object.keys(sum).sort((a,b)=>sum[b]-sum[a]);
   const top=order[0],low=order[order.length-1];
@@ -150,14 +185,53 @@ $('show').addEventListener('click',()=>{
   $('tN').textContent=ties.map(k=>S[k].n).join(' und ');
   $('tS').textContent=ties.length>1?'Mehrere Stile liegen bei Ihnen gleichauf. Das spricht dafür, dass Sie je nach Situation unterschiedlich reagieren.':S[top].s;
   $('tR').textContent=ties.length>1?'':S[top].r;
-  $('lN').textContent=S[low].n;$('lS').textContent=S[low].l;
+  const lties=order.filter(k=>sum[k]===sum[low]);
+  $('lN').textContent=lties.map(k=>S[k].n).join(', ').replace(/, ([^,]*)$/,' und $1');
+  $('lS').textContent=lties.length>1?'Diese Stile setzen Sie gleich selten ein. Überlegen Sie, in welcher Situation einer davon Ihnen helfen könnte.':S[low].l;
   $('ask').classList.add('hidden');$('res').classList.remove('hidden');
   requestAnimationFrame(()=>document.querySelectorAll('.pr .f').forEach(f=>f.style.width=f.dataset.w+'%'));
+  SUM=sum;TOP=top;LOW=low;TIES=ties;
+  $('pdate').textContent='Konfliktstile-Fragebogen · Profil vom '+new Date().toLocaleDateString('de-CH');
   window.scrollTo(0,0);post();
-});
+}
 $('back').addEventListener('click',()=>{$('res').classList.add('hidden');$('ask').classList.remove('hidden');post()});
-$('reset').addEventListener('click',()=>{A.fill(null);$('hint').textContent='Beantworten Sie alle Aussagen, dann sehen Sie Ihr Profil.';build();$('res').classList.add('hidden');$('ask').classList.remove('hidden');window.scrollTo(0,0);post()});
+$('reset').addEventListener('click',()=>{A.fill(null);save();try{history.replaceState(null,'',location.pathname)}catch(e){}$('hint').textContent='Beantworten Sie alle Aussagen, dann sehen Sie Ihr Profil.';build();$('res').classList.add('hidden');$('ask').classList.remove('hidden');window.scrollTo(0,0);post()});
+function msg(t){$('msg').textContent=t;post()}
+function link(){return location.href.split('#')[0]+'#a='+enc()}
+$('print').addEventListener('click',()=>{
+  document.querySelectorAll('.pr .f').forEach(f=>f.style.width=f.dataset.w+'%');
+  try{window.print();msg('Falls sich kein Druckfenster öffnet: Profil «In neuem Fenster öffnen» und dort drucken.')}
+  catch(e){openWin()}
+});
+function openWin(){const w=window.open(link(),'_blank');if(!w)msg('Das Fenster wurde blockiert. Kopieren Sie diesen Link in einen neuen Tab: '+link())}
+$('win').addEventListener('click',openWin);
+function wrap(c,t,x,y,w,lh){const ws=t.split(' ');let l='';for(const word of ws){const tt=l?l+' '+word:word;if(c.measureText(tt).width>w&&l){c.fillText(l,x,y);y+=lh;l=word}else l=tt}if(l){c.fillText(l,x,y);y+=lh}return y}
+$('png').addEventListener('click',()=>{
+  const W=1000,H=860,c=document.createElement('canvas');c.width=W*2;c.height=H*2;const g=c.getContext('2d');g.scale(2,2);
+  const P='#183E45',P50='#8C9EA2',P10='#E8ECEC',B='#86C1CF',P25='#C5CFD0';
+  g.fillStyle='#fff';g.fillRect(0,0,W,H);
+  g.fillStyle=P50;g.font='600 13px Montserrat, Arial, sans-serif';g.fillText('DAS EIGENE KONFLIKTVERHALTEN',50,60);
+  g.fillStyle=P25;g.fillRect(50,72,W-100,1);
+  g.fillStyle=P;g.font='34px "Playfair Display", Georgia, serif';g.fillText('Mein Profil der fünf Konfliktstile',50,120);
+  g.fillStyle=P50;g.font='15px Roboto, Arial, sans-serif';g.fillText('Nach Kenneth Thomas und Ralph Kilmann · '+new Date().toLocaleDateString('de-CH'),50,150);
+  let y=200;['D','Z','K','V','N'].forEach(k=>{
+    g.fillStyle=P;g.font='700 17px Roboto, Arial, sans-serif';g.fillText(S[k].n,50,y+16);
+    g.fillStyle=P10;g.fillRect(250,y,600,24);
+    g.fillStyle=k===TOP?P:(k===LOW?P25:B);g.fillRect(250,y,600*SUM[k]/12,24);
+    g.fillStyle=P;g.textAlign='right';g.fillText(SUM[k]+'/12',W-50,y+18);g.textAlign='left';y+=44});
+  y+=20;g.fillStyle=P50;g.font='600 12px Montserrat, Arial, sans-serif';g.fillText('IHR STÄRKSTER STIL',50,y);y+=28;
+  g.fillStyle=P;g.font='700 20px Roboto, Arial, sans-serif';g.fillText(TIES.map(k=>S[k].n).join(' und '),50,y);y+=28;
+  g.font='16px Roboto, Arial, sans-serif';y=wrap(g,$('tS').textContent+' '+$('tR').textContent,50,y,W-100,23);
+  y+=20;g.fillStyle=P50;g.font='600 12px Montserrat, Arial, sans-serif';g.fillText('IHR SCHWÄCHSTER STIL',50,y);y+=28;
+  g.fillStyle=P;g.font='700 20px Roboto, Arial, sans-serif';g.fillText($('lN').textContent,50,y);y+=28;
+  g.font='16px Roboto, Arial, sans-serif';y=wrap(g,$('lS').textContent,50,y,W-100,23);
+  g.fillStyle=P50;g.font='13px Roboto, Arial, sans-serif';g.fillText('HKV Aarau · Selbsteinschätzung zur Reflexion, kein wissenschaftlicher Test',50,H-30);
+  try{c.toBlob(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='Konfliktstile_Profil.png';document.body.appendChild(a);a.click();a.remove();
+    msg('Das Bild wird heruntergeladen. Falls nichts passiert: Profil «In neuem Fenster öffnen» und dort herunterladen.')},'image/png')}
+  catch(e){openWin()}
+});
 build();
+if(load()){build();if(done())showResult()}
 window.addEventListener('load',post);window.addEventListener('resize',post);
 new ResizeObserver(post).observe(document.body);
 </script>
