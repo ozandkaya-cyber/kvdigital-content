@@ -176,16 +176,18 @@ function check(){
   $('next').textContent=i===F.length-1?'Zum Ergebnis':'Nächstes Fundstück';
   $('bar').style.width=((i+1)/F.length*100)+'%'; reportHeight();
 }
+function mix(){for(let k=F.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[F[k],F[j]]=[F[j],F[k]];}
+  for(let k=1;k<F.length;k++){if(F[k].stage===F[k-1].stage+1&&k<F.length-1){[F[k],F[k+1]]=[F[k+1],F[k]];}}}
 function end(){
   $('quiz').classList.add('hidden');$('end').classList.remove('hidden');$('cnt').textContent='Ergebnis';
   $('s1').textContent=sc.e+' / '+F.length;$('s2').textContent=sc.n+' / '+F.length;$('s3').textContent=sc.w+' / '+F.length;
   $('endtxt').textContent=sc.n>=8?'Sie lesen Eskalation sicher. In der Praxis ist die genaue Stufe weniger wichtig als die Richtung: Bewegt sich der Konflikt nach unten? Und wer muss jetzt handeln?':'Die Stufen sind nicht immer leicht auseinanderzuhalten, auch weil Konflikte Merkmale mehrerer Stufen zeigen. Schauen Sie sich die Übersicht der Stufen nochmals an und achten Sie besonders auf die Übergänge von 2 zu 3 und von 4 zu 5.';
   window.scrollTo(0,0); reportHeight();
 }
-$('start').onclick=()=>{$('intro').classList.add('hidden');$('quiz').classList.remove('hidden');render()};
+$('start').onclick=()=>{mix();i=0;$('intro').classList.add('hidden');$('quiz').classList.remove('hidden');render()};
 $('check').onclick=check;
 $('next').onclick=()=>{if(i<F.length-1){i++;render()}else end()};
-$('again').onclick=()=>{i=0;sc={e:0,n:0,w:0};$('end').classList.add('hidden');$('quiz').classList.remove('hidden');render()};
+$('again').onclick=()=>{mix();i=0;sc={e:0,n:0,w:0};$('end').classList.add('hidden');$('quiz').classList.remove('hidden');render()};
 window.addEventListener('load',reportHeight);window.addEventListener('resize',reportHeight);
 if(window.ResizeObserver)new ResizeObserver(reportHeight).observe(document.body);
 </script>
