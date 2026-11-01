@@ -59,6 +59,7 @@ h2{font-family:var(--head);color:var(--p);font-size:18px;margin:18px 0 8px;font-
 .take b{font-family:var(--head);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--p25);display:block;margin-bottom:4px;font-weight:600}
 .legend{font-size:13px;color:var(--p75);display:flex;gap:14px;flex-wrap:wrap;margin-top:8px}
 .legend span::before{content:"";display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px;background:var(--c)}
+.mem{font-size:13px;color:var(--p50)}
 </style>
 </head>
 <body>
@@ -70,6 +71,7 @@ h2{font-family:var(--head);color:var(--p);font-size:18px;margin:18px 0 8px;font-
     <p class="lead">Echte Konflikte passen selten sauber in eine Schublade. In dieser Übung lesen Sie acht kurze Fälle aus kleinen und mittleren Unternehmen. Bei jedem Fall entscheiden Sie drei Dinge: Welche Art steht im Vordergrund? Was schwingt mit? Und steckt eine strukturelle Ursache dahinter?</p>
     <div class="case"><div class="who">Zur Erinnerung</div><p>Sachkonflikt, Zielkonflikt, Verteilungskonflikt, Rollenkonflikt, Wertekonflikt und Beziehungskonflikt unterscheiden sich nach dem Streitpunkt. Ein struktureller Konflikt entsteht durch Aufbau, Ziele oder Abläufe der Organisation und sieht oft aus wie ein persönlicher.</p></div>
     <div class="go"><button class="btn" id="start">Übung starten</button></div>
+    <p class="note mem">Ihr Fortschritt bleibt in diesem Browser gespeichert, auch wenn Sie die Folie wechseln. Er wird nicht übermittelt.</p>
   </section>
 
   <section id="quiz" class="hidden">
@@ -134,6 +136,8 @@ const F=[
   ex:'Hier prallen zwei berechtigte Werte aufeinander: Loyalität gegenüber langjährigen Mitarbeitenden und Fairness gegenüber dem Team. Dazu kommen ein Zielkonflikt (Produktivität) und ein Verteilungskonflikt (wer trägt die Mehrarbeit). Eine strukturelle Ursache im engeren Sinn liegt nicht vor. Lösungen liegen oft darin, beiden Werten gerecht zu werden, etwa mit einer angepassten Aufgabe für den Mitarbeiter.'}
 ];
 let i=0, sel={main:null,side:new Set(),struct:null}, sc={m:0,s:0}, done=false;
+const KEY='kvd-konfliktarten-mischfaelle-v1'; let ANS={}, SCR='intro', RP=false;
+function save(){if(RP)return;try{localStorage.setItem(KEY,JSON.stringify({i,a:ANS,s:SCR}))}catch(e){}}
 const $=id=>document.getElementById(id);
 function reportHeight(){try{parent.postMessage({type:'resize',source:'konfliktarten-mischfaelle',height:document.documentElement.scrollHeight},'*');}catch(e){}}
 function mk(parent,label,fn,cls='opt'){const b=document.createElement('button');b.className=cls;b.type='button';b.textContent=label;b.onclick=fn;parent.appendChild(b);return b}
@@ -146,7 +150,7 @@ function render(){
   ARTEN.forEach(a=>mk($('side'),a,()=>{if(done||a===sel.main)return;sel.side.has(a)?sel.side.delete(a):sel.side.add(a);upd()}));
   [['Ja',true],['Nein',false]].forEach(([l,v])=>mk($('struct'),l,()=>{if(done)return;sel.struct=v;upd()}));
   $('fb').classList.add('hidden'); $('check').classList.remove('hidden'); $('next').classList.add('hidden');
-  upd(); window.scrollTo(0,0); reportHeight();
+  upd(); window.scrollTo(0,0); reportHeight(); SCR='quiz'; save();
 }
 function upd(){
   [...$('main').children].forEach(b=>b.classList.toggle('on',b.textContent===sel.main));
@@ -155,6 +159,7 @@ function upd(){
   $('check').disabled=!(sel.main&&sel.struct!==null);
 }
 function check(){
+  ANS[i]={main:sel.main,side:[...sel.side],struct:sel.struct};
   const f=F[i]; done=true;
   const mOk=sel.main===f.main, sOk=sel.struct===f.struct;
   if(mOk)sc.m++; if(sOk)sc.s++;
@@ -175,19 +180,26 @@ function check(){
   $('fb').classList.remove('hidden'); $('check').classList.add('hidden'); $('next').classList.remove('hidden');
   $('next').textContent=i===F.length-1?'Zum Ergebnis':'Nächster Fall';
   $('bar').style.width=((i+1)/F.length*100)+'%';
-  reportHeight();
+  reportHeight(); save();
 }
 function end(){
+  SCR='end'; save();
   $('quiz').classList.add('hidden'); $('end').classList.remove('hidden'); $('cnt').textContent='Ergebnis';
   $('s1').textContent=sc.m+' von '+F.length; $('s2').textContent=sc.s+' von '+F.length;
   $('endtxt').textContent= sc.m>=6 ? 'Sie erkennen den Schwerpunkt eines Konflikts zuverlässig. Achten Sie in der Praxis besonders darauf, was mitschwingt, denn dort liegt oft der Grund, warum eine Lösung nicht hält.'
    : 'Lassen Sie sich nicht entmutigen. Die Fälle sind bewusst mehrdeutig. Auch Fachleute ordnen sie nicht immer gleich ein. Wichtiger als die richtige Schublade ist die Gewohnheit, nach dem Schwerpunkt und nach strukturellen Ursachen zu fragen.';
   window.scrollTo(0,0); reportHeight();
 }
-$('start').onclick=()=>{$('intro').classList.add('hidden');$('quiz').classList.remove('hidden');render()};
+$('start').onclick=()=>{i=0;ANS={};sc={m:0,s:0};$('intro').classList.add('hidden');$('quiz').classList.remove('hidden');render()};
 $('check').onclick=check;
 $('next').onclick=()=>{if(i<F.length-1){i++;render()}else end()};
-$('again').onclick=()=>{i=0;sc={m:0,s:0};$('end').classList.add('hidden');$('quiz').classList.remove('hidden');render()};
+$('again').onclick=()=>{i=0;ANS={};sc={m:0,s:0};$('end').classList.add('hidden');$('quiz').classList.remove('hidden');render()};
+function restore(){let d;try{d=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+  if(!d||d.s==='intro'||typeof d.i!=='number')return;
+  RP=true;ANS=d.a||{};sc={m:0,s:0};$('intro').classList.add('hidden');$('quiz').classList.remove('hidden');
+  for(let k=0;k<=Math.min(d.i,F.length-1);k++){i=k;render();const a=ANS[k];if(a){sel={main:a.main,side:new Set(a.side||[]),struct:a.struct};check()}}
+  RP=false;SCR=d.s;if(d.s==='end')end();save();window.scrollTo(0,0);}
+restore();
 window.addEventListener('load',reportHeight); window.addEventListener('resize',reportHeight);
 if(window.ResizeObserver) new ResizeObserver(reportHeight).observe(document.body);
 </script>

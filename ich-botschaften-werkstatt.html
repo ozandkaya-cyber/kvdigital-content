@@ -48,6 +48,11 @@ textarea{width:100%;min-height:56px;border:1.5px solid var(--p25);border-radius:
 .self label{display:flex;gap:8px;align-items:flex-start;margin:4px 0;cursor:pointer}
 .take{background:var(--p);color:#fff;padding:16px 18px;margin-top:14px}
 .take b{font-family:var(--head);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--p25);display:block;margin-bottom:4px;font-weight:600}
+.sumh{font-family:var(--head);color:var(--p);font-size:18px;margin:22px 0 8px;font-weight:600}
+.sit{border:1px solid var(--p25);padding:12px 16px;margin:10px 0;break-inside:avoid}
+.sit .q{font-weight:700;color:var(--p)} .sit p{margin:4px 0} .sit .e{color:var(--p50);font-style:italic}
+.mem{font-size:13px;color:var(--p50)}
+@media print{#intro,#work,.go,.mem,#pmsg{display:none!important}#end{display:block!important}.take{background:#fff!important;color:var(--p)!important;border:1.5px solid var(--p)}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
 </style>
 </head>
 <body>
@@ -59,6 +64,7 @@ textarea{width:100%;min-height:56px;border:1.5px solid var(--p25);border-radius:
     <p class="lead">Sechs Vorwürfe, wie sie in jedem Betrieb fallen. Übersetzen Sie jeden Vorwurf in eine Ich-Botschaft mit den vier Schritten nach Marshall Rosenberg: Beobachtung, Gefühl, Bedürfnis, Bitte.</p>
     <p class="lead">Die Werkstatt prüft Ihren Text auf typische Stolperfallen und zeigt Ihnen danach eine mögliche Formulierung. Es gibt nicht die eine richtige Lösung. Wichtig ist, dass Sie Ihre Formulierung so auch sagen würden.</p>
     <div class="go"><button class="btn" id="start">Werkstatt starten</button></div>
+    <p class="note mem">Ihr Fortschritt bleibt in diesem Browser gespeichert, auch wenn Sie die Folie wechseln. Er wird nicht übermittelt.</p>
   </section>
 
   <section id="work" class="hidden">
@@ -80,7 +86,10 @@ textarea{width:100%;min-height:56px;border:1.5px solid var(--p25);border-radius:
   <section id="end" class="hidden">
     <p class="lead">Sie haben alle sechs Vorwürfe übersetzt. Bevor Sie weitergehen, ein paar Gedanken zur Praxis.</p>
     <div class="take"><b>Für den Alltag</b>Im echten Gespräch klingt eine Ich-Botschaft selten so vollständig wie in dieser Werkstatt. Das muss sie auch nicht. Wenn Sie nur eines mitnehmen, dann dies: Beginnen Sie mit einer Beobachtung statt mit einem Urteil. Allein das verändert die Reaktion Ihres Gegenübers spürbar.</div>
-    <div class="go"><button class="btn ghost" id="again">Nochmals von vorne</button></div>
+    <h2 class="sumh">Ihre Ich-Botschaften</h2>
+    <div id="sum"></div>
+    <div class="go"><button class="btn" id="print">Drucken oder als PDF speichern</button><button class="btn ghost" id="again">Nochmals von vorne</button></div>
+    <p class="note" id="pmsg"></p>
   </section>
 </div>
 
@@ -92,28 +101,30 @@ const V=[
   m:['Heute Morgen lagen im Lager drei Kisten Befestigungsmaterial und zwei Profile im Durchgang.','Das stresst mich, weil ich so am Montagmorgen zuerst aufräumen muss.','Mir ist wichtig, dass ich am Wochenstart direkt mit der Kommissionierung beginnen kann.','Könnt ihr das Material am Freitag vor Feierabend zurück an den Platz stellen?']},
  {q:'«Du ignorierst meine Vorschläge in jeder Sitzung.»',ctx:'Eine Mitarbeiterin hat den Eindruck, ihre Teamleiterin übergehe sie.',
   m:['In den letzten zwei Sitzungen habe ich je einen Vorschlag gemacht. Wir sind jedes Mal direkt zum nächsten Punkt übergegangen.','Das enttäuscht mich und verunsichert mich auch.','Mir ist wichtig, dass meine Ideen gehört werden, auch wenn sie am Ende nicht umgesetzt werden.','Kannst du mir in der nächsten Sitzung kurz sagen, was du von meinem Vorschlag hältst?']},
- {q:'«Ihr im Büro habt ja keine Ahnung, wie es auf der Baustelle läuft.»',ctx:'Marco Rüegg zu Sandra Keller, nachdem die Pläne für Wohlen nicht gepasst haben.',
+ {q:'«Ihr im Büro habt ja keine Ahnung, wie es auf der Baustelle läuft.»',ctx:'Ein Montageleiter zur Leiterin Arbeitsvorbereitung, nachdem die Pläne für eine Baustelle nicht gepasst haben.',
   m:['Am Donnerstag hatten wir in Wohlen drei Stunden Wartezeit, weil die Geländerpfosten zu kurz waren.','Das hat mich frustriert. Meine Leute waren sauer.','Mir ist wichtig, dass meine Monteure ohne Leerlauf arbeiten können und dass mein Wissen von der Baustelle in die Planung einfliesst.','Können wir zusammen anschauen, wie Änderungen von der Baustelle schneller bei dir ankommen?']},
  {q:'«Du bist einfach unzuverlässig.»',ctx:'Ein Lernender hat vergessen, eine Kundin zurückzurufen.',
   m:['Frau Bühler hat heute angerufen und gesagt, dass sie seit Montag auf deinen Rückruf wartet.','Das ist mir unangenehm. Ich mache mir Sorgen, dass sie unzufrieden ist.','Mir ist wichtig, dass sich unsere Kundschaft auf uns verlassen kann.','Rufst du sie bitte heute noch an? Und lass uns kurz besprechen, wie du dir Rückrufe künftig notierst.']},
- {q:'«Wie kannst du so etwas vor allen sagen?»',ctx:'Sandra Keller zu Marco Rüegg, nachdem er beim Znüni über die AVOR gespottet hat.',
+ {q:'«Wie kannst du so etwas vor allen sagen?»',ctx:'Die Leiterin Arbeitsvorbereitung zum Montageleiter, nachdem er beim Znüni über ihre Abteilung gespottet hat.',
   m:['Am Dienstag beim Znüni hast du vor fünf Monteuren gesagt, wenn ihr auf die Pläne von oben wartet, seid ihr 2030 noch nicht fertig. Und das Bild mit der Schnecke habe ich auch gesehen.','Das hat mich verletzt und wütend gemacht.','Mir ist wichtig, dass meine Arbeit und die von Petra respektiert werden, auch wenn wir uns nicht einig sind.','Kannst du Kritik an der Planung künftig direkt mit mir besprechen statt vor dem Team?']}
 ];
 const BAD0=[/\bimmer\b/i,/\bnie\b/i,/\bständig\b/i,/\bdauernd\b/i,/\btypisch\b/i,/schon wieder/i,/jedes mal/i,/\bdu bist\b/i,/\bihr seid\b/i,/\bunzuverlässig\b/i,/\bfaul\b/i,/\bchaos\b/i,/keine ahnung/i];
 const PSEUDO=[/übergangen/i,/ignoriert/i,/angegriffen/i,/manipuliert/i,/ausgenutzt/i,/im stich gelassen/i,/gefühl,? dass du/i,/gefühl,? dass ihr/i,/nicht ernst genommen/i];
 const NEG=[/nicht mehr/i,/hör auf/i,/lass das/i,/\bnie wieder\b/i,/sollst/i,/musst/i];
 let i=0; const $=id=>document.getElementById(id);
+const KEY='kvd-ich-botschaften-werkstatt-v1'; let T={}, C={}, SCR='intro', RP=false;
+function save(){if(RP)return;try{localStorage.setItem(KEY,JSON.stringify({i,t:T,c:C,s:SCR}))}catch(e){}}
 function reportHeight(){try{parent.postMessage({type:'resize',source:'ich-botschaften-werkstatt',height:document.documentElement.scrollHeight},'*');}catch(e){}}
 function render(){
   const v=V[i]; $('cnt').textContent='Vorwurf '+(i+1)+' von '+V.length; $('bar').style.width=(i/V.length*100)+'%';
   $('vw').textContent=v.q; $('ctx').textContent=v.ctx;
-  for(let k=0;k<4;k++){$('f'+k).value='';$('f'+k).disabled=false;$('w'+k).innerHTML=''}
+  for(let k=0;k<4;k++){$('f'+k).value=(T[i]&&T[i][k])||'';$('f'+k).disabled=false;$('w'+k).innerHTML=''}
   $('model').classList.add('hidden'); $('check').classList.remove('hidden'); $('next').classList.add('hidden');
-  window.scrollTo(0,0); reportHeight();
+  window.scrollTo(0,0); reportHeight(); SCR='work'; save();
 }
 const flag=(el,cls,txt)=>{el.innerHTML+=`<div class="flag ${cls}">${txt}</div>`};
 function check(){
-  const v=V[i], t=[0,1,2,3].map(k=>$('f'+k).value.trim());
+  const v=V[i], t=[0,1,2,3].map(k=>$('f'+k).value.trim()); T[i]=t; C[i]=true;
   for(let k=0;k<4;k++){$('w'+k).innerHTML='';$('f'+k).disabled=true}
   if(!t[0]) flag($('w0'),'warn','Die Beobachtung fehlt. Sie ist der wichtigste Schritt.');
   else { const hit=BAD0.filter(r=>r.test(t[0])).map(r=>t[0].match(r)[0]);
@@ -134,12 +145,25 @@ function check(){
   $('model').innerHTML='<div class="hd">So könnte es klingen</div><div class="bd">'+['Beobachtung','Gefühl','Bedürfnis','Bitte'].map((l,k)=>`<p><b>${l}:</b> ${v.m[k]}</p>`).join('')+
    '<div class="self"><label><input type="checkbox"> Ich würde meine Version so auch tatsächlich sagen.</label><label><input type="checkbox"> Meine Beobachtung enthält kein immer, nie oder typisch.</label></div></div>';
   $('model').classList.remove('hidden'); $('check').classList.add('hidden'); $('next').classList.remove('hidden');
-  $('next').textContent=i===V.length-1?'Abschliessen':'Nächster Vorwurf'; $('bar').style.width=((i+1)/V.length*100)+'%'; reportHeight();
+  $('next').textContent=i===V.length-1?'Abschliessen':'Nächster Vorwurf'; $('bar').style.width=((i+1)/V.length*100)+'%'; reportHeight(); save();
 }
-$('start').onclick=()=>{$('intro').classList.add('hidden');$('work').classList.remove('hidden');render()};
+$('start').onclick=()=>{i=0;$('intro').classList.add('hidden');$('work').classList.remove('hidden');render()};
 $('check').onclick=check;
-$('next').onclick=()=>{if(i<V.length-1){i++;render()}else{$('work').classList.add('hidden');$('end').classList.remove('hidden');$('cnt').textContent='Abschluss';window.scrollTo(0,0);reportHeight()}};
-$('again').onclick=()=>{i=0;$('end').classList.add('hidden');$('work').classList.remove('hidden');render()};
+$('next').onclick=()=>{if(i<V.length-1){i++;render()}else showEnd()};
+$('again').onclick=()=>{i=0;T={};C={};$('end').classList.add('hidden');$('work').classList.remove('hidden');render()};
+const esc=x=>String(x).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+function showEnd(){$('work').classList.add('hidden');$('end').classList.remove('hidden');$('cnt').textContent='Abschluss';
+  const L=['Beobachtung','Gefühl','Bedürfnis','Bitte'];
+  $('sum').innerHTML=V.map((v,k)=>{const t=T[k]||[];const has=t.some(x=>x);return `<div class="sit"><p class="q">${esc(v.q)}</p>${has?L.map((l,j)=>t[j]?`<p><b>${l}:</b> ${esc(t[j])}</p>`:'').join(''):'<p class="e">Nicht bearbeitet.</p>'}</div>`}).join('');
+  SCR='end';save();window.scrollTo(0,0);reportHeight()}
+$('print').onclick=()=>{try{window.print();$('pmsg').textContent='Falls sich kein Druckfenster öffnet, öffnen Sie diese Seite in einem eigenen Browserfenster und drucken Sie dort: '+location.href.split('#')[0]}catch(e){}reportHeight()};
+[0,1,2,3].forEach(k=>$('f'+k).addEventListener('input',()=>{if(!T[i])T[i]=['','','',''];T[i][k]=$('f'+k).value;save()}));
+function restore(){let d;try{d=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+  if(!d||d.s==='intro'||typeof d.i!=='number')return;
+  T=d.t||{};C=d.c||{};i=Math.min(d.i,V.length-1);$('intro').classList.add('hidden');
+  if(d.s==='end'){showEnd();return}
+  $('work').classList.remove('hidden');render();if(C[i])check();window.scrollTo(0,0);}
+restore();
 window.addEventListener('load',reportHeight);window.addEventListener('resize',reportHeight);
 if(window.ResizeObserver)new ResizeObserver(reportHeight).observe(document.body);
 </script>
