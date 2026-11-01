@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Konfliktstile-Fragebogen</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display&family=Montserrat:wght@500;600&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --p:#183E45; --p75:#4E6B70; --p50:#8C9EA2; --p25:#C5CFD0; --p10:#E8ECEC;
+  --mint:#89BD99; --blue:#86C1CF; --rose:#D47882; --mus:#E0AF58;
+  --lmint:#d0e6d7; --lblue:#d6ebf0; --lrose:#f2d6d9; --lmus:#f5e3bf;
+  --serif:'Playfair Display','Liberation Serif','DejaVu Serif',Georgia,serif;
+  --sans:Roboto,'Segoe UI','DejaVu Sans',Arial,sans-serif;
+  --head:Montserrat,'Segoe UI','DejaVu Sans',Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:var(--sans);color:#2b3a3d;background:#fff;font-size:16px;line-height:1.5}
+.app{max-width:900px;margin:0 auto;padding:18px 16px 26px}
+.rub{font-family:var(--head);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--p50);border-bottom:1px solid var(--p25);padding-bottom:7px;margin-bottom:6px;display:flex;justify-content:space-between;gap:10px}
+h1{font-family:var(--serif);font-weight:400;color:var(--p);font-size:clamp(26px,4.4vw,36px);margin:4px 0 6px;line-height:1.15}
+h2{font-family:var(--head);color:var(--p);font-size:18px;margin:20px 0 8px;font-weight:600}
+.lead{color:var(--p75);margin:0 0 14px;max-width:70ch}
+.hidden{display:none!important}
+.btn{border:0;background:var(--p);color:#fff;font-weight:600;font-size:16px;padding:12px 22px;border-radius:10px;cursor:pointer;font-family:var(--sans)}
+.btn:hover{background:#0f2b30}.btn:disabled{opacity:.35;cursor:default}
+.btn.ghost{background:#fff;color:var(--p);border:1.5px solid var(--p)}
+.btn:focus-visible,.sc button:focus-visible{outline:3px solid var(--mus);outline-offset:2px}
+.go{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:18px;flex-wrap:wrap}
+.prog{height:6px;background:var(--p10);margin:10px 0 8px;position:sticky;top:0;z-index:2}.prog i{display:block;height:100%;background:var(--blue);transition:width .3s}
+.legend{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;font-size:12px;color:var(--p50);text-align:center;font-family:var(--head);letter-spacing:.04em;margin:0 0 4px auto;max-width:380px}
+.it{display:grid;grid-template-columns:1fr 380px;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid var(--p10)}
+.it .q{color:var(--p)}
+.it .q b{font-family:var(--head);color:var(--p50);font-size:12px;margin-right:6px;font-weight:600}
+.sc{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.sc button{border:1.5px solid var(--p25);background:#fff;border-radius:8px;padding:9px 4px;font-size:14px;cursor:pointer;color:var(--p75);font-family:var(--sans)}
+.sc button:hover{border-color:var(--p50)}
+.sc button.on{background:var(--p);border-color:var(--p);color:#fff}
+.it.miss .q{color:var(--rose)}
+@media(max-width:700px){.it{grid-template-columns:1fr}.legend{display:none}.sc button{font-size:13px}}
+.prof{display:grid;gap:10px;margin:14px 0}
+.pr{display:grid;grid-template-columns:170px 1fr 52px;gap:10px;align-items:center}
+@media(max-width:560px){.pr{grid-template-columns:142px 1fr 44px;gap:8px}.pr .n{font-size:15px}}
+.pr .n{font-weight:700;color:var(--p)}
+.pr .t{height:22px;background:var(--p10);position:relative}
+.pr .f{position:absolute;left:0;top:0;bottom:0;background:var(--blue);transition:width .6s}
+.pr .c{font-weight:700;color:var(--p);text-align:right;font-variant-numeric:tabular-nums}
+.pr.top .f{background:var(--p)}
+.pr.low .f{background:var(--p25)}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:640px){.cards{grid-template-columns:1fr}}
+.card{border:1px solid var(--p25);padding:14px 16px}
+.card .k{font-family:var(--head);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--p50)}
+.card h3{font-family:var(--head);color:var(--p);margin:2px 0 6px;font-size:17px}
+.card p{margin:4px 0}
+.note{font-size:14px;color:var(--p75);margin-top:14px}
+.take{background:var(--p);color:#fff;padding:16px 18px;margin-top:16px}
+.take b{font-family:var(--head);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--p25);display:block;margin-bottom:4px;font-weight:600}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="rub"><span>Das eigene Konfliktverhalten</span><span id="cnt"></span></div>
+  <h1>Wie verhalten Sie sich in Konflikten?</h1>
+
+  <section id="ask">
+    <p class="lead">Zwanzig Aussagen zu Ihrem Verhalten in Konflikten am Arbeitsplatz. Schätzen Sie bei jeder ein, wie sehr sie auf Sie zutrifft. Antworten Sie spontan, so wie Sie sich tatsächlich verhalten, nicht so, wie Sie es gerne würden.</p>
+    <div class="prog"><i id="bar" style="width:0"></i></div>
+    <div id="list"></div>
+    <div class="go">
+      <span class="note" id="hint">Beantworten Sie alle Aussagen, dann sehen Sie Ihr Profil.</span>
+      <button class="btn" id="show">Profil anzeigen</button>
+    </div>
+  </section>
+
+  <section id="res" class="hidden">
+    <p class="lead">So verteilen sich Ihre Antworten auf die fünf Stile nach Kenneth Thomas und Ralph Kilmann. Jeder Stil kann höchstens 12 Punkte erreichen.</p>
+    <div class="prof" id="prof"></div>
+    <div class="cards">
+      <div class="card"><div class="k">Ihr stärkster Stil</div><h3 id="tN"></h3><p id="tS"></p><p id="tR"></p></div>
+      <div class="card"><div class="k">Ihr schwächster Stil</div><h3 id="lN"></h3><p id="lS"></p></div>
+    </div>
+    <div class="take"><b>Zum Nachdenken</b>Kein Stil ist immer richtig. Wer bewusst zwischen den Stilen wählen kann, führt Konflikte besser als jemand, der aus Gewohnheit immer gleich reagiert. Welchen Stil möchten Sie als Führungsperson öfter einsetzen?</div>
+    <p class="note">Ihre Antworten werden nicht gespeichert und nicht übermittelt. Der Fragebogen ist eine Selbsteinschätzung zur Reflexion, kein wissenschaftlicher Test.</p>
+    <div class="go"><button class="btn ghost" id="back">Antworten ansehen</button><button class="btn ghost" id="reset">Neu beginnen</button></div>
+  </section>
+</div>
+
+<script>
+const S={
+  D:{n:'Durchsetzen',s:'Sie vertreten Ihre Anliegen klar und können schnell entscheiden. Das hilft in Krisen und bei Sicherheitsfragen.',r:'Achten Sie darauf, dass andere sich nicht zurückziehen oder verdeckt Widerstand leisten.',l:'Sie setzen sich selten durch. Prüfen Sie, ob Ihre eigenen Anliegen genug Gewicht bekommen, gerade wenn Sie als Führungsperson entscheiden müssen.'},
+  N:{n:'Nachgeben',s:'Sie sind entgegenkommend und stellen die Beziehung über den Streitpunkt. Das schafft Vertrauen.',r:'Achten Sie darauf, dass Ihre eigenen Anliegen nicht dauerhaft untergehen und sich kein Ärger aufstaut.',l:'Sie geben selten nach. Manchmal ist es klug, der anderen Seite einen Punkt zu lassen, der ihr wichtiger ist als Ihnen.'},
+  V:{n:'Vermeiden',s:'Sie lassen Dinge ruhen, wenn sie unwichtig sind oder sich die Gemüter erst beruhigen müssen. Das verhindert unnötige Eskalation.',r:'Achten Sie darauf, dass Konflikte nicht im Verborgenen weiterwachsen, bis sie nicht mehr zu übersehen sind.',l:'Sie gehen Konflikten kaum aus dem Weg. Nicht jede Kleinigkeit muss ausdiskutiert werden, manchmal lohnt es sich, etwas stehen zu lassen.'},
+  K:{n:'Kompromiss',s:'Sie suchen pragmatisch die Mitte und kommen schnell zu einer Einigung. Das hilft, wenn die Zeit drängt.',r:'Achten Sie darauf, nicht zu früh zu teilen. Oft gäbe es eine Lösung, bei der beide mehr bekommen.',l:'Sie suchen selten die Mitte. Wenn die Zeit drängt und beide gleich stark sind, ist ein fairer Kompromiss oft der schnellste Weg.'},
+  Z:{n:'Zusammenarbeiten',s:'Sie suchen Lösungen, bei denen beide Seiten gewinnen. Das stärkt die Zusammenarbeit langfristig.',r:'Achten Sie darauf, dass Sie nicht jede Kleinigkeit gründlich klären. Zusammenarbeiten kostet Zeit und Energie.',l:'Sie arbeiten in Konflikten selten auf eine gemeinsame Lösung hin. Bei wichtigen Themen mit Menschen, mit denen Sie weiter zusammenarbeiten, lohnt sich der Aufwand.'}
+};
+const Q=[
+ ['D','Wenn ich von meiner Lösung überzeugt bin, setze ich sie auch gegen Widerstand durch.'],
+ ['Z','Ich lege meine Sicht offen dar und will genau verstehen, worum es der anderen Seite geht.'],
+ ['V','Unangenehme Themen schiebe ich gerne auf, in der Hoffnung, dass sie sich von selbst erledigen.'],
+ ['N','Wenn es der anderen Person wichtig ist, lasse ich ihr ihren Willen.'],
+ ['K','Ich schlage oft vor, dass wir uns in der Mitte treffen.'],
+ ['Z','Ich suche so lange nach einer Lösung, bis beide Seiten wirklich zufrieden sind.'],
+ ['D','In Diskussionen will ich am Ende recht behalten.'],
+ ['N','Die gute Beziehung ist mir wichtiger, als meinen Standpunkt durchzusetzen.'],
+ ['V','Wenn sich eine Auseinandersetzung anbahnt, halte ich mich lieber zurück.'],
+ ['K','Ich gebe in einem Punkt nach, wenn die andere Seite mir in einem anderen entgegenkommt.'],
+ ['V','Ich vermeide Situationen, in denen es zu Streit kommen könnte.'],
+ ['D','Ich setze meine Position oder meine Erfahrung ein, um mich durchzusetzen.'],
+ ['Z','Ich lade alle Beteiligten ein, ihre Anliegen auf den Tisch zu legen, bevor wir entscheiden.'],
+ ['N','Ich stelle meine eigenen Wünsche zurück, damit die Stimmung gut bleibt.'],
+ ['K','Mir ist eine schnelle, faire Einigung lieber als eine lange Suche nach der perfekten Lösung.'],
+ ['D','Wenn ich unter Druck komme, werde ich bestimmter und lauter.'],
+ ['V','Ich spreche Ärger oft gar nicht erst an.'],
+ ['Z','Ich sehe Meinungsverschiedenheiten als Chance, gemeinsam etwas Besseres zu finden.'],
+ ['N','Ich beschwichtige, wenn die andere Person verärgert ist, auch wenn ich anders denke.'],
+ ['K','Ich bin bereit, Abstriche zu machen, wenn die andere Seite das auch tut.']
+];
+const LBL=['trifft nicht zu','eher nicht','eher','trifft zu'];
+const A=new Array(Q.length).fill(null);
+const $=id=>document.getElementById(id);
+function post(){try{parent.postMessage({type:'resize',source:'konfliktstile-fragebogen',height:document.documentElement.scrollHeight},'*')}catch(e){}}
+function build(){
+  $('list').innerHTML=Q.map((q,i)=>`<div class="it" id="it${i}"><div class="q"><b>${i+1}</b>${q[1]}</div><div class="sc" role="radiogroup" aria-label="Aussage ${i+1}">${LBL.map((l,v)=>`<button type="button" role="radio" aria-checked="false" data-i="${i}" data-v="${v}">${l}</button>`).join('')}</div></div>`).join('');
+  $('list').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{
+    const i=+b.dataset.i,v=+b.dataset.v;A[i]=v;
+    b.parentNode.querySelectorAll('button').forEach(x=>{const on=+x.dataset.v===v;x.classList.toggle('on',on);x.setAttribute('aria-checked',on)});
+    $('it'+i).classList.remove('miss');upd();
+  }));
+  upd();
+}
+function upd(){
+  const n=A.filter(x=>x!==null).length;
+  $('bar').style.width=(n/Q.length*100)+'%';
+  $('cnt').textContent=n+' von '+Q.length;
+}
+$('show').addEventListener('click',()=>{
+  const miss=A.map((x,i)=>x===null?i:-1).filter(i=>i>=0);
+  if(miss.length){
+    miss.forEach(i=>$('it'+i).classList.add('miss'));
+    $('hint').textContent=miss.length===1?'Eine Aussage ist noch offen, sie ist rot markiert.':miss.length+' Aussagen sind noch offen, sie sind rot markiert.';
+    $('it'+miss[0]).scrollIntoView({behavior:'smooth',block:'center'});post();return;
+  }
+  const sum={D:0,N:0,V:0,K:0,Z:0};Q.forEach((q,i)=>sum[q[0]]+=A[i]);
+  const order=Object.keys(sum).sort((a,b)=>sum[b]-sum[a]);
+  const top=order[0],low=order[order.length-1];
+  $('prof').innerHTML=['D','Z','K','V','N'].map(k=>`<div class="pr${k===top?' top':''}${k===low?' low':''}"><span class="n">${S[k].n}</span><span class="t"><span class="f" style="width:0" data-w="${sum[k]/12*100}"></span></span><span class="c">${sum[k]}/12</span></div>`).join('');
+  const ties=order.filter(k=>sum[k]===sum[top]);
+  $('tN').textContent=ties.map(k=>S[k].n).join(' und ');
+  $('tS').textContent=ties.length>1?'Mehrere Stile liegen bei Ihnen gleichauf. Das spricht dafür, dass Sie je nach Situation unterschiedlich reagieren.':S[top].s;
+  $('tR').textContent=ties.length>1?'':S[top].r;
+  $('lN').textContent=S[low].n;$('lS').textContent=S[low].l;
+  $('ask').classList.add('hidden');$('res').classList.remove('hidden');
+  requestAnimationFrame(()=>document.querySelectorAll('.pr .f').forEach(f=>f.style.width=f.dataset.w+'%'));
+  window.scrollTo(0,0);post();
+});
+$('back').addEventListener('click',()=>{$('res').classList.add('hidden');$('ask').classList.remove('hidden');post()});
+$('reset').addEventListener('click',()=>{A.fill(null);$('hint').textContent='Beantworten Sie alle Aussagen, dann sehen Sie Ihr Profil.';build();$('res').classList.add('hidden');$('ask').classList.remove('hidden');window.scrollTo(0,0);post()});
+build();
+window.addEventListener('load',post);window.addEventListener('resize',post);
+new ResizeObserver(post).observe(document.body);
+</script>
+</body>
+</html>
