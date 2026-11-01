@@ -73,6 +73,7 @@ h2{font-family:var(--head);color:var(--p);font-size:18px;margin:18px 0 8px;font-
 .score .v{font-size:30px;font-weight:700;color:var(--p);font-variant-numeric:tabular-nums}
 .take{background:var(--p);color:#fff;padding:16px 18px;margin-top:14px}
 .take b{font-family:var(--head);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--p25);display:block;margin-bottom:4px;font-weight:600}
+.mem{font-size:13px;color:var(--p50)}
 </style>
 </head>
 <body>
@@ -84,6 +85,7 @@ h2{font-family:var(--head);color:var(--p);font-size:18px;margin:18px 0 8px;font-
     <p class="lead">Sie erhalten zehn Fundstücke aus dem Alltag von Schweizer KMU: Chatverläufe, E-Mails, Sätze aus Sitzungen und Pausengesprächen. Bestimmen Sie bei jedem Fundstück die Eskalationsstufe nach Glasl und entscheiden Sie, wer jetzt helfen kann.</p>
     <p class="lead">Ein Tipp: Achten Sie auf das Verhalten, nicht auf die Lautstärke. Ein lauter Satz kann auf einer tiefen Stufe stehen, eine höfliche E-Mail auf einer hohen.</p>
     <div class="go"><button class="btn" id="start">Ermittlung starten</button></div>
+    <p class="note mem">Ihr Fortschritt bleibt in diesem Browser gespeichert, auch wenn Sie die Folie wechseln. Er wird nicht übermittelt.</p>
   </section>
 
   <section id="quiz" class="hidden">
@@ -145,6 +147,8 @@ const F=[
   ex:'Stufe 9, gemeinsam in den Abgrund. Der eigene Untergang wird in Kauf genommen, solange auch der andere untergeht. Auf dieser Stufe hilft kein Gespräch mehr. Nur noch ein Machteingriff von aussen, etwa durch ein Gericht, den Verwaltungsrat oder eine Trennung der Parteien.'}
 ];
 let i=0, sel={st:null,who:null}, sc={e:0,n:0,w:0}, done=false;
+const KEY='kvd-glasl-detektiv-v1'; let ANS={}, SCR='intro', RP=false; F.forEach((f,k)=>f.id=k);
+function save(){if(RP)return;try{localStorage.setItem(KEY,JSON.stringify({o:F.map(f=>f.id),i,a:ANS,s:SCR}))}catch(e){}}
 const $=id=>document.getElementById(id);
 function reportHeight(){try{parent.postMessage({type:'resize',source:'glasl-detektiv',height:document.documentElement.scrollHeight},'*');}catch(e){}}
 function render(){
@@ -157,7 +161,7 @@ function render(){
   const w=$('who'); w.innerHTML='';
   Object.entries(WHO).forEach(([k,[t,d]])=>{const b=document.createElement('button');b.type='button';b.className='opt';b.dataset.k=k;b.innerHTML='<b>'+t+'</b>'+d;b.onclick=()=>{if(done)return;sel.who=k;upd()};w.appendChild(b)});
   $('fb').classList.add('hidden');$('check').classList.remove('hidden');$('next').classList.add('hidden');
-  upd(); window.scrollTo(0,0); reportHeight();
+  upd(); window.scrollTo(0,0); reportHeight(); SCR='quiz'; save();
 }
 function upd(){
   [...$('stairs').children].forEach((b,k)=>b.classList.toggle('on',sel.st===k+1));
@@ -165,6 +169,7 @@ function upd(){
   $('check').disabled=!(sel.st&&sel.who);
 }
 function check(){
+  ANS[i]={st:sel.st,who:sel.who};
   const f=F[i]; done=true; const d=Math.abs(sel.st-f.stage), wOk=f.who.includes(sel.who);
   if(d===0)sc.e++; if(d<=1)sc.n++; if(wOk)sc.w++;
   [...$('stairs').children].forEach((b,k)=>{b.classList.remove('on');b.disabled=true;if(k+1===f.stage)b.classList.add('ok');else if(k+1===sel.st)b.classList.add('bad')});
@@ -174,20 +179,28 @@ function check(){
   $('fb').innerHTML=`<span class="verdict ${v[0]}">${v[1]}</span><p>${f.ex}</p><p><b>Wer helfen kann:</b> ${whoTxt}. ${wOk?'Ihre Wahl passt.':'Ihre Wahl passt hier weniger.'}</p>`;
   $('fb').classList.remove('hidden');$('check').classList.add('hidden');$('next').classList.remove('hidden');
   $('next').textContent=i===F.length-1?'Zum Ergebnis':'Nächstes Fundstück';
-  $('bar').style.width=((i+1)/F.length*100)+'%'; reportHeight();
+  $('bar').style.width=((i+1)/F.length*100)+'%'; reportHeight(); save();
 }
 function mix(){for(let k=F.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[F[k],F[j]]=[F[j],F[k]];}
   for(let k=1;k<F.length;k++){if(F[k].stage===F[k-1].stage+1&&k<F.length-1){[F[k],F[k+1]]=[F[k+1],F[k]];}}}
 function end(){
+  SCR='end'; save();
   $('quiz').classList.add('hidden');$('end').classList.remove('hidden');$('cnt').textContent='Ergebnis';
   $('s1').textContent=sc.e+' / '+F.length;$('s2').textContent=sc.n+' / '+F.length;$('s3').textContent=sc.w+' / '+F.length;
   $('endtxt').textContent=sc.n>=8?'Sie lesen Eskalation sicher. In der Praxis ist die genaue Stufe weniger wichtig als die Richtung: Bewegt sich der Konflikt nach unten? Und wer muss jetzt handeln?':'Die Stufen sind nicht immer leicht auseinanderzuhalten, auch weil Konflikte Merkmale mehrerer Stufen zeigen. Schauen Sie sich die Übersicht der Stufen nochmals an und achten Sie besonders auf die Übergänge von 2 zu 3 und von 4 zu 5.';
   window.scrollTo(0,0); reportHeight();
 }
-$('start').onclick=()=>{mix();i=0;$('intro').classList.add('hidden');$('quiz').classList.remove('hidden');render()};
+$('start').onclick=()=>{mix();i=0;ANS={};sc={e:0,n:0,w:0};$('intro').classList.add('hidden');$('quiz').classList.remove('hidden');render()};
 $('check').onclick=check;
 $('next').onclick=()=>{if(i<F.length-1){i++;render()}else end()};
-$('again').onclick=()=>{mix();i=0;sc={e:0,n:0,w:0};$('end').classList.add('hidden');$('quiz').classList.remove('hidden');render()};
+$('again').onclick=()=>{mix();i=0;ANS={};sc={e:0,n:0,w:0};$('end').classList.add('hidden');$('quiz').classList.remove('hidden');render()};
+function restore(){let d;try{d=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+  if(!d||!d.o||d.o.length!==F.length||d.s==='intro')return;
+  const by={};F.forEach(f=>by[f.id]=f);const nf=d.o.map(id=>by[id]);if(nf.some(x=>!x))return;nf.forEach((f,k)=>F[k]=f);
+  RP=true;ANS=d.a||{};sc={e:0,n:0,w:0};$('intro').classList.add('hidden');$('quiz').classList.remove('hidden');
+  for(let k=0;k<=Math.min(d.i,F.length-1);k++){i=k;render();if(ANS[k]){sel={...ANS[k]};check()}}
+  RP=false;SCR=d.s;if(d.s==='end')end();save();window.scrollTo(0,0);}
+restore();
 window.addEventListener('load',reportHeight);window.addEventListener('resize',reportHeight);
 if(window.ResizeObserver)new ResizeObserver(reportHeight).observe(document.body);
 </script>
