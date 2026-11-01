@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Glasl-Detektiv</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display&family=Montserrat:wght@500;600&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --p:#183E45; --p75:#4E6B70; --p50:#8C9EA2; --p25:#C5CFD0; --p10:#E8ECEC;
+  --mint:#89BD99; --blue:#86C1CF; --rose:#D47882; --mus:#E0AF58;
+  --lmint:#d0e6d7; --lblue:#d6ebf0; --lrose:#f2d6d9; --lmus:#f5e3bf; --mrose:#e6a9b0;
+  --serif:'Playfair Display','Liberation Serif','DejaVu Serif',Georgia,serif;
+  --sans:Roboto,'Segoe UI','DejaVu Sans',Arial,sans-serif;
+  --head:Montserrat,'Segoe UI','DejaVu Sans',Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:var(--sans);color:#2b3a3d;background:#fff;font-size:16px;line-height:1.5}
+.app{max-width:900px;margin:0 auto;padding:18px 16px 26px}
+.rub{font-family:var(--head);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--p50);border-bottom:1px solid var(--p25);padding-bottom:7px;margin-bottom:6px;display:flex;justify-content:space-between;gap:10px}
+h1{font-family:var(--serif);font-weight:400;color:var(--p);font-size:clamp(26px,4.4vw,36px);margin:4px 0 6px;line-height:1.15}
+h2{font-family:var(--head);color:var(--p);font-size:18px;margin:18px 0 8px;font-weight:600}
+.lead{color:var(--p75);margin:0 0 14px;max-width:70ch}
+.hidden{display:none!important}
+.btn{border:0;background:var(--p);color:#fff;font-weight:600;font-size:16px;padding:12px 22px;border-radius:10px;cursor:pointer;font-family:var(--sans)}
+.btn:hover{background:#0f2b30}.btn:disabled{opacity:.35;cursor:default}
+.btn.ghost{background:#fff;color:var(--p);border:1.5px solid var(--p)}
+.go{display:flex;justify-content:flex-end;gap:10px;margin-top:16px;flex-wrap:wrap}
+.prog{height:6px;background:var(--p10);margin:10px 0 16px}.prog i{display:block;height:100%;background:var(--rose);transition:width .3s}
+/* Belege */
+.ev{border:1px solid var(--p25);background:#fff}
+.ev .bar{display:flex;align-items:center;gap:10px;padding:8px 14px;background:var(--p10);font-family:var(--head);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--p75)}
+.ev .bar i{width:10px;height:10px;border-radius:50%;background:var(--p50);display:inline-block}
+.ev .body{padding:14px 16px}
+.msg{display:flex;gap:10px;margin:8px 0}
+.av{flex:0 0 36px;height:36px;border-radius:50%;background:var(--p);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;font-family:var(--head)}
+.av.b{background:var(--blue);color:var(--p)}
+.bub{background:var(--p10);padding:8px 12px;border-radius:0 12px 12px 12px;max-width:620px}
+.bub small{display:block;font-weight:700;color:var(--p);font-size:13px}
+.mail .hd{font-size:14px;color:var(--p75);border-bottom:1px solid var(--p10);padding-bottom:8px;margin-bottom:8px}
+.scene{font-style:italic;color:var(--p75)}
+/* Treppe */
+.stairs{display:grid;grid-template-columns:repeat(9,1fr);gap:4px;align-items:end;height:170px}
+.st{border:0;cursor:pointer;color:var(--p);font-family:var(--sans);font-weight:700;font-size:18px;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;padding-top:8px;border-radius:6px 6px 0 0;position:relative}
+.st span{font-weight:500;font-size:11px;line-height:1.15;margin-top:4px;padding:0 2px;text-align:center}
+.z1{background:var(--lrose)}.z2{background:var(--mrose)}.z3{background:var(--rose)}
+.st:hover:not(:disabled){filter:brightness(.95)}
+.st.on{outline:3px solid var(--p);outline-offset:-3px}
+.st.ok{outline:3px solid var(--p);background:var(--mint)}
+.st.bad{outline:3px dashed var(--p);outline-offset:-3px}
+.st:disabled{cursor:default}
+.zones{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-top:6px;font-family:var(--head);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--p50);text-align:center}
+@media(max-width:620px){.st span{display:none}.stairs{height:130px}}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:620px){.opts{grid-template-columns:1fr}}
+.opt{border:1.5px solid var(--p25);background:#fff;color:var(--p);border-radius:10px;padding:10px 12px;font-size:15px;cursor:pointer;text-align:left;font-family:var(--sans)}
+.opt b{display:block;font-weight:700}
+.opt:hover:not(:disabled){border-color:var(--p50)}
+.opt.on{background:var(--p);border-color:var(--p);color:#fff}
+.opt.ok{background:var(--lmint);border-color:var(--mint);color:var(--p)}
+.opt.bad{background:var(--lrose);border-color:var(--rose);color:var(--p)}
+.opt:disabled{cursor:default}
+.opt:focus-visible,.btn:focus-visible,.st:focus-visible{outline:3px solid var(--mus);outline-offset:2px}
+.fb{margin-top:16px;border:1px solid var(--p25);padding:14px 16px}
+.verdict{font-family:var(--head);font-weight:600;font-size:13px;letter-spacing:.14em;text-transform:uppercase;display:inline-block;padding:4px 10px;border-radius:999px;color:var(--p);margin-bottom:8px}
+.v-ok{background:var(--mint)}.v-part{background:var(--mus)}.v-bad{background:var(--rose)}
+.fb p{margin:6px 0}
+.score{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
+@media(max-width:620px){.score{grid-template-columns:1fr}}
+.score div{background:var(--p10);padding:12px 14px}
+.score .k{font-family:var(--head);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--p50)}
+.score .v{font-size:30px;font-weight:700;color:var(--p);font-variant-numeric:tabular-nums}
+.take{background:var(--p);color:#fff;padding:16px 18px;margin-top:14px}
+.take b{font-family:var(--head);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--p25);display:block;margin-bottom:4px;font-weight:600}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="rub"><span>Konflikte analysieren</span><span id="cnt"></span></div>
+  <h1>Glasl-Detektiv</h1>
+
+  <section id="intro">
+    <p class="lead">Sie erhalten zehn Fundstücke aus dem Alltag von Schweizer KMU: Chatverläufe, E-Mails, Sätze aus Sitzungen und Pausengesprächen. Bestimmen Sie bei jedem Fundstück die Eskalationsstufe nach Glasl und entscheiden Sie, wer jetzt helfen kann.</p>
+    <p class="lead">Ein Tipp: Achten Sie auf das Verhalten, nicht auf die Lautstärke. Ein lauter Satz kann auf einer tiefen Stufe stehen, eine höfliche E-Mail auf einer hohen.</p>
+    <div class="go"><button class="btn" id="start">Ermittlung starten</button></div>
+  </section>
+
+  <section id="quiz" class="hidden">
+    <div class="prog"><i id="bar"></i></div>
+    <div class="ev"><div class="bar"><i></i><span id="src"></span></div><div class="body" id="ev"></div></div>
+
+    <h2>1. Auf welcher Stufe steht dieser Konflikt?</h2>
+    <div class="stairs" id="stairs"></div>
+    <div class="zones"><span>win-win</span><span>win-lose</span><span>lose-lose</span></div>
+
+    <h2>2. Wer kann jetzt helfen?</h2>
+    <div class="opts" id="who"></div>
+
+    <div class="fb hidden" id="fb"></div>
+    <div class="go">
+      <button class="btn" id="check" disabled>Prüfen</button>
+      <button class="btn hidden" id="next">Nächstes Fundstück</button>
+    </div>
+  </section>
+
+  <section id="end" class="hidden">
+    <p class="lead">Ihre Ermittlung ist abgeschlossen.</p>
+    <div class="score">
+      <div><span class="k">Stufe genau getroffen</span><div class="v" id="s1"></div></div>
+      <div><span class="k">Höchstens eine Stufe daneben</span><div class="v" id="s2"></div></div>
+      <div><span class="k">Hilfe richtig gewählt</span><div class="v" id="s3"></div></div>
+    </div>
+    <p id="endtxt"></p>
+    <div class="take"><b>Das Wichtigste</b>Die Stufe erkennen Sie am Verhalten: Wird noch geredet (1 und 2), wird gehandelt statt geredet (3), werden Verbündete gesucht (4), wird jemand öffentlich blossgestellt (5), wird gedroht (6) oder geschadet (ab 7)? Und je höher die Stufe, desto weniger können die Beteiligten den Konflikt allein lösen.</div>
+    <div class="go"><button class="btn ghost" id="again">Nochmals von vorne</button></div>
+  </section>
+</div>
+
+<script>
+const ST=['Verhärtung','Debatte und Polemik','Taten statt Worte','Sorge um Image und Koalition','Gesichtsverlust','Drohstrategien','Begrenzte Vernichtungsschläge','Zersplitterung','Gemeinsam in den Abgrund'];
+const WHO={A:['Die Beteiligten selbst','in einem offenen Gespräch unter vier Augen'],B:['Die Führungsperson','als Moderatorin eines Klärungsgesprächs'],C:['Eine externe Fachperson','als Mediatorin oder Prozessbegleiterin'],D:['Ein Machteingriff','Entscheid von oben, Versetzung oder Trennung']};
+const chat=(a,n,t,b)=>`<div class="msg"><div class="av ${b?'b':''}">${a}</div><div class="bub"><small>${n}</small>${t}</div></div>`;
+const mail=(from,to,subj,t)=>`<div class="mail"><div class="hd">Von: ${from}<br>An: ${to}<br>Betreff: ${subj}</div>${t}</div>`;
+const F=[
+ {src:'Teams-Chat, Treuhandbüro',stage:1,who:['A'],html:chat('RF','Reto Frei','Kannst du die Offerte für Müller nochmals anschauen? Die Stundenansätze sind mir zu hoch.')+chat('NB','Nadia Brunner','Die habe ich schon zweimal angeschaut. Die stimmen so.',1)+chat('RF','Reto Frei','Ok. Dann lassen wir das halt mal so.'),
+  ex:'Stufe 1, Verhärtung. Die Standpunkte prallen aufeinander, ein wenig Gereiztheit ist spürbar («schon zweimal», «halt»). Aber beide reden noch sachlich miteinander und gehen von einer gemeinsamen Lösung aus. Jetzt ist der beste Moment für ein kurzes Gespräch unter vier Augen.'},
+ {src:'Sitzung, Metallbaufirma',stage:2,who:['A','B'],html:'<p class="scene">In der Wochensitzung, deutlich lauter als sonst:</p>'+chat('PK','Peter Koller','Das ist doch Blödsinn, Simone! So kann man das nicht kalkulieren!')+chat('SG','Simone Graf','Doch, genau so! Zeig mir zuerst deine Zahlen!',1)+'<p class="scene">Nach der Sitzung gehen die beiden wie jeden Mittwoch zusammen Mittagessen.</p>',
+  ex:'Stufe 2, Debatte. Der Ton ist laut und zugespitzt, beide wollen recht haben. Aber die Beziehung trägt noch, wie das gemeinsame Mittagessen zeigt. Laut heisst nicht hoch eskaliert. Die beiden können das selbst klären, eine Führungsperson kann bei Bedarf moderieren.'},
+ {src:'Sitzung, Verkauf und Produktion',stage:2,who:['A','B'],html:chat('MV','Martin Vogt, Verkauf','Das ist halt typisch Produktion: Hauptsache keine Zusatzarbeit.')+chat('LS','Lea Steiner, Produktion','Und typisch Verkauf: Hauptsache unterschrieben, ob wir das liefern können, ist euch egal.',1),
+  ex:'Stufe 2, Debatte und Polemik. Typisch sind die Verallgemeinerungen («typisch Produktion») und das Denken in Schwarz und Weiss. Es wird noch geredet, aber nicht mehr zugehört. Hier hilft eine moderierte Klärung durch die Führungsperson, bevor eine Seite beginnt, eigenmächtig zu handeln.'},
+ {src:'E-Mail, Transportunternehmen',stage:3,who:['B'],html:mail('Mirjam Wyss','Sven Huber','Tourenplanung KW 47','Hallo Sven<br><br>Zur Info: Ich habe die Tourenplanung für nächste Woche bereits angepasst und die Fahrer informiert.<br><br>Gruss<br>Mirjam')+'<p class="scene">Die beiden hatten sich am Vortag nicht über die Planung einigen können.</p>',
+  ex:'Stufe 3, Taten statt Worte. Die E-Mail ist höflich, aber sie stellt Sven vor vollendete Tatsachen. Statt weiter zu reden, handelt Mirjam. Ab hier können die Beteiligten den Konflikt meist nicht mehr gut allein lösen. Die Führungsperson sollte ein Klärungsgespräch moderieren.'},
+ {src:'E-Mail, Steiner Metallbau AG',stage:3,who:['B'],html:mail('Sandra Keller','Marco Rüegg; Kopie: Daniel Steiner','Planung Wohlen','Marco<br><br>Ich stelle fest, dass erneut ohne Absprache in die Planung eingegriffen wurde. Ich bitte um Einhaltung des vereinbarten Prozesses.<br><br>Sandra'),
+  ex:'Stufe 3, mit ersten Zeichen von Stufe 4. Marco hat eigenmächtig gehandelt, Sandra antwortet schriftlich statt im Gespräch. Die Kopie an den Chef ist ein erster Versuch, sich Rückendeckung zu holen. Daniel Steiner müsste jetzt moderieren. Stattdessen archiviert er die E-Mail.'},
+ {src:'Pausengespräch, Spenglerei',stage:4,who:['B','C'],html:chat('BM','Bruno Meier','Hast du gesehen, wie der Kurt wieder beim Chef war? Wir müssen jetzt zusammenhalten, sonst setzt der alles durch. Ich habe mit der Buchhaltung schon geredet, die sehen das auch so.')+chat('TK','Tanja Keller','Ja, das ist mir auch aufgefallen.',1),
+  ex:'Stufe 4, Sorge um Image und Koalition. Bruno sucht aktiv Verbündete und bildet ein Lager gegen Kurt. Über Kurt wird hinter seinem Rücken geredet. Die Führungsperson kann hier noch moderieren, wenn sie von beiden Seiten als fair erlebt wird. Sonst ist eine externe Prozessbegleitung sinnvoll.'},
+ {src:'Teams-Kanal mit 25 Mitgliedern, Handelsfirma',stage:5,who:['C'],html:chat('AS','Andrea Schmid','Nur damit alle Bescheid wissen: Die Zahlen, die Patrick an der Geschäftsleitungssitzung präsentiert hat, waren schöngerechnet. Man sollte halt wissen, mit wem man es zu tun hat.'),
+  ex:'Stufe 5, Gesichtsverlust. Patrick wird öffentlich blossgestellt. Es geht nicht mehr um die Zahlen, sondern um seine Integrität («mit wem man es zu tun hat»). Ab dieser Stufe ist eine neutrale externe Mediation angezeigt. Die Führung muss zudem sofort Grenzen setzen.'},
+ {src:'E-Mail an den Inhaber, Elektrofirma',stage:6,who:['C'],html:mail('Thomas Lüthi','Inhaber','Lernendenbetreuung','Wenn bis Ende Monat nicht geklärt ist, dass Roger nicht mehr in die Betreuung der Lernenden reinredet, gebe ich die Ausbildungsverantwortung ab. Das ist mein letztes Wort.'),
+  ex:'Stufe 6, Drohstrategien. Ein Ultimatum mit Frist und Sanktion. Wer droht, legt sich fest und kann kaum mehr zurück, ohne das Gesicht zu verlieren. Hier braucht es eine Mediation. Die Führung muss klar machen, welche Optionen tatsächlich bestehen.'},
+ {src:'Beobachtung, Versicherungsagentur',stage:7,who:['D'],html:'<p class="scene">Die Kundendatei des Teams von Frau Meier ist seit gestern nicht mehr auffindbar. Ein Mitarbeiter aus dem Nachbarteam, der sie verschoben hat, sagt grinsend: «Tja, Ordnung ist halt nicht jedermanns Sache.»</p>',
+  ex:'Stufe 7, begrenzte Vernichtungsschläge. Hier wird der anderen Seite gezielt geschadet. Die Grenze zum Fehlverhalten ist überschritten. Jetzt braucht es einen Machteingriff: einen klaren Entscheid der Führung, gegebenenfalls arbeitsrechtliche Schritte.'},
+ {src:'Familienunternehmen, zwei Mitinhaber',stage:9,who:['D'],html:'<p class="scene">Einer der beiden Mitinhaber blockiert die Bankfinanzierung für eine dringend nötige Investition, obwohl dadurch auch seine eigenen Anteile an Wert verlieren. Zu seinem Treuhänder sagt er:</p>'+chat('HW','Hans Wirz','Lieber geht die Firma zugrunde, als dass er recht bekommt.'),
+  ex:'Stufe 9, gemeinsam in den Abgrund. Der eigene Untergang wird in Kauf genommen, solange auch der andere untergeht. Auf dieser Stufe hilft kein Gespräch mehr. Nur noch ein Machteingriff von aussen, etwa durch ein Gericht, den Verwaltungsrat oder eine Trennung der Parteien.'}
+];
+let i=0, sel={st:null,who:null}, sc={e:0,n:0,w:0}, done=false;
+const $=id=>document.getElementById(id);
+function reportHeight(){try{parent.postMessage({type:'resize',source:'glasl-detektiv',height:document.documentElement.scrollHeight},'*');}catch(e){}}
+function render(){
+  const f=F[i]; done=false; sel={st:null,who:null};
+  $('cnt').textContent='Fundstück '+(i+1)+' von '+F.length; $('bar').style.width=(i/F.length*100)+'%';
+  $('src').textContent=f.src; $('ev').innerHTML=f.html;
+  const s=$('stairs'); s.innerHTML='';
+  ST.forEach((n,k)=>{const b=document.createElement('button');b.type='button';b.className='st z'+(Math.floor(k/3)+1);b.style.height=(100-k*7)+'%';
+    b.innerHTML=(k+1)+'<span>'+n+'</span>';b.setAttribute('aria-label','Stufe '+(k+1)+', '+n);b.onclick=()=>{if(done)return;sel.st=k+1;upd()};s.appendChild(b)});
+  const w=$('who'); w.innerHTML='';
+  Object.entries(WHO).forEach(([k,[t,d]])=>{const b=document.createElement('button');b.type='button';b.className='opt';b.dataset.k=k;b.innerHTML='<b>'+t+'</b>'+d;b.onclick=()=>{if(done)return;sel.who=k;upd()};w.appendChild(b)});
+  $('fb').classList.add('hidden');$('check').classList.remove('hidden');$('next').classList.add('hidden');
+  upd(); window.scrollTo(0,0); reportHeight();
+}
+function upd(){
+  [...$('stairs').children].forEach((b,k)=>b.classList.toggle('on',sel.st===k+1));
+  [...$('who').children].forEach(b=>b.classList.toggle('on',sel.who===b.dataset.k));
+  $('check').disabled=!(sel.st&&sel.who);
+}
+function check(){
+  const f=F[i]; done=true; const d=Math.abs(sel.st-f.stage), wOk=f.who.includes(sel.who);
+  if(d===0)sc.e++; if(d<=1)sc.n++; if(wOk)sc.w++;
+  [...$('stairs').children].forEach((b,k)=>{b.classList.remove('on');b.disabled=true;if(k+1===f.stage)b.classList.add('ok');else if(k+1===sel.st)b.classList.add('bad')});
+  [...$('who').children].forEach(b=>{b.classList.remove('on');b.disabled=true;if(f.who.includes(b.dataset.k))b.classList.add('ok');else if(b.dataset.k===sel.who)b.classList.add('bad')});
+  const v=d===0?['v-ok','Treffer']:d===1?['v-part','Nah dran']:['v-bad','Daneben'];
+  const whoTxt=f.who.map(k=>WHO[k][0]).join(' oder ');
+  $('fb').innerHTML=`<span class="verdict ${v[0]}">${v[1]}</span><p>${f.ex}</p><p><b>Wer helfen kann:</b> ${whoTxt}. ${wOk?'Ihre Wahl passt.':'Ihre Wahl passt hier weniger.'}</p>`;
+  $('fb').classList.remove('hidden');$('check').classList.add('hidden');$('next').classList.remove('hidden');
+  $('next').textContent=i===F.length-1?'Zum Ergebnis':'Nächstes Fundstück';
+  $('bar').style.width=((i+1)/F.length*100)+'%'; reportHeight();
+}
+function end(){
+  $('quiz').classList.add('hidden');$('end').classList.remove('hidden');$('cnt').textContent='Ergebnis';
+  $('s1').textContent=sc.e+' / '+F.length;$('s2').textContent=sc.n+' / '+F.length;$('s3').textContent=sc.w+' / '+F.length;
+  $('endtxt').textContent=sc.n>=8?'Sie lesen Eskalation sicher. In der Praxis ist die genaue Stufe weniger wichtig als die Richtung: Bewegt sich der Konflikt nach unten? Und wer muss jetzt handeln?':'Die Stufen sind nicht immer leicht auseinanderzuhalten, auch weil Konflikte Merkmale mehrerer Stufen zeigen. Schauen Sie sich die Übersicht der Stufen nochmals an und achten Sie besonders auf die Übergänge von 2 zu 3 und von 4 zu 5.';
+  window.scrollTo(0,0); reportHeight();
+}
+$('start').onclick=()=>{$('intro').classList.add('hidden');$('quiz').classList.remove('hidden');render()};
+$('check').onclick=check;
+$('next').onclick=()=>{if(i<F.length-1){i++;render()}else end()};
+$('again').onclick=()=>{i=0;sc={e:0,n:0,w:0};$('end').classList.add('hidden');$('quiz').classList.remove('hidden');render()};
+window.addEventListener('load',reportHeight);window.addEventListener('resize',reportHeight);
+if(window.ResizeObserver)new ResizeObserver(reportHeight).observe(document.body);
+</script>
+</body>
+</html>
