@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wer bei welcher Stufe helfen kann</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display&family=Montserrat:wght@500;600&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --p:#183E45; --p75:#4E6B70; --p50:#8C9EA2; --p25:#C5CFD0; --p10:#E8ECEC;
+  --mint:#89BD99; --blue:#86C1CF; --rose:#D47882; --mus:#E0AF58;
+  --r1:#f2d6d9; --r2:#e6a9b0; --z1:#E8ECEC; --z2:#f6e3e5; --z3:#f2d6d9;
+  --serif:'Playfair Display','Liberation Serif','DejaVu Serif',Georgia,serif;
+  --sans:Roboto,'Segoe UI','DejaVu Sans',Arial,sans-serif;
+  --head:Montserrat,'Segoe UI','DejaVu Sans',Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:var(--sans);color:#2b3a3d;background:#fff;font-size:16px;line-height:1.45}
+.app{max-width:1100px;margin:0 auto;padding:18px 18px 22px}
+.rub{font-family:var(--head);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--p50);border-bottom:1px solid var(--p25);padding-bottom:7px;margin-bottom:6px;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.tabs{display:flex;gap:6px}
+.tab{font-family:var(--head);font-size:11px;letter-spacing:.12em;text-transform:uppercase;border:1.5px solid var(--p25);background:#fff;color:var(--p75);padding:5px 10px;border-radius:20px;cursor:pointer}
+.tab.on{background:var(--p);border-color:var(--p);color:#fff}
+h1{font-family:var(--serif);font-weight:400;color:var(--p);font-size:clamp(24px,3.6vw,36px);margin:6px 0 12px;line-height:1.15}
+
+/* Raster */
+.grid{display:grid;grid-template-columns:minmax(150px,1.35fr) repeat(9,minmax(0,1fr));position:relative;user-select:none}
+.zone{grid-row:1 / span 8;position:relative;z-index:0;transition:opacity .4s}
+.zone.z1{grid-column:2 / span 3;background:var(--z1)}
+.zone.z2{grid-column:5 / span 3;background:var(--z2);border-left:3px solid #fff}
+.zone.z3{grid-column:8 / span 3;background:var(--z3);border-left:3px solid #fff}
+.colhl{grid-row:1 / span 8;z-index:1;background:rgba(24,62,69,.09);border-radius:6px;transition:grid-column .3s,opacity .3s;opacity:0;pointer-events:none}
+.hd{grid-row:1;z-index:2;text-align:center;font-weight:700;color:var(--p);font-size:clamp(14px,1.7vw,19px);padding:8px 0 6px;cursor:pointer;border-radius:6px;transition:color .3s,transform .3s}
+.hd:hover{background:rgba(24,62,69,.06)}
+.hd.past{color:var(--p)}
+.hd.fut{color:var(--p25)}
+.hd.cur{transform:scale(1.25)}
+.lab0{grid-row:1;grid-column:1;font-family:var(--head);font-size:11px;letter-spacing:.18em;color:var(--p50);padding:12px 0 0 6px;z-index:2}
+.rl{grid-column:1;z-index:2;font-weight:500;color:var(--p);padding:0 8px 0 6px;display:flex;align-items:center;min-height:clamp(40px,5.4vw,54px);cursor:pointer;border-radius:6px;transition:opacity .3s,color .3s;font-size:clamp(13px,1.45vw,16px)}
+.rl:hover{background:rgba(24,62,69,.05)}
+.bar{z-index:2;align-self:center;height:clamp(18px,2.3vw,26px);border-radius:14px;margin:0 6px;transform-origin:left center;transform:scaleX(0);transition:transform .55s cubic-bezier(.3,.7,.3,1),opacity .35s,box-shadow .35s,filter .35s;cursor:pointer;position:relative}
+.bar.c1{background:var(--r1)} .bar.c2{background:var(--r2)} .bar.c3{background:var(--rose)} .bar.c4{background:var(--p)}
+.bar.act{box-shadow:0 0 0 3px #fff,0 0 0 5px var(--p);filter:saturate(1.25)}
+.bar.dim{opacity:.28}
+.rl.dim{opacity:.35}
+.rl.act{background:rgba(24,62,69,.07)}
+.zl{grid-row:9;text-align:center;font-family:var(--head);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--p50);padding-top:8px;transition:color .3s}
+.zl b{display:block;font-family:var(--sans);letter-spacing:0;text-transform:none;font-weight:400;font-size:12px;color:var(--p75)}
+.zl.on{color:var(--p)}
+
+/* Treppe als Bewegung */
+.stairs{display:flex;align-items:flex-end;gap:3px;height:52px;margin:0}
+.stairs i{flex:1;background:var(--p10);border-radius:3px 3px 0 0;transition:background .35s,height .35s}
+.stairs i.on{background:var(--rose)}
+.stairs i.c{background:var(--p)}
+
+/* Panel */
+.panel{display:grid;grid-template-columns:110px 1fr;gap:18px;margin-top:16px;border-top:1px solid var(--p25);padding-top:14px;min-height:170px}
+@media(max-width:640px){.panel{grid-template-columns:1fr}.stairs{height:34px}}
+.big{font-family:var(--serif);font-size:72px;line-height:1;height:72px;color:var(--p);transition:opacity .3s}
+.pk{font-family:var(--head);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--p50)}
+.pt{font-family:var(--head);font-weight:600;color:var(--p);font-size:clamp(18px,2.2vw,24px);margin:2px 0 6px}
+.pp{margin:4px 0;color:#2b3a3d;max-width:75ch}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chip{font-size:14px;padding:4px 10px;border-radius:14px;background:var(--p10);color:var(--p)}
+.chip.c4{background:var(--p);color:#fff}
+.fade{animation:fd .45s ease}
+@keyframes fd{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.ctl{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:14px;flex-wrap:wrap}
+.btn{border:0;background:var(--p);color:#fff;font-weight:600;font-size:15px;padding:10px 18px;border-radius:10px;cursor:pointer;font-family:var(--sans)}
+.btn:hover{background:#0f2b30}.btn:disabled{opacity:.3;cursor:default}
+.btn.ghost{background:#fff;color:var(--p);border:1.5px solid var(--p)}
+.btn:focus-visible,.hd:focus-visible,.rl:focus-visible,.tab:focus-visible{outline:3px solid var(--mus);outline-offset:2px}
+.dots{display:flex;gap:5px}
+.lft{display:flex;gap:8px}
+#prev,#next{min-width:170px}
+#restart{min-width:120px}
+@media(max-width:640px){.ctl{flex-wrap:nowrap;gap:6px}.dots{display:none}.lft{flex:2 1 0;gap:6px}#restart,#prev,#next{min-width:0;flex:1 1 0;padding:10px 6px;font-size:14px;white-space:nowrap}}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--p25);transition:background .3s}
+.dots i.on{background:var(--p)}
+.hint{font-size:13px;color:var(--p50)}
+.foot{margin-top:14px;border-top:1px solid var(--p25);padding-top:8px;display:flex;justify-content:space-between;font-family:var(--head);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--p50)}
+:fullscreen .app{max-width:1400px;padding:2vw 3vw}
+:fullscreen body{font-size:19px}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <div class="rub"><span>Eskalation nach Glasl</span>
+    <span class="tabs"><button class="tab" id="tP" type="button">Präsentieren</button><button class="tab" id="tE" type="button">Erkunden</button><button class="tab" id="tF" type="button" title="Vollbild">Vollbild</button></span></div>
+  <h1>Wer bei welcher Stufe helfen kann</h1>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="panel">
+    <div><div class="big" id="pBig">·</div><div class="stairs" id="stairs"></div></div>
+    <div id="pBody"></div>
+  </div>
+
+  <div class="ctl">
+    <span class="lft"><button class="btn ghost" id="restart" type="button">Von vorne</button><button class="btn ghost" id="prev" type="button">Zurück</button></span>
+    <div class="dots" id="dots"></div>
+    <button class="btn" id="next" type="button">Weiter</button>
+  </div>
+  <p class="hint" id="hint"></p>
+  <div class="foot"><span>HKV Aarau</span><span>Nach Friedrich Glasl</span></div>
+</div>
+
+<script>
+const ST=[
+ {n:'Verhärtung',z:1,s:'Standpunkte prallen aufeinander, man ist gereizt, redet aber noch miteinander.',f:'Jetzt ansprechen, solange es noch leicht geht. Ein offenes Gespräch unter vier Augen genügt meistens.'},
+ {n:'Debatte und Polemik',z:1,s:'Man will recht haben, argumentiert zugespitzt und denkt in Schwarz und Weiss.',f:'Das Gespräch strukturieren: zuerst beide Sichtweisen hören, dann nach Interessen fragen.'},
+ {n:'Taten statt Worte',z:1,s:'Man redet nicht mehr, man handelt eigenmächtig und stellt die andere Seite vor Tatsachen.',f:'Die letzte Stufe, auf der die Beteiligten es selbst schaffen können. Als Führungsperson aktiv moderieren.'},
+ {n:'Sorge um Image und Koalition',z:2,s:'Man sucht Verbündete, es bilden sich Lager.',f:'Die Beteiligten allein schaffen es kaum mehr. Eine Prozessbegleitung von aussen prüfen.'},
+ {n:'Gesichtsverlust',z:2,s:'Man stellt die andere Seite öffentlich bloss und spricht ihr die Integrität ab.',f:'Sofort Grenzen setzen und die angegriffene Person schützen. Für die Klärung eine neutrale Fachperson beiziehen.'},
+ {n:'Drohstrategien',z:2,s:'Ultimaten und Drohungen wie «Entweder er geht oder ich».',f:'Wer droht, legt sich fest. Jetzt braucht es eine Mediation, die Führung klärt, welche Optionen wirklich bestehen.'},
+ {n:'Begrenzte Vernichtungsschläge',z:3,s:'Man will der anderen Seite gezielt schaden.',f:'Die Grenze zum Fehlverhalten ist überschritten. Ein klarer Entscheid der Führung ist nötig.'},
+ {n:'Zersplitterung',z:3,s:'Man greift die Grundlagen der anderen Seite an: ihren Ruf, ihre Stelle, ihr Netzwerk.',f:'Kein Gespräch mehr ohne Schutz. Ein Machteingriff von aussen oder von oben.'},
+ {n:'Gemeinsam in den Abgrund',z:3,s:'Man nimmt den eigenen Untergang in Kauf, wenn nur die andere Seite mit untergeht.',f:'Nur noch Trennung der Parteien, ein Gericht oder ein Entscheid des Verwaltungsrats.'}
+];
+const Z={1:['win-win','Beide können gewinnen'],2:['win-lose','Eine Seite soll verlieren'],3:['lose-lose','Eigener Schaden wird hingenommen']};
+const IV=[
+ {n:'Selbsthilfe der Beteiligten',a:1,b:3,c:1,d:'Die Beteiligten klären den Konflikt selbst, in einem offenen Gespräch unter vier Augen.'},
+ {n:'Moderation',a:1,b:3,c:1,d:'Eine Person, oft die Führungsperson, leitet das Gespräch. Die Lösung finden die Beteiligten selbst.'},
+ {n:'Prozessbegleitung',a:3,b:5,c:2,d:'Eine externe Beraterin begleitet den Klärungsprozess über mehrere Treffen, auf der Sach- und der Beziehungsebene.'},
+ {n:'Therapeutische Prozessbegleitung',a:4,b:6,c:2,d:'Eine Fachperson arbeitet an tieferen Verletzungen und festgefahrenen Mustern der Beteiligten.'},
+ {n:'Mediation',a:5,b:7,c:3,d:'Eine neutrale Person strukturiert die Verhandlung. Die Parteien handeln die Vereinbarung selbst aus.'},
+ {n:'Schieds- oder Gerichtsverfahren',a:6,b:8,c:3,d:'Eine dritte Instanz entscheidet. Die Parteien geben die Entscheidung aus der Hand.'},
+ {n:'Machteingriff',a:7,b:9,c:4,d:'Eine übergeordnete Stelle setzt eine Lösung durch: Versetzung, Neuorganisation, Kündigung oder Trennung.'}
+];
+const LAST=10; // 0 = Einstieg, 1-9 Stufen, 10 = Gesamtbild
+const $=id=>document.getElementById(id);
+const KEY='kvd-glasl-interventionen-v1';
+let mode='P', step=0, sel={t:null,v:null};
+function save(){try{localStorage.setItem(KEY,JSON.stringify({mode,step,sel}))}catch(e){}}
+function load(){try{const d=JSON.parse(localStorage.getItem(KEY));if(d){mode=d.mode==='E'?'E':'P';step=Math.max(0,Math.min(LAST,+d.step||0));sel=d.sel||{t:null,v:null}}}catch(e){}}
+function post(){try{parent.postMessage({type:'resize',source:'glasl-interventionen',height:document.documentElement.scrollHeight},'*')}catch(e){}}
+
+function build(){
+  const g=$('grid');let h='';
+  h+='<div class="zone z1"></div><div class="zone z2"></div><div class="zone z3"></div><div class="colhl" id="colhl"></div>';
+  h+='<div class="lab0">STUFE</div>';
+  for(let k=1;k<=9;k++)h+=`<div class="hd" role="button" tabindex="0" data-k="${k}" style="grid-column:${k+1}" aria-label="Stufe ${k}, ${ST[k-1].n}">${k}</div>`;
+  IV.forEach((v,r)=>{h+=`<div class="rl" role="button" tabindex="0" data-r="${r}" style="grid-row:${r+2}">${v.n}</div>`;
+    h+=`<div class="bar c${v.c}" data-r="${r}" style="grid-row:${r+2};grid-column:${v.a+1} / ${v.b+2}" title="${v.n}: Stufe ${v.a} bis ${v.b}"></div>`});
+  [[2,1],[5,2],[8,3]].forEach(([c,z])=>h+=`<div class="zl" data-z="${z}" style="grid-column:${c} / span 3">${Z[z][0]}<b>${Z[z][1]}</b></div>`);
+  g.innerHTML=h;
+  g.querySelectorAll('.hd').forEach(e=>{const go=()=>{const k=+e.dataset.k;if(mode==='P'){step=k}else{sel={t:'s',v:k}}draw(true)};e.onclick=go;e.onkeydown=ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();go()}}});
+  g.querySelectorAll('.rl,.bar').forEach(e=>{const go=()=>{setMode('E');sel={t:'i',v:+e.dataset.r};draw(true)};e.onclick=go;e.onkeydown=ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();go()}}});
+  $('stairs').innerHTML=ST.map((_,k)=>`<i style="height:${20+k*10}%"></i>`).join('');
+  $('dots').innerHTML=Array.from({length:LAST+1},()=>'<i></i>').join('');
+}
+function cur(){ // aktuelle Stufe oder null
+  if(mode==='P')return step>=1&&step<=9?step:null;
+  return sel.t==='s'?sel.v:null;
+}
+function panel(mode,step,k,iv){
+  let big='·',body='';
+  if(k){const s=ST[k-1];const who=IV.filter(v=>k>=v.a&&k<=v.b);
+    big=k;
+    body=`<div class="pk">Stufe ${k} · ${Z[s.z][0]}</div><div class="pt">${s.n}</div><p class="pp"><b>Typisches Zeichen:</b> ${s.s}</p><p class="pp"><b>Für die Führungsperson:</b> ${s.f}</p><div class="chips">${who.map(v=>`<span class="chip${v.c===4?' c4':''}">${v.n}</span>`).join('')}</div>`;}
+  else if(iv){big='';body=`<div class="pk">Hilfe von aussen · Stufe ${iv.a} bis ${iv.b}</div><div class="pt">${iv.n}</div><p class="pp">${iv.d}</p>`;}
+  else if(mode==='P'&&step===LAST){big='';body=`<div class="pk">Das Gesamtbild</div><div class="pt">Je höher die Stufe, desto mehr Hilfe von aussen</div><p class="pp">Bis Stufe 3 können die Beteiligten den Konflikt selbst lösen, allenfalls mit einer Moderation durch die Führungsperson. Danach braucht es zunehmend Hilfe von aussen, bis hin zum Machteingriff. Die Bereiche überlappen: Welche Hilfe passt, hängt auch davon ab, wie weit die Beteiligten noch miteinander reden können.</p>`;}
+  else if(mode==='P'){big='';body=`<div class="pk">Einstieg</div><div class="pt">Wer kann helfen, wenn ein Konflikt eskaliert?</div><p class="pp">Wir gehen die neun Stufen nach Glasl eine nach der anderen hinunter. Achten Sie darauf, wie die Möglichkeiten der Beteiligten schrumpfen und wie die Hilfe von aussen zunimmt.</p>`;}
+  else {big='';body=`<div class="pk">Erkunden</div><div class="pt">Klicken Sie auf eine Stufe oder eine Hilfe</div><p class="pp">Eine Stufe zeigt, woran Sie sie erkennen und wer jetzt helfen kann. Eine Hilfe zeigt, was sie leistet und für welche Stufen sie passt.</p>`;}
+  return [big,body];
+}
+function draw(anim){
+  const k=cur(), iv=mode==='E'&&sel.t==='i'?IV[sel.v]:null;
+  // Kopfzeile und Spaltenmarkierung
+  const reveal=mode==='P'?(step===LAST?9:step):9;
+  document.querySelectorAll('.hd').forEach(e=>{const n=+e.dataset.k;e.classList.toggle('fut',n>reveal);e.classList.toggle('cur',n===k)});
+  const hl=$('colhl');
+  if(k){hl.style.gridColumn=(k+1)+' / span 1';hl.style.opacity=1}
+  else if(iv){hl.style.gridColumn=(iv.a+1)+' / '+(iv.b+2);hl.style.opacity=1}
+  else hl.style.opacity=0;
+  // Balken: im Präsentationsmodus wachsen sie bis zur aktuellen Stufe
+  document.querySelectorAll('.bar').forEach(e=>{const v=IV[+e.dataset.r];
+    let f=1; if(mode==='P'){f=reveal<v.a?0:Math.min(1,(reveal-v.a+1)/(v.b-v.a+1))}
+    e.style.transform=`scaleX(${f})`;
+    const on=k?(k>=v.a&&k<=v.b):iv?(v===iv):false;
+    e.classList.toggle('act',on); e.classList.toggle('dim',(k||iv)&&!on);
+  });
+  document.querySelectorAll('.rl').forEach(e=>{const v=IV[+e.dataset.r];const on=k?(k>=v.a&&k<=v.b):iv?v===iv:false;
+    e.classList.toggle('act',on);e.classList.toggle('dim',(k||iv)&&!on);
+    if(mode==='P')e.style.opacity=reveal<v.a?.25:'';else e.style.opacity=''});
+  document.querySelectorAll('.zl').forEach(e=>e.classList.toggle('on',k?ST[k-1].z===+e.dataset.z:false));
+  [...$('stairs').children].forEach((e,n)=>{e.classList.toggle('on',k?n<k:(mode==='P'&&step===LAST));e.classList.toggle('c',k===n+1)});
+  // Panel
+  const [big,body]=panel(mode,step,k,iv);
+  $('pBig').textContent=big; const pb=$('pBody'); pb.innerHTML=body; if(anim){pb.classList.remove('fade');void pb.offsetWidth;pb.classList.add('fade')}
+  // Steuerung
+  $('prev').disabled=mode==='P'?step===0:false; $('next').disabled=mode==='P'?step===LAST:false;
+  $('prev').textContent='Zurück'; $('next').textContent=mode==='P'?(step===0?'Start':step===LAST-1?'Gesamtbild':'Weiter'):'Weiter';
+  [...$('dots').children].forEach((d,n)=>d.classList.toggle('on',mode==='P'&&n<=step));
+  $('dots').style.visibility=mode==='P'?'visible':'hidden';
+  $('restart').style.visibility=mode==='P'?'visible':'hidden'; $('restart').disabled=mode==='P'&&step===0;
+  $('hint').textContent=mode==='P'?'Tipp: Mit den Pfeiltasten oder der Leertaste weiterschalten, mit «Von vorne» oder der Taste Pos1 zurück zum Anfang. Ein Klick auf eine Zahl springt direkt zur Stufe.':'Tipp: Mit den Pfeiltasten durch die Stufen gehen.';
+  $('tP').classList.toggle('on',mode==='P');$('tE').classList.toggle('on',mode==='E');
+  save();post();
+}
+function setMode(m){if(mode===m)return;mode=m;if(m==='E'){sel=step>=1&&step<=9?{t:'s',v:step}:{t:null,v:null}}else{step=sel.t==='s'?sel.v:0}}
+function move(d){
+  if(mode==='P'){step=Math.max(0,Math.min(LAST,step+d))}
+  else{let k=sel.t==='s'?sel.v:(d>0?0:10);k=Math.max(1,Math.min(9,k+d));sel={t:'s',v:k}}
+  draw(true);
+}
+$('next').onclick=()=>move(1); $('prev').onclick=()=>move(-1);
+$('restart').onclick=()=>{mode='P';step=0;sel={t:null,v:null};draw(true)};
+$('tP').onclick=()=>{setMode('P');draw(true)}; $('tE').onclick=()=>{setMode('E');draw(true)};
+$('tF').onclick=()=>{try{const a=document.documentElement;if(document.fullscreenElement)document.exitFullscreen();else if(a.requestFullscreen)a.requestFullscreen()}catch(e){}};
+document.addEventListener('keydown',e=>{if(['INPUT','TEXTAREA'].includes(e.target.tagName))return;
+  if(e.key==='ArrowRight'||e.key==='PageDown'||(e.key===' '&&!e.target.closest('[role=button],button'))){e.preventDefault();move(1)}
+  else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();move(-1)}
+  else if(e.key==='Home'){e.preventDefault();$('restart').click()}
+  else if(e.key==='f'||e.key==='F'){$('tF').click()}});
+function fixPanel(){
+  const pb=$('pBody'),m=document.createElement('div');m.style.cssText='position:absolute;visibility:hidden;left:-9999px;top:0;width:'+pb.clientWidth+'px';document.body.appendChild(m);
+  const states=[];for(let n=0;n<=LAST;n++)states.push(['P',n,n>=1&&n<=9?n:null,null]);IV.forEach(v=>states.push(['E',0,null,v]));states.push(['E',0,null,null]);
+  let mx=0;states.forEach(([md,st,k,iv])=>{m.innerHTML=panel(md,st,k,iv)[1];mx=Math.max(mx,m.offsetHeight)});m.remove();
+  pb.style.minHeight=(mx+4)+'px';post();
+}
+load(); build(); requestAnimationFrame(()=>{draw(false);fixPanel()});
+window.addEventListener('resize',()=>{$('pBody').style.minHeight='';fixPanel()});
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fixPanel);
+window.addEventListener('load',post); window.addEventListener('resize',post);
+if(window.ResizeObserver)new ResizeObserver(post).observe(document.body);
+</script>
+</body>
+</html>
