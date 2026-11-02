@@ -53,11 +53,21 @@ textarea{width:100%;min-height:56px;border:1.5px solid var(--p25);border-radius:
 .sit .q{font-weight:700;color:var(--p)} .sit p{margin:4px 0} .sit .e{color:var(--p50);font-style:italic}
 .mem{font-size:13px;color:var(--p50)}
 @media print{#intro,#work,.go,.mem,#pmsg{display:none!important}#end{display:block!important}.take{background:#fff!important;color:var(--p)!important;border:1.5px solid var(--p)}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+.rr{display:flex;align-items:center;gap:12px}
+.fsb{font-family:var(--head);font-size:11px;letter-spacing:.12em;text-transform:uppercase;border:1.5px solid var(--p25);background:#fff;color:var(--p75);padding:5px 10px;border-radius:20px;cursor:pointer}
+.fsb:hover{border-color:var(--p50)}.fsb:focus-visible{outline:3px solid var(--mus);outline-offset:2px}
+.fsmsg{font-size:13px;color:var(--rose);margin:4px 0 0;min-height:0}
+:fullscreen{background:#fff;overflow:auto}
+:fullscreen .app{max-width:1300px;padding:2.5vw 4vw;font-size:19px}
+:fullscreen h1{font-size:44px}
+:fullscreen textarea{font-size:19px}
+@media print{.fsb,.fsmsg{display:none!important}}
 </style>
 </head>
 <body>
 <div class="app">
-  <div class="rub"><span>Das Konfliktgespräch</span><span id="cnt"></span></div>
+  <div class="rub"><span>Das Konfliktgespräch</span><span class="rr"><span id="cnt"></span><button class="fsb" id="fs" type="button">Vollbild</button></span></div>
+  <p class="fsmsg" id="fsmsg"></p>
   <h1>Ich-Botschaften-Werkstatt</h1>
 
   <section id="intro">
@@ -163,6 +173,12 @@ function restore(){let d;try{d=JSON.parse(localStorage.getItem(KEY))}catch(e){}
   T=d.t||{};C=d.c||{};i=Math.min(d.i,V.length-1);$('intro').classList.add('hidden');
   if(d.s==='end'){showEnd();return}
   $('work').classList.remove('hidden');render();if(C[i])check();window.scrollTo(0,0);}
+function fsUpd(){$('fs').textContent=document.fullscreenElement?'Vollbild beenden':'Vollbild';reportHeight()}
+$('fs').onclick=()=>{const el=document.documentElement;$('fsmsg').textContent='';
+  if(document.fullscreenElement){document.exitFullscreen&&document.exitFullscreen();return}
+  const fail=()=>{$('fsmsg').textContent='Vollbild ist hier nicht erlaubt. Schalten Sie den Browser selbst auf Vollbild: F11 unter Windows, Ctrl+Cmd+F auf dem Mac.';reportHeight()};
+  try{const r=el.requestFullscreen?el.requestFullscreen():(el.webkitRequestFullscreen?el.webkitRequestFullscreen():null);if(r&&r.catch)r.catch(fail);else if(!el.requestFullscreen&&!el.webkitRequestFullscreen)fail()}catch(e){fail()}};
+document.addEventListener('fullscreenchange',fsUpd);
 restore();
 window.addEventListener('load',reportHeight);window.addEventListener('resize',reportHeight);
 if(window.ResizeObserver)new ResizeObserver(reportHeight).observe(document.body);
