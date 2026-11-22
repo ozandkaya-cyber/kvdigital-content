@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Marktstart · Planspiel Marketing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Montserrat:wght@500;600&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--p:#173C43;--p2:#254D54;--lab:#277077;--line:#B6EBE9;--s1:#D8F5F3;--s0:#F0FBFA;--hl:#2DAAAD;--g:#4AC195;--t:#33C6D3;--r:#FF727F;--y:#F9B035;--lg:#C6EBDE;--lt:#C0EDF1;--ly:#FFE3B2;--lr:#FFCCD1;--rd:#B82E3A}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--s0)}
+body{font-family:Roboto,Calibri,Arial,sans-serif;color:var(--p);min-height:100vh;display:flex;flex-direction:column}
+.top{background:var(--p);color:#fff;padding:12px 32px 0}
+.toprow{display:flex;align-items:center;gap:18px;flex-wrap:wrap;min-height:44px;padding-bottom:10px}
+.logo{font-family:'Playfair Display',Georgia,serif;font-size:24px}.logo b{color:var(--y);font-weight:600}
+.team{font-family:Montserrat,sans-serif;font-size:13px;background:var(--p2);padding:6px 14px;border-radius:16px}
+.round{margin-left:auto;display:flex;gap:8px;align-items:center;font-family:Montserrat,sans-serif;font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+.dot{width:30px;height:8px;border-radius:4px;background:var(--p2)}.dot.on{background:var(--y)}.dot.done{background:var(--g)}
+.tabs{display:flex;gap:6px;align-items:flex-end;flex-wrap:wrap}
+.tab{color:#B6EBE9;font-family:Montserrat,sans-serif;font-size:13.5px;letter-spacing:.05em;padding:11px 18px;border-radius:10px 10px 0 0;background:none;border:0}
+.tab:hover{color:#fff}
+.tab.on{background:var(--s0);color:var(--p);font-weight:600}
+.tab .n{display:inline-block;min-width:20px;padding:1px 6px;margin-left:6px;border-radius:10px;background:var(--p2);color:#fff;font-size:11px}
+.tab.on .n{background:var(--s1);color:var(--p)}
+.fsbtn{background:var(--p2);color:#fff;border:0;border-radius:16px;padding:6px 14px;font-family:Montserrat,sans-serif;font-size:12.5px;letter-spacing:.04em}
+.fsbtn:hover{background:var(--lab)}
+.fsbtn span{font-size:14px;margin-right:4px}
+.budget{margin-left:auto;font-family:Montserrat,sans-serif;font-size:13px;color:#fff;padding-bottom:12px}
+.budget b{color:var(--y)}
+main{flex:1;padding:26px 32px 40px;max-width:1400px;width:100%;margin:0 auto}
+.cols{display:grid;grid-template-columns:1.15fr .85fr;gap:26px;align-items:start}
+.cols.even{grid-template-columns:1fr 1fr}
+.cols.doss{grid-template-columns:380px 1fr}
+.stack{display:flex;flex-direction:column;gap:14px}
+h1{font-family:'Playfair Display',Georgia,serif;font-weight:400;font-size:36px;line-height:1.15}
+h2{font-family:'Playfair Display',Georgia,serif;font-weight:400;font-size:26px;line-height:1.2}
+h3{font-size:17px;font-weight:700}
+h4{font-size:15px;font-weight:700}
+.rub{font-family:Montserrat,sans-serif;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--lab)}
+.card{background:#fff;border-radius:16px;padding:20px 22px;border:1px solid var(--line)}
+p,li{font-size:15.5px;line-height:1.5}
+.small{font-size:13.5px;line-height:1.45;color:var(--lab)}
+.small.dark{color:var(--p)}
+ul.dots{padding-left:20px;display:flex;flex-direction:column;gap:4px}
+button{font-family:inherit;cursor:pointer}
+.btn{display:inline-block;border:0;background:var(--hl);color:var(--p);font-weight:700;padding:12px 22px;border-radius:12px;font-size:15.5px}
+.btn:hover{filter:brightness(1.06)}
+.btn.dark{background:var(--p);color:#fff}
+.btn.ghost{background:#fff;color:var(--p);border:2px solid var(--line)}
+.btn.sm{padding:8px 14px;font-size:14px}
+.btn:disabled{opacity:.45;cursor:not-allowed;filter:none}
+.btnrow{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.link{background:none;border:0;color:var(--lab);text-decoration:underline;font-size:14px;padding:0}
+label.f{display:block;font-size:13.5px;color:var(--lab);margin-bottom:6px}
+input[type=text],input[type=password],textarea{border:2px solid var(--line);border-radius:10px;padding:10px 12px;font-size:16px;background:#fff;width:100%;color:var(--p);font-family:inherit}
+input:focus,textarea:focus{outline:none;border-color:var(--hl)}
+input.num{width:120px}
+textarea{resize:vertical;line-height:1.45}
+.numrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.ic{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:17px;flex:0 0 40px;color:var(--p)}
+.ic.M{background:var(--t)}.ic.P{background:var(--g)}.ic.F{background:var(--y)}.ic.A{background:var(--line)}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.kpi{border-radius:14px;padding:15px 18px;background:#fff;border:1px solid var(--line)}
+.kpi .v{font-family:'Playfair Display',Georgia,serif;font-variant-numeric:lining-nums;font-size:29px;line-height:1.1}
+.kpi .l{font-size:13px;color:var(--lab);margin-top:6px;line-height:1.35}
+.opt{border:2px solid var(--line);border-radius:12px;padding:12px 14px;background:#fff;display:flex;gap:12px;align-items:flex-start;text-align:left;width:100%;color:var(--p);font-size:15px;line-height:1.45}
+.opt:hover{border-color:var(--hl)}
+.opt.sel{border-color:var(--hl);background:var(--s1)}
+.rad{width:20px;height:20px;border-radius:50%;border:2px solid var(--lab);flex:0 0 20px;margin-top:2px;background:#fff}
+.opt.sel .rad{border:6px solid var(--p)}
+.opt b{display:block;margin-bottom:2px}
+.opts{display:flex;flex-direction:column;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chipb{border:2px solid var(--line);background:#fff;color:var(--p);border-radius:20px;padding:8px 14px;font-size:14.5px}
+.chipb.sel{background:var(--p);border-color:var(--p);color:#fff}
+.chipb.sel2{background:var(--s1);border-color:var(--hl)}
+.chipb:disabled{opacity:.4;cursor:not-allowed}
+.tag{display:inline-block;font-family:Montserrat,sans-serif;font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:5px 10px;border-radius:12px;font-weight:600;white-space:nowrap}
+.tag.ok{background:var(--lg)}.tag.no{background:var(--lr)}.tag.info{background:var(--lt)}.tag.y{background:var(--ly)}
+.fb{border-left:6px solid var(--g);background:#fff;border-radius:12px;padding:13px 18px}
+.fb.warn{border-color:var(--y)}.fb.bad{border-color:var(--r)}.fb.info{border-color:var(--t)}
+.fb p{font-size:14.5px}
+.fb h4{margin-bottom:3px}
+.check{display:flex;gap:9px;align-items:flex-start;font-size:14px;line-height:1.45;margin-top:7px}
+.check .mk{flex:0 0 22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px}
+.check .mk.ok{background:var(--lg)}.check .mk.no{background:var(--lr)}.check .mk.open{background:var(--s1)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th{background:var(--p);color:#fff;text-align:left;padding:9px 11px;font-weight:500}
+td{padding:9px 11px;border-bottom:1px solid var(--line);background:#fff;vertical-align:top}
+tr.click td{cursor:pointer}tr.click:hover td{background:var(--s1)}
+td.num,th.num{text-align:right;white-space:nowrap}
+.codebox{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break:break-all;height:90px}
+.modal{position:fixed;inset:0;background:rgba(12,35,39,.55);display:flex;align-items:center;justify-content:center;padding:20px;z-index:20}
+.modal .card{max-width:520px;width:100%}
+.err{color:var(--rd);font-size:14px}
+.hint{background:var(--s1);border-radius:12px;padding:12px 16px;font-size:14.5px;line-height:1.5}
+.guide{background:var(--ly);border-radius:12px;padding:12px 16px;font-size:14.5px;line-height:1.5;margin-bottom:16px}
+.pill{display:inline-block;background:var(--s1);border-radius:10px;padding:2px 8px;font-size:13px}
+.doc{display:flex;gap:12px;align-items:flex-start;padding:11px 13px;border-radius:12px;background:#fff;border:1px solid var(--line);text-align:left;width:100%;color:var(--p)}
+.doc:hover{border-color:var(--hl)}
+.doc.on{border:2px solid var(--hl);background:var(--s1)}
+.doc.lock{background:var(--s0);border-style:dashed}
+.dicon{width:34px;height:34px;border-radius:9px;flex:0 0 34px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+.doc h4{font-size:14.5px;margin-bottom:2px}
+.doc .small{font-size:12.5px}
+.price{margin-left:auto;font-family:Montserrat,sans-serif;font-size:12px;font-weight:600;white-space:nowrap;padding-left:8px}
+.viewer{background:#fff;border:1px solid var(--line);border-radius:16px;padding:24px 28px}
+.viewer p+p{margin-top:10px}
+.quote{border-left:4px solid var(--line);padding:4px 12px;font-style:italic;margin-top:8px;font-size:15px}
+.bar{height:16px;border-radius:5px;background:var(--t);display:inline-block;vertical-align:middle}
+.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.pg{background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px 15px}
+.pg.act{border:2px solid var(--hl)}
+.pg.na{opacity:.45}
+.step{display:flex;align-items:center;gap:10px;margin-top:8px}
+.sb{width:34px;height:34px;border-radius:9px;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;background:#fff;color:var(--p)}
+.sb:disabled{opacity:.35;cursor:not-allowed}
+.cnt{font-family:'Playfair Display',Georgia,serif;font-size:25px;min-width:34px;text-align:center;font-variant-numeric:lining-nums}
+.sec{border-top:2px solid var(--line);padding-top:20px;margin-top:8px}
+.ordertbl td{vertical-align:middle}
+.ordertbl input{width:100px;padding:7px 10px}
+.foot{font-size:12px;color:var(--lab);text-align:center;padding:14px}
+.hide{display:none!important}
+svg text{font-family:Roboto,Arial,sans-serif}
+@media (max-width:960px){
+ main{padding:20px 16px 32px}
+ .top{padding:10px 16px 0}
+ .cols,.cols.even,.cols.doss{grid-template-columns:1fr}
+ .kpis{grid-template-columns:1fr 1fr}
+ .grid2{grid-template-columns:1fr}
+ h1{font-size:28px}
+ .round{margin-left:0;width:100%}
+ .budget{margin-left:0;width:100%}
+}
+@media print{
+ .top,.noprint,.foot{display:none!important}
+ body,html{background:#fff}
+ main{padding:0}
+ .card,.fb,tr{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<header class="top" id="top"></header>
+<main id="app"></main>
+<div class="foot">Marktstart · Planspiel zu Marktanalyse, Marktzielen und Produktzielen · HKV Aarau · Alle Firmen, Personen und Zahlen im Spiel sind erfunden.</div>
+<div id="modal"></div>
+
+<script>
+/* =========================================================
+   Marktstart 2 · Planspiel Marketing
+   Ein Velogeschäft in der Region Aarau, drei Runden.
+   Speichert im Browser (localStorage) und erzeugt Codes.
+   Kein Server. Alle Zahlen sind erfunden.
+   ========================================================= */
+
+const LEHRPERSON_PIN = '2026';     // hier ändern, wenn gewünscht
+const KLASSE = 'BM26A';
+
+const JAHRE = [2027, 2029, 2032];
+const BUDGET = [15000, 12000, 10000];     // Forschungsbudget pro Runde
+const MAX_MODELLE = 40;
+const KOSTEN = {miete:90000, verkauf:110000, mech:75000, modell:2500, beratung:40000, baden:200000, eroeffnung:120000};
+const MECH_KAP = 400;                    // verkaufte Velos, die eine Mechanikerin pro Jahr betreut
+const ABSCHREIBUNG = 0.25;               // Verlust in Prozent des Einkaufspreises pro unverkauftem Velo
+
+const SEGS = {
+  pend:{n:'Pendlerinnen und Pendler', k:'Pendler'},
+  fam:{n:'Familien mit Kindern', k:'Familien'},
+  sport:{n:'Sportliche', k:'Sportliche'},
+  senior:{n:'Menschen über 60', k:'über 60'},
+  firmen:{n:'Firmen mit Velos für Mitarbeitende', k:'Firmen', ab:2}
+};
+const GR = [
+  {id:'ebike',  n:'E-Bikes City',         ek:1750, vk:2600, base:.09,  seg:['pend','senior'], note:'Für den Arbeitsweg, mit Motor bis 25 km/h.'},
+  {id:'city',   n:'Citybikes ohne Motor', ek:650,  vk:1050, base:.075,  seg:['pend'], note:'Klassisches Alltagsvelo.'},
+  {id:'kinder', n:'Kindervelos',          ek:260,  vk:420,  base:.12,  seg:['fam'], note:'Kleine Marge, bringt aber Familien in den Laden.'},
+  {id:'cargo',  n:'Cargobikes',           ek:2300, vk:3300, base:.18,  seg:['fam'], note:'Mit Kiste für Kinder oder Einkäufe. Braucht Beratung und Probefahrt.'},
+  {id:'renn',   n:'Rennvelos',            ek:2100, vk:3200, base:.06, seg:['sport'], note:'Leicht und schnell. Die Kundschaft achtet stark auf Marken.'},
+  {id:'mtb',    n:'Mountainbikes',        ek:1500, vk:2300, base:.06, seg:['sport'], note:'Ohne Motor. Immer mehr Leute kaufen stattdessen E-Mountainbikes.'},
+  {id:'komfort',n:'Komfort-E-Bikes',      ek:1950, vk:2900, base:.15,  seg:['senior'], note:'Tiefer Einstieg, aufrechte Sitzposition.'},
+  {id:'leicht', n:'Leicht-E-Bikes',       ek:2600, vk:3700, base:.12,  seg:['pend','senior'], note:'Neue Generation: Akku im Rahmen, rund 15 Kilo.', ab:2}
+];
+const G_BY = Object.fromEntries(GR.map(g=>[g.id,g]));
+// Verkaufte Velos pro Jahr in der Region Aarau, 2019 bis 2032 (erfunden)
+const Y0 = 2019;
+const VOL = {
+  ebike:  [1200,1700,2300,2600,2800,2950,3050,3100, 3150,3150,3100,3000,2850,2600],
+  city:   [3200,3100,3000,2800,2600,2400,2250,2100, 2000,1900,1800,1700,1600,1500],
+  kinder: [1500,1520,1480,1510,1490,1500,1480,1490, 1480,1480,1470,1460,1460,1450],
+  cargo:  [80,120,180,260,350,460,580,700,          820,940,1050,1130,1200,1250],
+  renn:   [900,1100,1000,950,920,900,880,870,        860,850,840,830,815,800],
+  mtb:    [1100,1300,1250,1150,1050,950,850,760,     700,650,600,560,520,480],
+  komfort:[150,200,260,330,420,520,640,760,          860,960,1050,1150,1230,1300],
+  leicht: [0,0,0,0,0,0,0,0,                          0,0,0,120,380,800]
+};
+const vol = (g, y) => VOL[g][y-Y0];
+const POT = [
+  {ebike:3600, city:2200, kinder:1600, cargo:2000, renn:900, mtb:800, komfort:1800},
+  {ebike:3600, city:2000, kinder:1600, cargo:2000, renn:900, mtb:750, komfort:1800},
+  {ebike:3200, city:1800, kinder:1600, cargo:2000, renn:900, mtb:700, komfort:1800, leicht:3000}
+];
+const QUAL = {
+  beratung:{t:'Fachberatung mit Probefahrt', d:`Jede Kundin und jeder Kunde kann Probe fahren, Sie nehmen sich Zeit. Zusätzliches Personal: ${fmt(40000)} Franken pro Jahr.`, p:1, e:1,
+    f:{cargo:1.15, komfort:1.15, kinder:1.1, ebike:1.05, leicht:1.05}},
+  marke:{t:'Markenvelos der Oberklasse', d:'Sie führen nur bekannte Marken. Verkaufspreise rund 12 Prozent höher, Einkauf ebenfalls rund 12 Prozent teurer.', p:1.12, e:1.12,
+    f:{renn:1.2, mtb:1.2, leicht:1.05, ebike:.9, city:.8, kinder:.8, cargo:.85, komfort:.85}},
+  preis:{t:'Günstige Eigenmarke', d:'Velos unter eigenem Namen. Verkaufspreise rund 15 Prozent tiefer, Einkauf rund 12 Prozent günstiger.', p:.85, e:.88,
+    f:{renn:.85, mtb:.85, ebike:1.12, city:1.12, kinder:1.12, cargo:1.12, komfort:1.12, leicht:1.12}}
+};
+const PHASEN = ['Einführung','Wachstum','Reife','Sättigung','Degeneration'];
+const INSTR = ['Befragung','Beobachtung','Test','Auswertung interner Quellen','Auswertung externer Quellen'];
+
+// ---------- Hilfen
+function fmt(n){ n = Math.round(n); const s = Math.abs(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, "'"); return (n<0?'−':'')+s; }
+function pct(n, d=1){ return (Math.round(n*Math.pow(10,d))/Math.pow(10,d)).toString().replace('.',','); }
+function num(v){ if(v===null||v===undefined) return NaN; const s=String(v).trim().replace(/['’\s]/g,'').replace(',','.').replace('%',''); return s===''?NaN:Number(s); }
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function slug(s){ return String(s).trim().toLowerCase().replace(/\s+/g,' '); }
+function hashPin(team, pin){ let h=2166136261; const s=slug(team)+'|'+pin; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619);} return (h>>>0).toString(36); }
+const depth = m => m>0 ? Math.min(1.3, 0.35 + 0.13*m) : 0;
+const avail = (g, i) => !(G_BY[g].ab && i < G_BY[g].ab);
+
+const store = {
+  ok:true,
+  get(k){ try{ return localStorage.getItem(k);}catch(e){ this.ok=false; return null; } },
+  set(k,v){ try{ localStorage.setItem(k,v); return true;}catch(e){ this.ok=false; return false; } }
+};
+const KEY = t => 'marktstart2.team.'+slug(t);
+
+/* =========================================================
+   Simulation
+   ========================================================= */
+function newRound(prev){
+  const d = prev ? JSON.parse(JSON.stringify(prev.d)) : {prim:null, sec:null, baden:false, models:{}, qual:null, mech:2, order:{}};
+  d.order = {};
+  return {buy:[], ana:{}, d, why:'', done:false};
+}
+function simulate(game, upto){
+  const n = upto ?? game.rounds.filter(r=>r.done).length;
+  let svc = 1, pedalo = null, badenStart = null, total = 0, lp = 0, lpMax = 0;
+  const rows = [];
+  for(let i=0;i<n;i++){
+    const r = game.rounds[i], d = r.d, y = JAHRE[i];
+    if(i===1 && rows[0]){ const top = topGroup(rows[0], 'umsatz'); pedalo = G_BY[top].seg[0]; }
+    if(i>=1 && d.baden && badenStart===null) badenStart = i;
+    const baden = badenStart!==null;
+    const q = QUAL[d.qual] || QUAL.beratung;
+    const groups = {};
+    let gross=0, umsatz=0, sold=0, writeoff=0, models=0, demandTot=0;
+    GR.forEach(g=>{
+      const m = avail(g.id,i) ? (d.models[g.id]||0) : 0; if(!m) return; models += m;
+      let focus = g.seg.includes(d.prim) ? 1.3 : g.seg.includes(d.sec) ? 1.1 : 0.7;
+      if(focus<1.1 && firmenAktiv(d) && (g.id==='ebike'||g.id==='leicht')) focus = 1.1;
+      const comp = (pedalo && g.seg.includes(pedalo)) ? (d.qual==='beratung'?0.9:d.qual==='preis'?0.85:0.8) : 1;
+      const f = g.base * depth(m) * focus * (q.f[g.id]||1) * svc * comp;
+      let dA = Math.round(vol(g.id,y) * f);
+      if((d.prim==='firmen'||d.sec==='firmen') && (g.id==='ebike'||g.id==='leicht')) dA += Math.round(200 * (d.prim==='firmen'?0.35:0.2) * depth(m) * svc);
+      const dB = baden ? Math.round(0.55 * vol(g.id,y) * f * (badenStart===i?0.6:0.85)) : 0;
+      const dem = dA + dB;
+      const ord = Math.max(0, Math.round(num(d.order[g.id])||0));
+      const s = Math.min(ord, dem), sA = Math.min(ord, dA);
+      const vk = g.vk*q.p, ek = g.ek*q.e;
+      groups[g.id] = {m, focus, comp, dA, dB, dem, ord, sold:s, soldA:sA, unsold:ord-s, missed:dem-s, vk, ek, umsatz:s*vk};
+      gross += s*(vk-ek); umsatz += s*vk; sold += s; writeoff += (ord-s)*ek*ABSCHREIBUNG; demandTot += dem;
+    });
+    const mech = Math.max(1, d.mech||1);
+    const fix = KOSTEN.miete + KOSTEN.verkauf + mech*KOSTEN.mech + models*KOSTEN.modell + (d.qual==='beratung'?KOSTEN.beratung:0) + (baden?KOSTEN.baden:0) + (i===0?KOSTEN.eroeffnung:0);
+    const gewinn = gross - fix - writeoff;
+    total += gewinn;
+    const kap = mech*MECH_KAP;
+    const svcIn = svc;
+    svc = sold > kap ? 0.85 : (sold <= kap*0.7 ? 1.05 : 1);
+    const row = {i, y, groups, umsatz, gewinn, fix, writeoff, sold, models, kap, mech, svcIn, svcNext:svc, pedalo, baden, badenNeu: badenStart===i, demandTot};
+    row.checks = ANALYSE[i].map(qd => { const sol = qd.sol(game, rows, row); const ans = r.ana[qd.id]; const ok = qd.type==='num' ? (Number.isFinite(num(ans)) && Math.abs(num(ans)-sol.v) <= 0.2) : ans===sol.v; return {id:qd.id, q:qd.q(game, rows), ok, sol, ans}; });
+    row.lp = row.checks.filter(c=>c.ok).length; lp += row.lp; lpMax += row.checks.length;
+    rows.push(row);
+  }
+  return {rows, total, lp, lpMax, svc, pedalo, badenStart};
+}
+function topGroup(row, key='soldA'){
+  let best=null, bv=-1; Object.entries(row.groups).forEach(([g,v])=>{ if(v[key]>bv){ bv=v[key]; best=g; } }); return best || 'ebike';
+}
+function sortTyp(models){
+  const act = Object.values(models).filter(m=>m>0); const b = act.length; const avg = b ? act.reduce((a,c)=>a+c,0)/b : 0;
+  return (b>=4?'breit':'schmal')+' und '+(avg>=6?'tief':'flach');
+}
+
+/* =========================================================
+   Analysefragen (geben Lernpunkte)
+   ========================================================= */
+const ANALYSE = [
+ [
+  {id:'a1', type:'num', unit:'Prozent', q:()=>`Wie hoch ist der Sättigungsgrad im Teilmarkt Cargobikes 2027 in der Region Aarau?`,
+   sol:()=>({v:Math.round(vol('cargo',2027)/POT[0].cargo*1000)/10, t:`${fmt(vol('cargo',2027))} ÷ ${fmt(POT[0].cargo)} × 100 = ${pct(vol('cargo',2027)/POT[0].cargo*100)} Prozent. Das Marktvolumen steht in der Branchenstudie, das Marktpotenzial ebenfalls.`})},
+  {id:'a2', type:'opt', opts:PHASEN, q:()=>'In welcher Phase des Lebenszyklus steckt der Teilmarkt Cargobikes?',
+   sol:()=>({v:1, t:'Wachstum: Die Verkäufe steigen seit Jahren stark, von 80 auf 700 Velos pro Jahr. Das zeigen die Branchenstudie und der Zeitungsartikel.'})},
+  {id:'a3', type:'opt', opts:['Marktforschung, die Ergebnisse sind repräsentativ','Markterkundung, die Ergebnisse sind nicht repräsentativ','Markterkundung, die Ergebnisse sind repräsentativ'], q:()=>'Die Gespräche am Bahnhof Aarau: Was ist das und was taugen die Ergebnisse?',
+   sol:()=>({v:1, t:'Sie haben selbst und ohne System gefragt, das ist Markterkundung. Und weil Sie um halb acht am Bahnhof standen, haben Sie fast nur Pendler getroffen. Die Ergebnisse lassen sich nicht auf alle übertragen.'})},
+  {id:'a4', type:'opt', opts:['demografische Merkmale','geografische Merkmale','Kundenverhalten'], q:()=>'Nach welchem Kriterium wird die Kundengruppe «Menschen über 60» gebildet?',
+   sol:()=>({v:0, t:'Das Alter ist ein demografisches Merkmal.'})}
+ ],
+ [
+  {id:'b1', type:'num', unit:'Prozent', q:(gm,rows)=>{ const g=topGroup(rows[0]); return `Wie hoch war 2027 Ihr Marktanteil in der Region Aarau im Teilmarkt ${G_BY[g].n}? Ihre Zahlen stehen in der Verkaufsstatistik, das Marktvolumen in der Branchenstudie.`; },
+   sol:(gm,rows)=>{ const g=topGroup(rows[0]); const s=rows[0].groups[g].soldA, v=vol(g,2027); return {v:Math.round(s/v*1000)/10, t:`${fmt(s)} ÷ ${fmt(v)} × 100 = ${pct(s/v*100)} Prozent.`}; }},
+  {id:'b2', type:'num', unit:'Prozent', q:()=>'Wie hoch ist 2029 der Sättigungsgrad im Teilmarkt E-Bikes City?',
+   sol:()=>({v:Math.round(vol('ebike',2029)/POT[1].ebike*1000)/10, t:`${fmt(vol('ebike',2029))} ÷ ${fmt(POT[1].ebike)} × 100 = ${pct(vol('ebike',2029)/POT[1].ebike*100)} Prozent. Das ist ein gesättigter Markt.`})},
+  {id:'b3', type:'opt', opts:['Wer neu dazukommt, kann einfach mitwachsen.','Verdrängungswettbewerb: Pedalo kann nur wachsen, wenn sie anderen Kundschaft abnimmt.','Es gibt keinen Wettbewerb, weil der Markt gesättigt ist.'], q:()=>'Pedalo kommt in einen Markt mit hohem Sättigungsgrad. Was bedeutet das?',
+   sol:()=>({v:1, t:'In einem gesättigten Markt kann ein Unternehmen fast nur noch auf Kosten der Konkurrenz wachsen. Gekämpft wird mit Preisen, Zusatznutzen oder Sonderkonditionen.'})},
+  {id:'b4', type:'opt', opts:INSTR, q:()=>'Der Probeverkauf von Komfort-E-Bikes: Welches Instrument ist das?',
+   sol:()=>({v:2, t:'Ein Produkt wird probeweise verkauft, bevor es fest ins Sortiment kommt. Das ist ein Test.'})}
+ ],
+ [
+  {id:'c1', type:'opt', opts:PHASEN, q:()=>'In welcher Phase des Lebenszyklus stecken die Leicht-E-Bikes 2032?',
+   sol:()=>({v:0, t:'Einführung: Sie sind seit 2030 auf dem Markt, die Verkäufe sind noch klein, steigen aber schnell. Bald folgt das Wachstum.'})},
+  {id:'c2', type:'opt', opts:['ein neues Marktsegment','ein neuer Teilmarkt','ein neuer geografischer Markt'], q:()=>'Firmen, die ihren Mitarbeitenden Velos zur Verfügung stellen, sind für Ihr Geschäft …',
+   sol:()=>({v:0, t:'Firmen sind eine neue Kundengruppe, also ein Marktsegment. Ein Teilmarkt wäre eine Produktgruppe, zum Beispiel die Leicht-E-Bikes.'})},
+  {id:'c3', type:'opt', opts:['schmal und flach','schmal und tief','breit und flach','breit und tief'], q:(gm)=>'Wie lässt sich Ihr Sortiment 2032 beschreiben? Faustregel im Velohandel: ab vier Produktgruppen breit, ab durchschnittlich sechs Modellen pro Gruppe tief.',
+   sol:(gm,rows,row)=>{ const t=sortTyp(gm.rounds[2].d.models); const map=['schmal und flach','schmal und tief','breit und flach','breit und tief']; const act=Object.entries(gm.rounds[2].d.models).filter(([g,m])=>m>0&&avail(g,2)); return {v:map.indexOf(t), t:`Sie führen ${act.length} Produktgruppen mit durchschnittlich ${pct(act.reduce((a,c)=>a+c[1],0)/Math.max(1,act.length))} Modellen. Also ${t}.`}; }},
+  {id:'c4', type:'num', unit:'Prozent', q:(gm,rows)=>{ const g=topGroup(rows[1]); return `Wie hoch war 2029 Ihr Marktanteil in der Region Aarau im Teilmarkt ${G_BY[g].n}?`; },
+   sol:(gm,rows)=>{ const g=topGroup(rows[1]); const s=rows[1].groups[g].soldA, v=vol(g,2029); return {v:Math.round(s/v*1000)/10, t:`${fmt(s)} ÷ ${fmt(v)} × 100 = ${pct(s/v*100)} Prozent.`}; }}
+ ]
+];
+
+/* =========================================================
+   Dossier: Dokumente pro Runde
+   ========================================================= */
+function studieTab(i){
+  const y = JAHRE[i]; const ys = i===0 ? [2019,2021,2023,2025,2026] : i===1 ? [2023,2025,2026,2027,2028] : [2026,2027,2028,2029,2030,2031];
+  const gs = GR.filter(g=>avail(g.id,i));
+  return `<table><tr><th>Teilmarkt</th>${ys.map(v=>`<th class="num">${v}</th>`).join('')}<th class="num">${y} Prognose</th><th class="num">Potenzial ${y}</th></tr>
+   ${gs.map(g=>`<tr><td><b>${g.n}</b></td>${ys.map(v=>`<td class="num">${vol(g.id,v)?fmt(vol(g.id,v)):'–'}</td>`).join('')}<td class="num"><b>${fmt(vol(g.id,y))}</b></td><td class="num">${fmt(POT[i][g.id])}</td></tr>`).join('')}
+  </table><p class="small" style="margin-top:8px">Verkaufte Velos pro Jahr in der Region Aarau. Das Marktpotenzial schätzt der Verband: So viele Velos könnten pro Jahr verkauft werden, wenn alle kaufen, die ein solches Velo brauchen könnten.</p>`;
+}
+function verkaufsTab(row){
+  const gs = Object.entries(row.groups);
+  return `<table><tr><th>Produktgruppe</th><th class="num">Modelle</th><th class="num">bestellt</th><th class="num">verkauft</th><th class="num">davon Region Aarau</th><th class="num">liegen geblieben</th><th class="num">verpasste Verkäufe</th></tr>
+   ${gs.map(([g,v])=>`<tr><td><b>${G_BY[g].n}</b></td><td class="num">${v.m}</td><td class="num">${fmt(v.ord)}</td><td class="num">${fmt(v.sold)}</td><td class="num">${fmt(v.soldA)}</td><td class="num">${fmt(v.unsold)}</td><td class="num">${fmt(v.missed)}</td></tr>`).join('')}
+  </table><p class="small" style="margin-top:8px">Verpasste Verkäufe: Kundinnen und Kunden, die ein Velo wollten, das Sie nicht mehr an Lager hatten. Die Zahl schätzt Ihr Verkaufsteam aus den Nachfragen im Laden.</p>
+  <p class="small">Ihre Werkstatt: ${row.mech} ${row.mech===1?'Mechanikerin':'Mechanikerinnen und Mechaniker'} für ${fmt(row.sold)} verkaufte Velos. Eine Person schafft den Service für rund ${MECH_KAP} Velos pro Jahr.</p>`;
+}
+function bewertungen(row, d){
+  const out=[];
+  if(row.svcNext<1) out.push(['★★☆☆☆','«Velo gekauft, alles gut. Aber auf einen Werkstatttermin habe ich drei Wochen gewartet. Das geht nicht.»']);
+  else if(row.svcNext>1) out.push(['★★★★★','«Platten am Morgen, am Nachmittag war das Velo geflickt. So muss es sein.»']);
+  else out.push(['★★★★☆','«Werkstatt zuverlässig, manchmal etwas Wartezeit.»']);
+  if(d.qual==='beratung') out.push(['★★★★★','«Wir durften drei Cargobikes ein ganzes Wochenende ausprobieren. Super Beratung.»']);
+  if(d.qual==='preis') out.push(['★★★☆☆','«Günstig, aber das Velo wirkt nicht sehr hochwertig.»']);
+  if(d.qual==='marke') out.push(['★★★★☆','«Tolle Marken, aber nicht ganz billig.»']);
+  const miss = Object.entries(row.groups).filter(([g,v])=>v.missed > v.dem*0.15).map(([g])=>G_BY[g].n);
+  if(miss.length) out.push(['★★☆☆☆',`«Wollte ein Velo aus der Gruppe ${miss[0]} kaufen, aber nichts mehr da. Bin dann online.»`]);
+  const thin = Object.entries(row.groups).filter(([g,v])=>v.m<=2).map(([g])=>G_BY[g].n);
+  if(thin.length) out.push(['★★★☆☆',`«Bei den ${thin[0]} gab es fast keine Auswahl.»`]);
+  return out.map(([s,t])=>`<div class="quote">${t} <span style="font-style:normal;color:var(--y)">${s}</span></div>`).join('');
+}
+function DOCS(i, ctx){
+  const sim = ctx.sim; const prev = sim.rows[i-1]; const d = ctx.round.d;
+  if(i===0) return [
+   {id:'news', ic:'N', col:'lt', t:'Velo-Boom vorbei? Der Velohandel nach Corona', sub:'Zeitungsartikel', cost:0, art:'Auswertung externer Quellen', who:'alle',
+    body:()=>`<p class="small">Aargauer Wirtschaftsblatt, Oktober 2026</p>
+     <p>Nach den Rekordjahren 2020 und 2021 hat sich der Velohandel normalisiert. Was auffällt: <b>E-Bikes</b> machen inzwischen über die Hälfte des Umsatzes aus. Klassische Citybikes ohne Motor verkaufen sich jedes Jahr etwas schlechter.</p>
+     <p>Stark wächst ein Teilmarkt, den vor fünf Jahren kaum jemand kannte: <b>Cargobikes</b>. «Junge Familien in der Stadt ersetzen damit das Zweitauto», sagt ein Händler aus Baden. Beraten lassen wollen sie sich allerdings gut, ein Cargobike kauft niemand ohne Probefahrt.</p>
+     <p>Unter Druck sind die <b>Mountainbikes ohne Motor</b>: Wer heute in die Berge fährt, kauft ein E-Mountainbike. Und der Onlinehandel wächst weiter. Der Versandhändler VeloDirekt verkauft E-Bikes bis zu zehn Prozent günstiger als der Fachhandel, eine Werkstatt hat er aber nicht.</p>`},
+   {id:'kosten', ic:'K', col:'ly', t:'Kostenblatt Ladenlokal Aarau', sub:'Miete, Löhne, Werkstatt', cost:0, art:'Auswertung interner Quellen', who:'Finanzen',
+    body:()=>`<table><tr><th>Kostenstelle</th><th class="num">pro Jahr</th></tr>
+     <tr><td>Miete Ladenlokal, Platz für höchstens ${MAX_MODELLE} Modelle</td><td class="num">${fmt(KOSTEN.miete)} Fr.</td></tr>
+     <tr><td>Verkaufspersonal</td><td class="num">${fmt(KOSTEN.verkauf)} Fr.</td></tr>
+     <tr><td>Pro Mechanikerin oder Mechaniker. Eine Person betreut den Service für rund ${MECH_KAP} verkaufte Velos.</td><td class="num">${fmt(KOSTEN.mech)} Fr.</td></tr>
+     <tr><td>Pro Modell im Sortiment: Ausstellfläche, Lager, Ersatzteile</td><td class="num">${fmt(KOSTEN.modell)} Fr.</td></tr>
+     <tr><td>Fachberatung mit Probefahrten, falls gewählt</td><td class="num">${fmt(KOSTEN.beratung)} Fr.</td></tr>
+     <tr><td>Nur 2027: Einrichtung und Eröffnungswerbung</td><td class="num">${fmt(KOSTEN.eroeffnung)} Fr.</td></tr></table>
+     <p class="small" style="margin-top:10px">Unverkaufte Velos müssen Sie am Jahresende an einen Restpostenhändler abgeben. Sie verlieren dabei ${ABSCHREIBUNG*100} Prozent des Einkaufspreises. Das Forschungsbudget von ${fmt(BUDGET[0])} Franken ist separat finanziert.</p>`},
+   {id:'katalog', ic:'L', col:'lg', t:'Katalog Velogrosshandel', sub:'Produktgruppen und Preise', cost:0, art:'Auswertung externer Quellen', who:'Produkt',
+    body:()=>katalog(0)},
+   {id:'bahnhof', ic:'G', col:'lt', t:'Gespräche am Bahnhof Aarau', sub:'Sie fragen selbst 30 Velofahrende', cost:0, art:'Markterkundung · Befragung', who:'Marketing',
+    body:()=>`<p>Sie haben an einem Dienstag um halb acht Uhr am Bahnhof Aarau 30 Leute mit Velo angesprochen.</p>
+     <table style="margin-top:10px"><tr><th>Wer?</th><th class="num">Anzahl</th></tr><tr><td>Pendlerinnen und Pendler</td><td class="num">23</td></tr><tr><td>Sportliche</td><td class="num">4</td></tr><tr><td>Familien mit Kindern</td><td class="num">2</td></tr><tr><td>Menschen über 60</td><td class="num">1</td></tr></table>
+     <div class="quote">«Ein E-Bike, das zuverlässig läuft. Und wenn etwas ist, will ich es am gleichen Tag zurück.»</div>
+     <div class="quote">«Ich kaufe online, ist halt billiger.»</div>
+     <div class="quote">«Ein Velogeschäft beim Bahnhof wäre super.»</div>`},
+   {id:'umfrage', ic:'B', col:'t', t:'Kundenbefragung Region Aarau', sub:'Institut, 1\'000 Personen', cost:12000, art:'Marktforschung · Befragung', who:'Marketing',
+    body:()=>`<p>Ein Institut hat im Herbst 2026 tausend zufällig ausgewählte Personen aus der Region befragt. 260 davon wollen in den nächsten zwei Jahren ein Velo kaufen.</p>
+     <table style="margin-top:10px"><tr><th>Wer will kaufen?</th><th>Anteil</th><th>Was ist beim Kauf wichtig?</th><th class="num">Budget</th><th class="num">kauft online</th></tr>
+     ${[['Pendlerinnen und Pendler',41,'Zuverlässigkeit, schneller Service','2\'400',38],['Familien mit Kindern',22,'Sicherheit, Beratung, Probefahrt','3\'100',9],['Sportliche',19,'Marke, geringes Gewicht','3\'500',27],['Menschen über 60',18,'bequemer Einstieg, Probefahrt','3\'200',6]].map(r=>`<tr><td><b>${r[0]}</b></td><td style="white-space:nowrap"><span class="bar" style="width:${r[1]*2}px"></span> ${r[1]} %</td><td>${r[2]}</td><td class="num">${r[3]} Fr.</td><td class="num">${r[4]} %</td></tr>`).join('')}</table>
+     <p class="small" style="margin-top:10px"><b>Wo kaufen die Leute heute?</b> Sportliche kaufen meist bei Sportwerk Aare, die Pendler bei Zweirad Hofer oder online. Familien und Menschen über 60 sagen oft: «Ich weiss nicht, wo ich gut beraten werde.»</p>
+     <div class="quote">«In Aarau gibt es niemanden, der sich mit Cargobikes auskennt.»</div>
+     <div class="quote">«Mit meinem Knie komme ich auf ein normales Velo nicht mehr gut rauf.»</div>
+     <div class="quote">«Mein Händler hat keine Zeit für mich.»</div>`},
+   {id:'studie', ic:'S', col:'lg', t:'Branchenstudie Teilmärkte', sub:'Verkaufszahlen nach Velotyp, 2019 bis 2026', cost:3000, art:'Auswertung externer Quellen', who:'Finanzen',
+    body:()=>`<p class="small">Branchenverband Velohandel Schweiz, Regionalauswertung Aarau, erschienen im Januar 2027</p>${studieTab(0)}`},
+   {id:'testkauf', ic:'T', col:'ly', t:'Testkäufe bei der Konkurrenz', sub:'Wie berät die Konkurrenz?', cost:5000, art:'Marktforschung · Beobachtung', who:'Produkt',
+    body:()=>`<p>Eine Agentur hat in jedem Geschäft zweimal verdeckt eingekauft.</p>
+     <table style="margin-top:10px"><tr><th>Anbieter</th><th>Sortiment</th><th>Beobachtung</th></tr>
+     <tr><td><b>Zweirad Hofer, Aarau</b></td><td>E-Bikes City, Citybikes, 2 Komfort-E-Bikes</td><td>Gute Werkstatt, aber drei Wochen Wartezeit. Beratung kurz, keine Probefahrt.</td></tr>
+     <tr><td><b>Sportwerk Aare, Buchs</b></td><td>Rennvelos, Mountainbikes, E-Mountainbikes</td><td>Sehr gute Beratung, nur Markenvelos, Stammkundschaft aus den Velovereinen.</td></tr>
+     <tr><td><b>VeloDirekt, online</b></td><td>E-Bikes City, Citybikes</td><td>Bis 10 Prozent günstiger, Lieferung nach Hause, keine Werkstatt.</td></tr></table>
+     <p style="margin-top:10px">Kein Geschäft in der Region führt Cargobikes mit Beratung. Kindervelos gibt es bei Hofer nur in zwei Grössen.</p>`}
+  ];
+  if(i===1) return [
+   {id:'news2', ic:'N', col:'lt', t:'Velokette Pedalo eröffnet in Aarau', sub:'Zeitungsartikel', cost:0, art:'Auswertung externer Quellen', who:'alle',
+    body:()=>`<p class="small">Aargauer Wirtschaftsblatt, Januar 2029</p>
+     <p>Die Velokette Pedalo mit 40 Filialen in der Deutschschweiz eröffnet im März eine Filiale in Aarau. «Wir haben gesehen, dass hier vor allem <b>${SEGS[G_BY[topGroup(prev,'umsatz')].seg[0]].n}</b> viel Geld für Velos ausgeben», sagt der Geschäftsführer. Pedalo setzt auf tiefe Preise und eine grosse Auswahl.</p>
+     <p>Gleichzeitig sucht die Stadt Baden einen Mieter für ein Ladenlokal an der Weiten Gasse. Ein Velogeschäft wäre dort willkommen.</p>`},
+   {id:'statistik', ic:'V', col:'ly', t:'Ihre Verkaufsstatistik 2027', sub:'Ihr eigenes Kassensystem', cost:0, art:'Auswertung interner Quellen', who:'Finanzen',
+    body:()=>verkaufsTab(prev)},
+   {id:'google', ic:'★', col:'lt', t:'Ihre Bewertungen im Internet', sub:'Was Kundinnen und Kunden schreiben', cost:0, art:'Markterkundung · externe Quellen', who:'Marketing',
+    body:()=>`<p>Eine Auswahl der Bewertungen aus dem letzten Jahr:</p>${bewertungen(prev, ctx.game.rounds[0].d)}`},
+   {id:'studie2', ic:'S', col:'lg', t:'Branchenstudie 2029', sub:'Teilmärkte, neue Zahlen', cost:2000, art:'Auswertung externer Quellen', who:'Finanzen',
+    body:()=>`<p class="small">Branchenverband Velohandel Schweiz, Regionalauswertung Aarau, Januar 2029</p>${studieTab(1)}<p class="small" style="margin-top:6px">Region Baden: In allen Teilmärkten werden rund 55 Prozent so viele Velos verkauft wie in der Region Aarau.</p>`},
+   {id:'probe', ic:'T', col:'lg', t:'Probeverkauf Komfort-E-Bikes', sub:'Sechs Wochen im eigenen Laden', cost:5000, art:'Test', who:'Produkt',
+    body:()=>`<p>Sie haben im Herbst 2028 drei Komfort-E-Bikes ausgeliehen und sechs Wochen lang im Laden ausgestellt.</p>
+     <ul class="dots" style="margin-top:8px"><li>9 Velos verkauft, alle an Menschen über 60</li><li>14 weitere Anfragen, vor allem nach anderen Rahmengrössen</li><li>Fast alle wollten vor dem Kauf Probe fahren</li></ul>
+     <div class="quote">«Endlich ein Laden, wo man in Ruhe ausprobieren kann.»</div>`},
+   {id:'baden', ic:'B', col:'t', t:'Befragung Region Baden', sub:'Institut, 600 Personen', cost:7000, art:'Marktforschung · Befragung', who:'Marketing',
+    body:()=>`<p>Ein Institut hat 600 Personen aus der Region Baden befragt.</p>
+     <ul class="dots" style="margin-top:8px"><li>In Baden gibt es zwei Velogeschäfte, beide mit Schwerpunkt Sport.</li><li>Viele Familien in den neuen Quartieren, kein Geschäft mit Cargobikes.</li><li>Fast ein Viertel der Kaufwilligen ist über 60.</li><li>Die Filiale würde rund ${fmt(KOSTEN.baden)} Franken pro Jahr kosten: Miete, Personal, Werkstatt. Sie führt dasselbe Sortiment wie Aarau.</li><li>Erfahrungswert: Eine neue Filiale erreicht im ersten Jahr etwa 60 Prozent dessen, was ein eingeführtes Geschäft verkauft.</li></ul>`},
+   {id:'testpedalo', ic:'T', col:'ly', t:'Testkäufe bei Pedalo', sub:'Erste Wochen der neuen Filiale', cost:3000, art:'Marktforschung · Beobachtung', who:'Produkt',
+    body:()=>`<p>Eine Agentur hat in Pedalo-Filialen in Zürich und Olten verdeckt eingekauft.</p>
+     <ul class="dots" style="margin-top:8px"><li>Preise rund 12 Prozent unter dem Fachhandel</li><li>Grosse Auswahl, aber wenig geschultes Personal</li><li>Probefahrten nur auf dem Parkplatz, keine Cargobikes zum Ausprobieren</li><li>Werkstatttermine erst nach zwei bis drei Wochen</li></ul>`}
+  ];
+  return [
+   {id:'news3', ic:'N', col:'lt', t:'Die neue Generation: Leicht-E-Bikes', sub:'Fachzeitschrift', cost:0, art:'Auswertung externer Quellen', who:'alle',
+    body:()=>`<p class="small">Velojournal Schweiz, Dezember 2031</p>
+     <p>Seit 2030 gibt es sie, jetzt kommen sie im Alltag an: Leicht-E-Bikes mit Akku im Rahmen, rund 15 Kilo schwer. Wer eines Probe fährt, will kein klassisches E-Bike mehr.</p>
+     <p>Die grossen Hersteller kündigen an, die bisherigen E-Bikes City bis 2034 schrittweise einzustellen. Für den Handel heisst das: Die alten Modelle verlieren an Wert, die neuen sind noch teuer im Einkauf.</p>
+     <p>Gleichzeitig entdecken immer mehr <b>Firmen</b> das Velo: Sie stellen ihren Mitarbeitenden E-Bikes zur Verfügung, statt Parkplätze zu bauen.</p>`},
+   {id:'statistik3', ic:'V', col:'ly', t:'Ihre Verkaufsstatistik 2029', sub:'Ihr eigenes Kassensystem', cost:0, art:'Auswertung interner Quellen', who:'Finanzen',
+    body:()=>verkaufsTab(prev)},
+   {id:'google3', ic:'★', col:'lt', t:'Ihre Bewertungen im Internet', sub:'Was Kundinnen und Kunden schreiben', cost:0, art:'Markterkundung · externe Quellen', who:'Marketing',
+    body:()=>`<p>Eine Auswahl der Bewertungen aus dem letzten Jahr:</p>${bewertungen(prev, ctx.game.rounds[1].d)}`},
+   {id:'studie3', ic:'S', col:'lg', t:'Branchenstudie 2032', sub:'Teilmärkte, neue Zahlen', cost:2000, art:'Auswertung externer Quellen', who:'Finanzen',
+    body:()=>`<p class="small">Branchenverband Velohandel Schweiz, Regionalauswertung Aarau, Januar 2032</p>${studieTab(2)}`},
+   {id:'firmen', ic:'B', col:'t', t:'Befragung von Firmen', sub:'Institut, 40 Firmen der Region', cost:6000, art:'Marktforschung · Befragung', who:'Marketing',
+    body:()=>`<p>Ein Institut hat die Personalverantwortlichen von 40 Firmen aus der Region befragt.</p>
+     <ul class="dots" style="margin-top:8px"><li>12 Firmen planen, ihren Mitarbeitenden Velos zur Verfügung zu stellen.</li><li>Zusammen wären das rund 400 Velos pro Jahr, je zur Hälfte E-Bikes City und Leicht-E-Bikes.</li><li>Alle wollen einen Servicevertrag: Reparatur innert 48 Stunden.</li><li>Wichtig ist eine Auswahl an Modellen und Grössen, damit alle Mitarbeitenden ein passendes Velo finden.</li></ul>`},
+   {id:'hersteller', ic:'G', col:'lt', t:'Gespräch mit einem Hersteller', sub:'Ihr Vertreter erzählt beim Kaffee', cost:0, art:'Markterkundung · Befragung', who:'Produkt',
+    body:()=>`<div class="quote">«Ehrlich gesagt: Die klassischen E-Bikes City laufen aus. Wir produzieren noch zwei Jahre, dann ist Schluss. Wer jetzt noch viele Modelle davon im Laden hat, bleibt darauf sitzen.»</div>
+     <div class="quote">«Die Leicht-E-Bikes sind teurer im Einkauf, aber die Leute zahlen dafür. Und die Kundschaft will Probe fahren, sonst glaubt sie nicht, wie leicht die sind.»</div>
+     <p class="small" style="margin-top:10px">Ein einzelnes Gespräch, keine systematische Untersuchung.</p>`},
+   {id:'pruefung', ic:'T', col:'ly', t:'Testkunden bei Ihnen und bei Pedalo', sub:'Agentur, je zehn Besuche', cost:4000, art:'Marktforschung · Beobachtung', who:'Produkt',
+    body:()=>`<p>Eine Agentur hat Testkundinnen zu Ihnen und zu Pedalo geschickt.</p>
+     <ul class="dots" style="margin-top:8px"><li>Bei Ihnen: ${ctx.game.rounds[1].d.qual==='beratung'?'ausführliche Beratung, Probefahrt selbstverständlich':'freundlich, aber wenig Zeit für Beratung'}. Werkstatttermin innert ${sim.svc<1?'drei Wochen':'zwei Tagen'}.</li><li>Bei Pedalo: günstig, grosse Auswahl, Beratung oberflächlich, Werkstatttermin nach zwei Wochen.</li><li>Leicht-E-Bikes: Pedalo führt noch keine.</li></ul>`}
+  ];
+}
+function katalog(i){
+  const gs = GR.filter(g=>avail(g.id,i));
+  return `<table><tr><th>Produktgruppe</th><th class="num">Einkauf Ø</th><th class="num">Verkauf Ø</th><th>Hinweis</th></tr>
+   ${gs.map(g=>`<tr><td><b>${g.n}</b></td><td class="num">${fmt(g.ek)} Fr.</td><td class="num">${fmt(g.vk)} Fr.</td><td class="small dark">${g.note}</td></tr>`).join('')}</table>
+   <p class="small" style="margin-top:8px">Die Preise gelten für Mittelklasse-Velos. Bei Markenvelos und bei einer Eigenmarke ändern sich Einkauf und Verkauf.</p>`;
+}
+
+/* =========================================================
+   Codes
+   ========================================================= */
+function b64u(bytes){ let s=''; bytes.forEach(b=>s+=String.fromCharCode(b)); return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''); }
+function unb64u(str){ str=str.replace(/-/g,'+').replace(/_/g,'/'); while(str.length%4) str+='='; const s=atob(str); const a=new Uint8Array(s.length); for(let i=0;i<s.length;i++) a[i]=s.charCodeAt(i); return a; }
+async function pipe(bytes, stream){ const r = new Blob([bytes]).stream().pipeThrough(stream); return new Uint8Array(await new Response(r).arrayBuffer()); }
+function pack(g){ return {v:2, k:KLASSE, t:g.team, h:g.pinHash, s:g.step, tab:g.tab, r:g.rounds}; }
+function unpack(o){ if(o.v!==2) throw new Error('Version'); return {team:o.t, pinHash:o.h, step:o.s||'spiel', tab:o.tab||'dossier', doc:null, rounds:o.r}; }
+async function encode(g){
+  const json = new TextEncoder().encode(JSON.stringify(pack(g)));
+  if(typeof CompressionStream!=='undefined'){ try{ return 'MT2.'+b64u(await pipe(json, new CompressionStream('deflate'))); }catch(e){} }
+  return 'MT0.'+b64u(json);
+}
+async function decode(code){
+  code = String(code).trim().replace(/\s+/g,'');
+  let bytes;
+  if(code.startsWith('MT2.')) bytes = await pipe(unb64u(code.slice(4)), new DecompressionStream('deflate'));
+  else if(code.startsWith('MT0.')) bytes = unb64u(code.slice(4));
+  else throw new Error('kein Code');
+  return unpack(JSON.parse(new TextDecoder().decode(bytes)));
+}
+
+/* =========================================================
+   Zustand
+   ========================================================= */
+let G = null, VIEW = 'start', TEACH = {teams:[], open:null};
+const cur = () => G.rounds.length-1;
+const R = () => G.rounds[cur()];
+function save(){ if(!G) return; store.set(KEY(G.team), JSON.stringify(G)); store.set('marktstart2.last', G.team); }
+function spent(r, i){ const docs = DOCS(i, ctxOf(i)); return r.buy.reduce((a,id)=>a+(docs.find(d=>d.id===id)?.cost||0),0); }
+function ctxOf(i){ return {sim: simulate(G, i), round: G.rounds[i], game:G}; }
+function totalModels(d, i){ return GR.filter(g=>avail(g.id,i)).reduce((a,g)=>a+(d.models[g.id]||0),0); }
+function activeGroups(d, i){ return GR.filter(g=>avail(g.id,i) && (d.models[g.id]||0)>0); }
+function openItems(){
+  const i=cur(), r=R(), d=r.d, out=[];
+  out.push(['Marketing: Hauptzielgruppe gewählt', !!d.prim]);
+  const tm = totalModels(d,i);
+  out.push([`Produkt: Sortiment mit höchstens ${MAX_MODELLE} Modellen`, tm>0 && tm<=MAX_MODELLE]);
+  out.push(['Produkt: Qualitätsversprechen gewählt', !!d.qual]);
+  const ag = activeGroups(d,i);
+  out.push(['Finanzen: Bestellmenge für jede Produktgruppe', ag.length>0 && ag.every(g=>Number.isFinite(num(d.order[g.id])))]);
+  const answered = ANALYSE[i].filter(q=>r.ana[q.id]!==undefined && r.ana[q.id]!=='').length;
+  out.push([`Analyse: ${answered} von ${ANALYSE[i].length} Fragen beantwortet`, answered===ANALYSE[i].length]);
+  out.push(['Begründung des Teams geschrieben', (r.why||'').trim().length>=30]);
+  return out;
+}
+
+/* =========================================================
+   Darstellung
+   ========================================================= */
+function header(){
+  let h = `<div class="toprow"><div class="logo">Markt<b>start</b></div>`;
+  if(VIEW==='spiel' && G){
+    const i=cur(), done=G.rounds.filter(r=>r.done).length;
+    const lab = G.step==='ende' ? 'Schlussbilanz' : G.step==='ergebnis' ? `Ergebnis ${JAHRE[i]}` : `Runde ${i+1} von 3 · ${JAHRE[i]}`;
+    h += `<div class="team">${esc(G.team)}</div><div class="round">${lab} ${[0,1,2].map(k=>`<span class="dot ${k<done?'done':(k===i&&G.step==='spiel'?'on':'')}"></span>`).join('')}</div></div>`;
+    if(G.step==='spiel'){
+      const r=R(); const rest = BUDGET[i]-spent(r,i);
+      const answered = ANALYSE[i].filter(q=>r.ana[q.id]!==undefined && r.ana[q.id]!=='').length;
+      const open = openItems().filter(x=>!x[1]).length;
+      h += `<div class="tabs">${[['dossier','Marktdossier',DOCS(i,ctxOf(i)).length],['analyse','Analyse',`${answered}/4`],['entscheide','Entscheide',open?open+' offen':'✓']].map(([k,t,n])=>`<button class="tab ${G.tab===k?'on':''}" data-tab="${k}">${t}<span class="n">${n}</span></button>`).join('')}<div class="budget">Forschungsbudget noch <b>${fmt(rest)} Fr.</b></div></div>`;
+    }
+  } else if(VIEW==='lehrperson'){ h += `<div class="round">Auswertung für die Lehrperson</div></div>`; }
+  else { h += `<div class="round">Planspiel Marketing · ${KLASSE}</div></div>`; }
+  $('#top').innerHTML = h;
+  addFsButton();
+}
+function fsOk(){ return !!(document.fullscreenEnabled || document.webkitFullscreenEnabled); }
+function fsOn(){ return !!(document.fullscreenElement || document.webkitFullscreenElement); }
+function addFsButton(){
+  if(!fsOk()) return;
+  const row = document.querySelector('#top .toprow'); if(!row) return;
+  const b = document.createElement('button'); b.className='fsbtn noprint'; b.type='button';
+  b.innerHTML = fsOn() ? '<span aria-hidden="true">⤡</span> Vollbild beenden' : '<span aria-hidden="true">⤢</span> Vollbild';
+  b.onclick = toggleFs; row.appendChild(b);
+}
+function toggleFs(){
+  const el = document.documentElement;
+  try{
+    if(fsOn()){ (document.exitFullscreen || document.webkitExitFullscreen).call(document); }
+    else { const f = el.requestFullscreen || el.webkitRequestFullscreen; const pr = f.call(el); if(pr && pr.catch) pr.catch(()=>{}); }
+  }catch(e){}
+}
+document.addEventListener('fullscreenchange', ()=>header_safe());
+document.addEventListener('webkitfullscreenchange', ()=>header_safe());
+function header_safe(){ try{ header(); bindTabs(); }catch(e){} }
+function render(keepScroll){
+  const y = window.scrollY;
+  header();
+  const app=$('#app');
+  if(VIEW==='start') app.innerHTML = viewStart();
+  else if(VIEW==='lehrperson') app.innerHTML = viewTeacher();
+  else if(G.step==='ergebnis') app.innerHTML = viewErgebnis();
+  else if(G.step==='ende') app.innerHTML = viewEnde();
+  else app.innerHTML = G.tab==='analyse' ? viewAnalyse() : G.tab==='entscheide' ? viewEntscheide() : viewDossier();
+  bind();
+  window.scrollTo(0, keepScroll ? y : 0);
+}
+function modal(html){ $('#modal').innerHTML = html ? `<div class="modal"><div class="card">${html}</div></div>` : ''; bind(); }
+
+/* ---------- Start */
+function knownTeams(){ const out=[]; try{ for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(k.startsWith('marktstart2.team.')) out.push(JSON.parse(localStorage.getItem(k)).team); } }catch(e){} return out; }
+function viewStart(){
+  const teams = knownTeams();
+  return `<div class="cols">
+   <div class="stack">
+    <div class="rub">Willkommen</div>
+    <h1>Ihr Team eröffnet ein Velogeschäft in Aarau</h1>
+    <p>Sie spielen drei Geschäftsjahre: die Gründung 2027, den Ausbau 2029 und einen Umbruch 2032. In jeder Runde erforschen Sie zuerst den Markt, dann legen Sie Zielgruppen, Sortiment und Bestellmengen fest. Wer den Markt gut liest, entscheidet besser.</p>
+    <div class="card stack">
+     <h3>Neues Team</h3>
+     <div><label class="f" for="nTeam">Teamname</label><input type="text" id="nTeam" maxlength="30" placeholder="zum Beispiel Die Kettenblätter"></div>
+     <div><label class="f" for="nPin">Team-PIN, vier Ziffern. Merken Sie sich den PIN gut.</label><input type="password" id="nPin" inputmode="numeric" maxlength="4" style="max-width:200px"></div>
+     <div class="err" id="startErr"></div>
+     <div class="btnrow"><button class="btn" data-act="neu">Spiel starten</button></div>
+    </div>
+    <div class="card stack">
+     <h3>Weiterspielen</h3>
+     <p class="small">${teams.length ? 'Auf diesem Gerät gespeichert: '+teams.map(t=>`<span class="pill">${esc(t)}</span>`).join(' ') : 'Auf diesem Gerät ist noch kein Spielstand gespeichert.'}</p>
+     <div class="cols even" style="gap:14px"><div><label class="f" for="wTeam">Teamname</label><input type="text" id="wTeam" maxlength="30"></div><div><label class="f" for="wPin">Team-PIN</label><input type="password" id="wPin" inputmode="numeric" maxlength="4"></div></div>
+     <div class="btnrow"><button class="btn dark" data-act="weiter">Weiterspielen</button></div>
+     <details><summary class="small" style="cursor:pointer">Anderes Gerät? Spielstand mit Sicherungscode laden</summary>
+      <div class="stack" style="margin-top:10px"><textarea id="wCode" class="codebox" placeholder="Code beginnt mit MT2."></textarea><div class="btnrow"><button class="btn ghost" data-act="ladecode">Code laden</button></div></div></details>
+     <div class="err" id="weiterErr"></div>
+    </div>
+   </div>
+   <div class="stack">
+    <div class="rub">So arbeiten Sie im Team</div>
+    <div class="card stack">
+     <p>Sie entscheiden als Team an einem Gerät. Verteilen Sie trotzdem drei Rollen. Jede Rolle liest die für sie markierten Dokumente und fasst sie für die anderen zusammen.</p>
+     ${[['M','Marketing','Kundenbefragungen, Bewertungen, Zielgruppen'],['P','Produkt','Katalog, Testkäufe, Sortiment und Qualität'],['F','Finanzen','Kosten, Branchenstudie, Bestellmengen']].map(([k,t,d])=>`<div style="display:flex;gap:12px;align-items:center"><div class="ic ${k}">${k}</div><div><h4>${t}</h4><p class="small dark">${d}</p></div></div>`).join('')}
+    </div>
+    <div class="card stack">
+     <h4>Ablauf einer Runde</h4>
+     <ol style="padding-left:20px" class="small dark"><li>Im <b>Marktdossier</b> lesen Sie die freien Dokumente. Mit dem Forschungsbudget kaufen Sie weitere Informationen. Es reicht nicht für alles.</li><li>Im Reiter <b>Analyse</b> beantworten Sie vier Fragen zu Ihrem Markt. Dafür gibt es Lernpunkte.</li><li>Unter <b>Entscheide</b> legen Sie Zielgruppen, Sortiment, Qualität und Bestellmengen fest und begründen sie.</li><li>Sie schliessen das Jahr ab und sehen, was passiert ist.</li></ol>
+    </div>
+    ${store.ok ? '' : '<div class="fb bad"><p>Dieser Browser lässt kein Speichern zu. Sichern Sie nach jeder Runde den Sicherungscode.</p></div>'}
+    <div><button class="link" data-act="lp">Für Lehrpersonen</button></div>
+   </div></div>`;
+}
+
+/* ---------- Dossier */
+function viewDossier(){
+  const i=cur(), r=R(), docs=DOCS(i, ctxOf(i));
+  const sel = docs.find(d=>d.id===G.doc) || docs[0];
+  const owned = d => d.cost===0 || r.buy.includes(d.id);
+  const rest = BUDGET[i]-spent(r,i);
+  const guide = i===0 ? `<div class="guide"><b>So starten Sie:</b> Lesen Sie zuerst die freien Dokumente. Überlegen Sie dann gemeinsam, welche Informationen Ihnen noch fehlen. Diese kaufen Sie mit dem Forschungsbudget. Unter jedem Dokument steht, welche Rolle es lesen soll.</div>`
+   : `<div class="guide"><b>${JAHRE[i]}:</b> ${i===1?'Zwei Jahre sind vergangen.':'Drei Jahre sind vergangen.'} Im Dossier finden Sie Ihre eigenen Zahlen und Neuigkeiten aus dem Markt. Das Forschungsbudget ist neu: ${fmt(BUDGET[i])} Franken.</div>`;
+  return `${guide}<div class="cols doss">
+   <div class="stack" style="gap:9px"><div class="rub">Dokumente</div>
+    ${docs.map(d=>`<button class="doc ${d===sel?'on':''} ${owned(d)?'':'lock'}" data-doc="${d.id}"><div class="dicon" style="background:var(--${owned(d)?d.col:'line'})">${owned(d)?d.ic:'🔒'}</div><div><h4>${d.t}</h4><div class="small">${d.sub}</div></div><span class="price">${d.cost===0?'frei':r.buy.includes(d.id)?'✓':fmt(d.cost)+' Fr.'}</span></button>`).join('')}
+   </div>
+   <div class="viewer stack" style="gap:12px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px"><div><div class="rub">${owned(sel)?sel.art:'Nicht gekauft'}</div><h2>${sel.t}</h2></div><span class="tag info">Lesen: ${sel.who}</span></div>
+    ${owned(sel) ? `<div>${sel.body()}</div>` : `<p>${sel.sub}.</p><p class="small dark">Kosten: <b>${fmt(sel.cost)} Franken</b> aus dem Forschungsbudget. Noch verfügbar: ${fmt(rest)} Franken.</p>
+      <div class="btnrow"><button class="btn" data-buy="${sel.id}" ${rest>=sel.cost?'':'disabled'}>Kaufen</button>${rest<sel.cost?'<span class="small">Das Budget reicht nicht mehr.</span>':''}</div>`}
+   </div></div>`;
+}
+
+/* ---------- Analyse */
+function viewAnalyse(){
+  const i=cur(), r=R(), sim=simulate(G,i);
+  return `<div class="guide">Beantworten Sie die Fragen mit Hilfe des Dossiers. Die Auflösung sehen Sie am Ende des Jahres. Jede richtige Antwort gibt einen Lernpunkt.</div>
+  <div class="cols even">${ANALYSE[i].map((q,k)=>`<div class="card stack"><div class="rub">Frage ${k+1}</div><p>${q.q(G, sim.rows)}</p>
+   ${q.type==='num' ? `<div class="numrow"><input type="text" class="num" inputmode="decimal" data-ana="${q.id}" value="${esc(r.ana[q.id]??'')}"><span>${q.unit}</span><span class="small">auf eine Stelle nach dem Komma</span></div>`
+    : `<div class="opts">${q.opts.map((o,j)=>`<button class="opt ${r.ana[q.id]===j?'sel':''}" data-anaopt="${q.id}" data-v="${j}"><span class="rad"></span><span>${o}</span></button>`).join('')}</div>`}
+  </div>`).join('')}</div>
+  <div class="btnrow" style="margin-top:18px"><button class="btn" data-tab="entscheide">Weiter zu den Entscheiden</button></div>`;
+}
+
+/* ---------- Entscheide */
+function viewEntscheide(){
+  const i=cur(), r=R(), d=r.d, sim=simulate(G,i);
+  const segs = Object.entries(SEGS).filter(([k,s])=>!s.ab || i>=s.ab);
+  const tm = totalModels(d,i);
+  const studieOwned = r.buy.some(b=>b.startsWith('studie'));
+  const reach = Object.keys(SEGS).filter(k=>!SEGS[k].ab||i>=SEGS[k].ab).map(k=>{ const gs=activeGroups(d,i).filter(g=>g.seg.includes(k)||(k==='firmen'&&(g.id==='ebike'||g.id==='leicht'))); const mm=gs.reduce((a,g)=>a+d.models[g.id],0); const lvl = mm===0?0:mm<6?1:mm<12?2:3; return [k,lvl]; });
+  const items = openItems();
+  const badenSchon = sim.badenStart!==null;
+  return `<div class="stack" style="gap:22px">
+   <div class="cols"><div class="stack">
+    <div style="display:flex;gap:12px;align-items:center"><div class="ic M">M</div><div><div class="rub">Marketing</div><h2>Zielgruppen und Märkte</h2></div></div>
+    <div class="card stack">
+     <h4>Hauptzielgruppe</h4><p class="small">Auf diese Gruppe richten Sie Ihr Geschäft aus: Werbung, Schaufenster, Beratung.</p>
+     <div class="chips">${segs.map(([k,s])=>`<button class="chipb ${d.prim===k?'sel':''}" data-prim="${k}">${s.n}</button>`).join('')}</div>
+     <h4 style="margin-top:8px">Zweite Zielgruppe, freiwillig</h4><p class="small">Eine zweite Gruppe sprechen Sie zusätzlich an, aber weniger stark.</p>
+     <div class="chips"><button class="chipb ${!d.sec?'sel2':''}" data-sec="">keine</button>${segs.filter(([k])=>k!==d.prim).map(([k,s])=>`<button class="chipb ${d.sec===k?'sel2':''}" data-sec="${k}">${s.n}</button>`).join('')}</div>
+     ${i>=1 ? `<h4 style="margin-top:8px">Geografischer Markt</h4>${badenSchon ? '<p class="small dark">Sie haben seit 2029 eine Filiale in Baden. Sie führt dasselbe Sortiment wie Aarau.</p>' : `<div class="opts"><button class="opt ${!d.baden?'sel':''}" data-baden="0"><span class="rad"></span><span><b>Nur Region Aarau</b>Keine zusätzlichen Kosten.</span></button><button class="opt ${d.baden?'sel':''}" data-baden="1"><span class="rad"></span><span><b>Zusätzlich Filiale in Baden</b>Rund ${fmt(KOSTEN.baden)} Franken pro Jahr. Gleiches Sortiment wie in Aarau.</span></button></div>`}` : ''}
+    </div></div>
+    <div class="stack"><div class="card stack" style="margin-top:56px"><div class="rub">Ihre Zielgruppen</div>
+     <p class="small dark">${d.prim?`Hauptzielgruppe: <b>${SEGS[d.prim].n}</b>`:'Noch keine Hauptzielgruppe gewählt.'}${d.sec?`<br>Zweite Zielgruppe: ${SEGS[d.sec].n}`:''}</p>
+     <p class="small">Passen Zielgruppe und Sortiment zusammen? Ein Sortiment, das niemand aus Ihren Zielgruppen braucht, verkauft sich schlecht. Eine Zielgruppe ohne passendes Angebot bringt nichts.</p></div></div>
+   </div>
+
+   <div class="cols sec"><div class="stack">
+    <div style="display:flex;gap:12px;align-items:center"><div class="ic P">P</div><div><div class="rub">Produkt</div><h2>Sortiment und Qualität</h2></div></div>
+    <p class="small dark">Jedes Modell braucht Platz und kostet ${fmt(KOSTEN.modell)} Franken pro Jahr. Mehr Modelle in einer Gruppe bedeuten mehr Auswahl, aber ab etwa acht Modellen bringt ein weiteres kaum noch etwas.</p>
+    <div class="grid2">${GR.map(g=>{ const ok=avail(g.id,i); const m=d.models[g.id]||0; return `<div class="pg ${m>0?'act':''} ${ok?'':'na'}"><h4>${g.n}</h4><p class="small">${ok?`Einkauf ${fmt(g.ek)} Fr. · Verkauf ${fmt(g.vk)} Fr.`:'erst ab 2032 erhältlich'}</p>${ok?`<div class="step"><button class="sb" data-mod="${g.id}" data-v="-1" ${m<=0?'disabled':''}>−</button><span class="cnt">${m}</span><button class="sb" data-mod="${g.id}" data-v="1" ${tm>=MAX_MODELLE?'disabled':''}>+</button><span class="small">Modelle</span></div>`:''}</div>`; }).join('')}</div>
+    <h4 style="margin-top:6px">Qualitätsversprechen</h4>
+    <div class="opts">${Object.entries(QUAL).map(([k,q])=>`<button class="opt ${d.qual===k?'sel':''}" data-qual="${k}"><span class="rad"></span><span><b>${q.t}</b>${q.d}</span></button>`).join('')}</div>
+   </div>
+   <div class="stack"><div class="card stack" style="margin-top:56px;position:sticky;top:12px">
+    <div class="rub">Ihr Sortiment</div>
+    <p><b>${activeGroups(d,i).length}</b> Produktgruppen · <b>${tm}</b> von ${MAX_MODELLE} Modellen</p>
+    ${tm>MAX_MODELLE?'<p class="err">Zu viele Modelle für Ihren Laden.</p>':''}
+    <p class="small dark">Wen erreichen Sie mit diesem Sortiment?</p>
+    <div class="chips">${reach.map(([k,l])=>`<span class="pill" style="background:var(--${l===0?'lr':l===1?'ly':'lg'})">${SEGS[k].k} ${'●'.repeat(l)}${'○'.repeat(3-l)}</span>`).join('')}</div>
+   </div></div></div>
+
+   <div class="cols sec"><div class="stack">
+    <div style="display:flex;gap:12px;align-items:center"><div class="ic F">F</div><div><div class="rub">Finanzen</div><h2>Werkstatt und Bestellungen</h2></div></div>
+    <div class="card stack"><h4>Werkstatt</h4>
+     <div class="step"><button class="sb" data-mech="-1" ${d.mech<=1?'disabled':''}>−</button><span class="cnt">${d.mech}</span><button class="sb" data-mech="1" ${d.mech>=6?'disabled':''}>+</button><span class="small">Mechanikerinnen und Mechaniker · zusammen Service für rund ${fmt(d.mech*MECH_KAP)} verkaufte Velos</span></div></div>
+    <div class="card stack"><h4>Bestellmengen ${JAHRE[i]}</h4>
+     <p class="small">Bestellmenge = Marktvolumen × angestrebter Marktanteil ÷ 100. Zu viel bestellt: Sie verlieren ${ABSCHREIBUNG*100} Prozent des Einkaufspreises. Zu wenig: Kundschaft geht leer aus.</p>
+     ${activeGroups(d,i).length ? `<table class="ordertbl"><tr><th>Produktgruppe</th><th class="num">Marktvolumen Aarau ${JAHRE[i]}</th>${(badenSchon||d.baden)?'<th class="num">Baden</th>':''}<th>Bestellung</th></tr>
+      ${activeGroups(d,i).map(g=>`<tr><td><b>${g.n}</b><br><span class="small">${d.models[g.id]} Modelle</span></td><td class="num">${studieOwned?fmt(vol(g.id,JAHRE[i])):'<span class="small">siehe Branchenstudie</span>'}</td>${(badenSchon||d.baden)?`<td class="num">${studieOwned&&i>=1?fmt(vol(g.id,JAHRE[i])*0.55):'<span class="small">?</span>'}</td>`:''}<td><input type="text" inputmode="numeric" data-ord="${g.id}" value="${esc(d.order[g.id]??'')}"> <span class="small">Velos</span></td></tr>`).join('')}</table>` : '<p class="small dark">Stellen Sie zuerst ein Sortiment zusammen.</p>'}
+     ${(firmenAktiv(d))?'<p class="small">Die Velos für Firmen bestellen Sie bei den E-Bikes City und Leicht-E-Bikes mit.</p>':''}
+    </div>
+   </div>
+   <div class="stack"><div class="card stack" style="margin-top:56px"><div class="rub">Begründung des Teams</div>
+    <p class="small dark">Warum haben Sie so entschieden? Zwei bis drei Sätze. Beziehen Sie sich auf das Dossier und verwenden Sie Fachbegriffe.</p>
+    <textarea id="why" rows="6" placeholder="Wir richten uns an …, weil die Befragung zeigt, dass …">${esc(r.why)}</textarea></div>
+    <div class="card stack"><div class="rub">Noch offen</div>${items.map(([t,ok])=>`<div class="check"><span class="mk ${ok?'ok':'open'}">${ok?'✓':'·'}</span><span>${t}</span></div>`).join('')}
+     <div class="btnrow" style="margin-top:8px"><button class="btn" data-act="abschluss" ${items.every(x=>x[1])?'':'disabled'}>Jahr ${JAHRE[i]} abschliessen</button></div>
+     <p class="small">Danach lassen sich die Entscheide dieses Jahres nicht mehr ändern.</p></div>
+   </div></div>
+  </div>`;
+}
+const firmenAktiv = d => d.prim==='firmen'||d.sec==='firmen';
+
+/* ---------- Ergebnis */
+function feedback(row, d, i){
+  const out=[];
+  if(i===0) out.push(row.gewinn<0 ? ['info','Einführung','Ihr Geschäft ist neu: Die Kosten sind hoch, die Kundschaft kennt Sie noch kaum. Ein Verlust im ersten Jahr ist normal.'] : ['ok','Schon im ersten Jahr Gewinn','Das ist für ein neues Geschäft selten. Sie haben den Markt offenbar gut gelesen.']);
+  if(row.pedalo && i>=1) out.push([d.qual==='beratung'?'warn':'bad','Pedalo', `Die Velokette hat Ihnen bei den ${SEGS[row.pedalo].n} Kundschaft abgenommen.${d.qual==='beratung'?' Ihre Fachberatung hat den Schaden begrenzt, bei Beratung kann Pedalo nicht mithalten.':' Gegen die tiefen Preise der Kette hatten Sie wenig entgegenzusetzen.'}`]);
+  Object.entries(row.groups).forEach(([g,v])=>{
+    if(v.missed > Math.max(8, v.dem*0.12)) out.push(['warn',`Ausverkauft: ${G_BY[g].n}`, `Rund ${fmt(v.missed)} Kundinnen und Kunden wollten bei Ihnen ein Velo aus dieser Gruppe kaufen, aber Sie hatten keines mehr. Sie haben nur ${fmt(v.ord)} bestellt.`]);
+    if(v.unsold > Math.max(8, v.ord*0.12)) out.push(['bad',`Zu viel bestellt: ${G_BY[g].n}`, `${fmt(v.unsold)} Velos blieben liegen. Der Restpostenhändler zahlte wenig, Verlust ${fmt(v.unsold*v.ek*ABSCHREIBUNG)} Franken.`]);
+    if(v.focus<1 && v.m>=3) out.push(['warn',`Niemand gemeint: ${G_BY[g].n}`, `Sie führen ${v.m} Modelle, sprechen aber die Kundschaft dafür nicht an. Solche Velos verkaufen sich nur nebenbei.`]);
+  });
+  const ag = Object.keys(row.groups);
+  [d.prim, d.sec].filter(Boolean).forEach(s=>{ const fits = ag.some(g=>G_BY[g].seg.includes(s) || (s==='firmen'&&(g==='ebike'||g==='leicht'))); if(!fits) out.push(['bad','Zielgruppe ohne Angebot', `Sie sprechen ${SEGS[s].n} an, haben aber nichts Passendes im Sortiment. Markt- und Produktziele müssen zusammenpassen.`]); });
+  if(row.sold > row.kap) out.push(['bad','Werkstatt überlastet', `${row.mech} ${row.mech===1?'Person':'Personen'} in der Werkstatt für ${fmt(row.sold)} verkaufte Velos: Die Wartezeit stieg auf drei Wochen. Das spricht sich herum, nächstes Jahr kommt weniger Kundschaft.`]);
+  else if(row.sold < row.kap*0.5) out.push(['warn','Werkstatt zu gross', `Ihre Werkstatt könnte ${fmt(row.kap)} Velos betreuen, verkauft haben Sie ${fmt(row.sold)}. Die Löhne bezahlen Sie trotzdem.`]);
+  else if(row.svcNext>1) out.push(['ok','Schneller Service','Reparaturen am gleichen Tag: Das loben Ihre Kundinnen und Kunden im Internet.']);
+  if(row.badenNeu) out.push(['info','Filiale Baden','Die neue Filiale ist gestartet. Im ersten Jahr kennt sie noch kaum jemand, das wird besser.']);
+  if(i===2){ const e=row.groups.ebike; if(e && e.m>=6) out.push(['warn','Altes Sortiment','Viele Modelle bei den E-Bikes City, obwohl die Hersteller sie auslaufen lassen. Das bindet Platz und Geld.']); if(row.groups.leicht) out.push(['ok','Neue Generation im Laden','Mit den Leicht-E-Bikes sind Sie früh dabei. Die Produktgruppe steht am Anfang ihres Lebenszyklus.']); }
+  return out.slice(0,6);
+}
+function viewErgebnis(){
+  const i=cur(), sim=simulate(G), row=sim.rows[i], d=G.rounds[i].d;
+  const fb = feedback(row, d, i);
+  const maxD = Math.max(...Object.values(row.groups).map(v=>Math.max(v.dem,v.ord)),1);
+  return `<div class="cols"><div class="stack">
+    <div class="rub">Ihr Geschäftsjahr ${row.y}</div>
+    <div class="kpis"><div class="kpi"><div class="v">${fmt(row.umsatz)}</div><div class="l">Umsatz in Franken</div></div>
+     <div class="kpi"><div class="v" style="color:${row.gewinn<0?'var(--rd)':'inherit'}">${fmt(Math.abs(row.gewinn))}</div><div class="l">${row.gewinn<0?'Verlust':'Gewinn'} in Franken</div></div>
+     <div class="kpi"><div class="v">${fmt(row.sold)}</div><div class="l">verkaufte Velos</div></div></div>
+    <div class="card"><div class="rub">Nachfrage, Bestellung und Verkauf</div>
+     <table style="margin-top:8px"><tr><th>Produktgruppe</th><th style="width:44%">Nachfrage <span style="color:var(--t)">■</span> und Bestellung <span style="color:var(--y)">■</span></th><th class="num">verkauft</th><th class="num">Marge</th></tr>
+     ${Object.entries(row.groups).map(([g,v])=>`<tr><td><b>${G_BY[g].n}</b><br><span class="small">${v.m} Modelle</span></td><td><div style="height:10px;border-radius:4px;background:var(--t);width:${Math.max(2,v.dem/maxD*100)}%"></div><div style="height:10px;border-radius:4px;background:var(--y);width:${Math.max(2,v.ord/maxD*100)}%;margin-top:3px"></div><span class="small">${fmt(v.dem)} wollten kaufen · ${fmt(v.ord)} bestellt</span></td><td class="num">${fmt(v.sold)}</td><td class="num">${fmt(v.sold*(v.vk-v.ek))}</td></tr>`).join('')}</table>
+     <p class="small" style="margin-top:8px">Fixe Kosten ${fmt(row.fix)} Franken: Miete, Personal, ${row.mech} in der Werkstatt, ${row.models} Modelle${d.qual==='beratung'?', Fachberatung':''}${row.baden?', Filiale Baden':''}${i===0?', Eröffnung':''}.${row.writeoff?` Verlust auf liegen gebliebenen Velos ${fmt(row.writeoff)} Franken.`:''}</p></div>
+    <div class="card"><div class="rub">Analyse: ${row.lp} von ${row.checks.length} richtig</div>
+     ${row.checks.map((c,k)=>{ const q=ANALYSE[i][k]; const your = q.type==='num' ? (c.ans??'') + ' ' + q.unit : (Number.isInteger(c.ans)? q.opts[c.ans]:'keine Antwort'); return `<div class="check"><span class="mk ${c.ok?'ok':'no'}">${c.ok?'✓':'✗'}</span><span><b>${c.q}</b><br>${c.ok?'Richtig.':`Ihre Antwort: ${esc(your)}. Richtig: ${q.type==='num'?pct(c.sol.v)+' '+q.unit:q.opts[c.sol.v]}.`} ${c.sol.t}</span></div>`; }).join('')}
+    </div>
+   </div>
+   <div class="stack">
+    <div class="rub">Was ist passiert?</div>
+    ${fb.map(([c,h,t])=>`<div class="fb ${c==='ok'?'':c}"><h4>${h}</h4><p>${t}</p></div>`).join('')}
+    <div class="card"><div class="rub">Stand nach ${i+1} ${i===0?'Runde':'Runden'}</div><p style="margin-top:6px">Gewinn total <b>${fmt(sim.total)} Franken</b> · Lernpunkte <b>${sim.lp} von ${sim.lpMax}</b></p></div>
+    <div class="card stack"><div class="rub">Sicherungscode</div><p class="small">Ihr Spielstand ist auf diesem Gerät gespeichert. Falls Sie das Gerät wechseln, laden Sie ihn mit diesem Code.</p>
+     <textarea class="codebox" id="code" readonly>Code wird erstellt …</textarea><div class="btnrow"><button class="btn ghost sm" data-act="copy">Code kopieren</button><span class="small" id="copyInfo"></span></div></div>
+    <div class="btnrow"><button class="btn" data-act="naechste">${i===2?'Zur Schlussbilanz':`Weiter zu ${JAHRE[i+1]}`}</button></div>
+   </div></div>`;
+}
+
+/* ---------- Schluss */
+function viewEnde(){
+  const sim=simulate(G);
+  const maxAbs=Math.max(...sim.rows.map(r=>Math.abs(r.gewinn)),1), W=420,H=200,base=100,bw=80,gap=(W-3*bw)/4;
+  const bars=sim.rows.map((r,k)=>{ const h=Math.round(Math.abs(r.gewinn)/maxAbs*80), x=gap+k*(bw+gap), y=r.gewinn>=0?base-h:base; return `<rect x="${x}" y="${y}" width="${bw}" height="${Math.max(h,1)}" rx="4" fill="${r.gewinn>=0?'#2DAAAD':'#FF727F'}"/><text x="${x+bw/2}" y="${r.gewinn>=0?y-6:y+h+15}" text-anchor="middle" font-size="13" fill="#173C43">${fmt(r.gewinn/1000)}k</text><text x="${x+bw/2}" y="${H-4}" text-anchor="middle" font-size="13" fill="#277077">${r.y}</text>`; }).join('');
+  return `<div class="cols"><div class="stack">
+    <div class="rub">Schlussbilanz · ${esc(G.team)}</div><h1>Drei Jahre im Velomarkt</h1>
+    <div class="kpis"><div class="kpi"><div class="v">${fmt(sim.total)}</div><div class="l">Gewinn total in Franken</div></div><div class="kpi"><div class="v">${sim.lp} / ${sim.lpMax}</div><div class="l">Lernpunkte</div></div><div class="kpi"><div class="v">${fmt(sim.rows.reduce((a,r)=>a+r.sold,0))}</div><div class="l">verkaufte Velos</div></div></div>
+    <div class="card"><div class="rub">Gewinn pro Jahr in Tausend Franken</div><svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Gewinn pro Jahr"><line x1="0" x2="${W}" y1="${base}" y2="${base}" stroke="#B6EBE9"/>${bars}</svg></div>
+    <table><tr><th>Jahr</th><th>Zielgruppen und Sortiment</th><th class="num">Gewinn</th><th class="num">LP</th></tr>
+     ${sim.rows.map((row,k)=>{ const d=G.rounds[k].d; return `<tr><td>${row.y}</td><td class="small dark">${SEGS[d.prim].n}${d.sec?' und '+SEGS[d.sec].n:''} · ${Object.entries(row.groups).map(([g,v])=>G_BY[g].n+' '+v.m).join(', ')} · ${QUAL[d.qual].t}<br><i>«${esc(G.rounds[k].why)}»</i></td><td class="num">${fmt(row.gewinn)}</td><td class="num">${row.lp}/4</td></tr>`; }).join('')}</table>
+   </div>
+   <div class="stack">
+    <div class="card stack"><div class="rub">Abschlusscode für die Lehrperson</div><p>Kopieren Sie diesen Code und geben Sie ihn so ab, wie es Ihre Lehrperson angibt. Er enthält alle Entscheide und Begründungen Ihres Teams.</p>
+     <textarea class="codebox" id="code" readonly style="height:140px">Code wird erstellt …</textarea><div class="btnrow"><button class="btn" data-act="copy">Code kopieren</button><span class="small" id="copyInfo"></span></div></div>
+    <div class="card stack"><div class="rub">Zum Nachdenken im Team</div>
+     <ul class="dots small dark"><li>Welche Information aus dem Dossier hat Ihnen am meisten geholfen? Welche hätten Sie im Nachhinein gerne gekauft?</li><li>Wo passten Ihre Zielgruppen und Ihr Sortiment gut zusammen, wo nicht?</li><li>Was würden Sie 2027 mit dem Wissen von heute anders machen?</li></ul></div>
+    <div class="btnrow"><button class="btn ghost" data-act="abmelden">Zur Startseite</button></div>
+   </div></div>`;
+}
+
+/* ---------- Lehrperson */
+function viewTeacher(){
+  const rows = TEACH.teams.map((t,k)=>({k,t,sim:simulate(t)})).sort((a,b)=>b.sim.total-a.sim.total);
+  const open = TEACH.open!==null ? TEACH.teams[TEACH.open] : null;
+  return `<div class="stack">
+   <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap"><div><div class="rub">Klasse ${KLASSE}</div><h1>Teamvergleich</h1></div>
+    <div class="btnrow noprint"><button class="btn ghost" data-act="demo">Beispielteams laden</button><button class="btn dark" data-act="print" ${rows.length?'':'disabled'}>Drucken oder als PDF sichern</button><button class="link" data-act="abmelden">Zur Startseite</button></div></div>
+   <div class="card stack noprint"><p>Fügen Sie die Abschlusscodes der Teams ein, einen pro Zeile. Die Codes werden nur hier im Browser ausgewertet und nirgends gespeichert.</p>
+    <textarea id="tCodes" class="codebox" style="height:110px"></textarea><div class="btnrow"><button class="btn" data-act="auswerten">Auswerten</button><span class="err" id="tErr"></span></div></div>
+   ${rows.length?`<table><tr><th>Rang</th><th>Team</th><th class="num">Gewinn total</th><th class="num">Lernpunkte</th><th>Hauptzielgruppe 2027</th><th>Forschung gekauft</th></tr>
+    ${rows.map((x,n)=>`<tr class="click" data-team="${x.k}"><td>${n+1}</td><td><b>${esc(x.t.team)}</b>${x.sim.rows.length<3?` <span class="tag info">Runde ${x.sim.rows.length}</span>`:''}</td><td class="num">${fmt(x.sim.total)} Fr.</td><td class="num">${x.sim.lp} / ${x.sim.lpMax}</td><td class="small dark">${SEGS[x.t.rounds[0].d.prim]?.n||''}</td><td class="small dark">${x.t.rounds.filter(r=>r.done).map((r,k)=>r.buy.length?r.buy.map(b=>docName(k,b,x.t)).join(', '):'nichts').join(' | ')}</td></tr>`).join('')}</table>
+    <p class="small noprint">Klick auf ein Team zeigt Entscheide, Analyse und Begründungen Runde für Runde.</p>`:''}
+   ${open?teamDetail(open):''}</div>`;
+}
+function docName(i,id,t){ const save=G; G=t; const n=(DOCS(i,{sim:simulate(t,i),round:t.rounds[i],game:t}).find(d=>d.id===id)||{}).t||id; G=save; return n; }
+function teamDetail(t){
+  const sim=simulate(t);
+  return `<div class="card stack"><div class="rub">Detail</div><h2>${esc(t.team)}</h2>
+   <table><tr><th>Jahr</th><th>Zielgruppen</th><th>Sortiment und Qualität</th><th>Analyse</th><th>Begründung</th><th class="num">Gewinn</th></tr>
+   ${sim.rows.map((row,k)=>{ const d=t.rounds[k].d; return `<tr><td>${row.y}</td><td class="small dark">${SEGS[d.prim]?.n||''}${d.sec?'<br>'+SEGS[d.sec].n:''}${row.baden?'<br>Filiale Baden':''}</td>
+    <td class="small dark">${Object.entries(row.groups).map(([g,v])=>`${G_BY[g].n}: ${v.m} Mod., ${fmt(v.ord)} bestellt, ${fmt(v.dem)} Nachfrage`).join('<br>')}<br>${QUAL[d.qual]?.t||''} · Werkstatt ${d.mech}</td>
+    <td class="small dark">${row.checks.map(c=>c.ok?'✓':'✗').join(' ')} (${row.lp}/4)</td><td class="small dark">«${esc(t.rounds[k].why)}»</td><td class="num">${fmt(row.gewinn)}</td></tr>`; }).join('')}</table></div>`;
+}
+
+/* =========================================================
+   Ereignisse
+   ========================================================= */
+function bind(){
+  document.querySelectorAll('[data-act]').forEach(b=>b.onclick=()=>act(b.dataset.act));
+  document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{ G.tab=b.dataset.tab; save(); render(); });
+  document.querySelectorAll('[data-doc]').forEach(b=>b.onclick=()=>{ G.doc=b.dataset.doc; render(true); });
+  document.querySelectorAll('[data-buy]').forEach(b=>b.onclick=()=>{ const i=cur(), r=R(), doc=DOCS(i,ctxOf(i)).find(d=>d.id===b.dataset.buy); if(!doc||r.buy.includes(doc.id)) return; if(BUDGET[i]-spent(r,i) < doc.cost) return; r.buy.push(doc.id); save(); render(true); });
+  document.querySelectorAll('[data-ana]').forEach(inp=>inp.oninput=()=>{ R().ana[inp.dataset.ana]=inp.value; save(); header(); bindTabs(); });
+  document.querySelectorAll('[data-anaopt]').forEach(b=>b.onclick=()=>{ R().ana[b.dataset.anaopt]=+b.dataset.v; save(); render(true); });
+  document.querySelectorAll('[data-prim]').forEach(b=>b.onclick=()=>{ const d=R().d; d.prim=b.dataset.prim; if(d.sec===d.prim) d.sec=null; save(); render(true); });
+  document.querySelectorAll('[data-sec]').forEach(b=>b.onclick=()=>{ R().d.sec=b.dataset.sec||null; save(); render(true); });
+  document.querySelectorAll('[data-baden]').forEach(b=>b.onclick=()=>{ R().d.baden=b.dataset.baden==='1'; save(); render(true); });
+  document.querySelectorAll('[data-mod]').forEach(b=>b.onclick=()=>{ const d=R().d, g=b.dataset.mod; const v=Math.max(0,(d.models[g]||0)+(+b.dataset.v)); if(+b.dataset.v>0 && totalModels(d,cur())>=MAX_MODELLE) return; d.models[g]=v; if(v===0) delete d.order[g]; save(); render(true); });
+  document.querySelectorAll('[data-qual]').forEach(b=>b.onclick=()=>{ R().d.qual=b.dataset.qual; save(); render(true); });
+  document.querySelectorAll('[data-mech]').forEach(b=>b.onclick=()=>{ const d=R().d; d.mech=Math.min(6,Math.max(1,d.mech+(+b.dataset.mech))); save(); render(true); });
+  document.querySelectorAll('[data-ord]').forEach(inp=>inp.oninput=()=>{ R().d.order[inp.dataset.ord]=inp.value; save(); refreshChecklist(); });
+  const why=$('#why'); if(why) why.oninput=()=>{ R().why=why.value; save(); refreshChecklist(); };
+  document.querySelectorAll('[data-team]').forEach(tr=>tr.onclick=()=>{ TEACH.open=+tr.dataset.team; render(true); setTimeout(()=>{ const c=document.querySelectorAll('.card'); c[c.length-1]?.scrollIntoView({behavior:'smooth'}); },50); });
+  const code=$('#code'); if(code && G) encode(G).then(c=>{ code.value=c; });
+}
+function bindTabs(){ document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{ G.tab=b.dataset.tab; save(); render(); }); }
+function refreshChecklist(){
+  // nur die Checkliste neu zeichnen, damit der Cursor im Eingabefeld bleibt
+  const items=openItems(); const cards=[...document.querySelectorAll('.card')].filter(c=>c.querySelector('.rub')?.textContent==='Noch offen');
+  if(cards[0]){ const btn=cards[0].querySelector('[data-act=abschluss]'); cards[0].querySelectorAll('.check').forEach((el,k)=>{ const [t,ok]=items[k]; el.innerHTML=`<span class="mk ${ok?'ok':'open'}">${ok?'✓':'·'}</span><span>${t}</span>`; }); if(btn) btn.disabled=!items.every(x=>x[1]); }
+  header(); bindTabs();
+}
+async function act(a){
+  if(a==='neu'){
+    const team=$('#nTeam').value.trim(), pin=$('#nPin').value.trim(), err=$('#startErr');
+    if(team.length<2){ err.textContent='Bitte einen Teamnamen eingeben.'; return; }
+    if(!/^\d{4}$/.test(pin)){ err.textContent='Der PIN besteht aus vier Ziffern.'; return; }
+    if(store.get(KEY(team))){ err.textContent='Diesen Teamnamen gibt es auf diesem Gerät schon. Wählen Sie «Weiterspielen» oder einen anderen Namen.'; return; }
+    G={team, pinHash:hashPin(team,pin), step:'spiel', tab:'dossier', doc:null, rounds:[newRound(null)]};
+    VIEW='spiel'; save(); render(); return;
+  }
+  if(a==='weiter'){
+    const team=$('#wTeam').value.trim(), pin=$('#wPin').value.trim(), err=$('#weiterErr');
+    const raw=store.get(KEY(team)); if(!raw){ err.textContent='Kein Spielstand mit diesem Teamnamen auf diesem Gerät. Auf einem anderen Gerät laden Sie ihn mit dem Sicherungscode.'; return; }
+    const g=JSON.parse(raw); if(g.pinHash!==hashPin(team,pin)){ err.textContent='Der PIN stimmt nicht.'; return; }
+    G=g; VIEW='spiel'; render(); return;
+  }
+  if(a==='ladecode'){
+    const err=$('#weiterErr');
+    try{ const g=await decode($('#wCode').value); const pin=$('#wPin').value.trim();
+      if(g.pinHash!==hashPin(g.team,pin)){ $('#wTeam').value=g.team; err.textContent=`Code gelesen für Team «${g.team}». Geben Sie den PIN dieses Teams ein und klicken Sie nochmals auf «Code laden».`; return; }
+      G=g; VIEW='spiel'; save(); render();
+    }catch(e){ err.textContent='Der Code ist unvollständig oder beschädigt. Kopieren Sie ihn nochmals ganz.'; }
+    return;
+  }
+  if(a==='abschluss'){ if(!openItems().every(x=>x[1])) return; R().done=true; G.step='ergebnis'; save(); render(); return; }
+  if(a==='naechste'){ const i=cur(); if(i===2){ G.step='ende'; save(); render(); return; } G.rounds.push(newRound(G.rounds[i])); G.step='spiel'; G.tab='dossier'; G.doc=null; save(); render(); return; }
+  if(a==='copy'){ const ta=$('#code'), info=$('#copyInfo'); try{ await navigator.clipboard.writeText(ta.value); info.textContent='Kopiert.'; }catch(e){ ta.focus(); ta.select(); let ok=false; try{ ok=document.execCommand('copy'); }catch(_){} info.textContent=ok?'Kopiert.':'Bitte den markierten Code mit Ctrl+C oder Cmd+C kopieren.'; } return; }
+  if(a==='abmelden'){ G=null; VIEW='start'; TEACH={teams:[],open:null}; render(); return; }
+  if(a==='lp'){ modal(`<div class="stack"><div class="rub">Für Lehrpersonen</div><h2>Auswertung öffnen</h2><div><label class="f" for="lpPin">PIN der Lehrperson</label><input type="password" id="lpPin" inputmode="numeric" maxlength="8"></div><div class="err" id="lpErr"></div><div class="btnrow"><button class="btn" data-act="lpok">Öffnen</button><button class="btn ghost" data-act="lpx">Abbrechen</button></div></div>`); setTimeout(()=>$('#lpPin')?.focus(),30); return; }
+  if(a==='lpx'){ modal(''); return; }
+  if(a==='lpok'){ if($('#lpPin').value.trim()!==LEHRPERSON_PIN){ $('#lpErr').textContent='Der PIN stimmt nicht.'; return; } modal(''); VIEW='lehrperson'; render(); return; }
+  if(a==='auswerten'){
+    const parts=$('#tCodes').value.split(/(?=MT[02]\.)|\s+/).map(s=>s.trim()).filter(Boolean);
+    const out=[]; let bad=0;
+    for(const p of parts){ try{ const g=await decode(p); g.rounds=g.rounds.filter(r=>r.done); if(g.rounds.length) out.push(g); else bad++; }catch(e){ bad++; } }
+    const map=new Map(); out.forEach(g=>{ const k=slug(g.team); if(!map.has(k)||map.get(k).rounds.length<g.rounds.length) map.set(k,g); });
+    TEACH.teams=[...map.values()]; TEACH.open=null; render();
+    if(bad) $('#tErr').textContent=`${bad} Code${bad>1?'s':''} konnte${bad>1?'n':''} nicht gelesen werden.`;
+    return;
+  }
+  if(a==='demo'){ TEACH.teams=demoTeams(); TEACH.open=null; render(); return; }
+  if(a==='print'){ try{ window.print(); }catch(e){} return; }
+}
+
+/* ---------- Beispielteams */
+function demoTeams(){
+  const R0=(buy,ana,d,why)=>({buy,ana,d,why,done:true});
+  const mk=(team,rs)=>({team,pinHash:'',step:'ende',tab:'dossier',rounds:rs});
+  return [
+   mk('Die Kettenblätter',[
+    R0(['umfrage','studie'],{a1:'41',a2:1,a3:1,a4:0},{prim:'fam',sec:'senior',baden:false,models:{cargo:8,kinder:7,komfort:6,ebike:6},qual:'beratung',mech:3,order:{cargo:270,kinder:330,komfort:170,ebike:380}},'Die Befragung zeigt, dass Familien und Menschen über 60 keine gute Beratung finden. Cargobikes sind ein Wachstumsmarkt.'),
+    R0(['studie2','baden','probe'],{b1:'26,8',b2:'86,1',b3:1,b4:2},{prim:'fam',sec:'senior',baden:true,models:{cargo:8,kinder:7,komfort:8,ebike:5},qual:'beratung',mech:4,order:{cargo:470,kinder:400,komfort:330,ebike:360}},'In Baden gibt es viele Familien und kein Cargobike-Geschäft. Gegen Pedalo setzen wir auf Beratung.'),
+    R0(['studie3','firmen'],{c1:0,c2:0,c3:3,c4:'27'},{prim:'fam',sec:'firmen',baden:true,models:{cargo:8,kinder:6,komfort:8,ebike:2,leicht:8},qual:'beratung',mech:5,order:{cargo:520,kinder:350,komfort:260,ebike:150,leicht:160}},'Die E-Bikes City laufen aus, deshalb verschmälern wir dort und nehmen Leicht-E-Bikes auf. Firmen sind ein neues Marktsegment.')]),
+   mk('Speichenwerk',[
+    R0([],{a1:'50',a2:2,a3:0,a4:0},{prim:'pend',sec:null,baden:false,models:{ebike:14,city:12},qual:'preis',mech:2,order:{ebike:600,city:350}},'Am Bahnhof waren fast alle Pendler, darum richten wir uns an Pendler.'),
+    R0(['studie2'],{b1:'6',b2:'86,1',b3:1,b4:4},{prim:'pend',sec:null,baden:false,models:{ebike:14,city:10},qual:'preis',mech:2,order:{ebike:500,city:250}},'Gegen Pedalo machen wir tiefe Preise.'),
+    R0(['studie3'],{c1:0,c2:1,c3:1,c4:'6'},{prim:'pend',sec:'firmen',baden:false,models:{ebike:10,leicht:6,city:6},qual:'preis',mech:2,order:{ebike:400,leicht:200,city:150}},'Leicht-E-Bikes sind neu, darum nehmen wir sie auf.')]),
+   mk('Gang 21',[
+    R0(['testkauf','studie'],{a1:'41',a2:1,a3:1,a4:2},{prim:'sport',sec:'pend',baden:false,models:{renn:10,mtb:10,ebike:8},qual:'marke',mech:2,order:{renn:130,mtb:100,ebike:300}},'Sportliche geben am meisten Geld aus, Markenvelos passen dazu.'),
+    R0(['studie2','testpedalo'],{b1:'10',b2:'86,1',b3:1,b4:2},{prim:'sport',sec:'senior',baden:false,models:{renn:10,mtb:6,ebike:8,komfort:6},qual:'marke',mech:2,order:{renn:110,mtb:70,ebike:300,komfort:150}},'Die Mountainbikes schrumpfen, darum verschmälern wir dort und nehmen Komfort-E-Bikes auf.'),
+    R0(['studie3','hersteller'],{c1:0,c2:0,c3:3,c4:'10'},{prim:'senior',sec:'sport',baden:false,models:{renn:8,komfort:10,leicht:8},qual:'beratung',mech:2,order:{renn:70,komfort:350,leicht:160}},'Der Hersteller sagt, dass die E-Bikes City auslaufen. Menschen über 60 brauchen Beratung.')])
+  ];
+}
+
+render();
+const last=store.get('marktstart2.last'); if(last && $('#wTeam')) $('#wTeam').value=last;
+</script>
+</body>
+</html>
