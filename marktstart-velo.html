@@ -137,7 +137,12 @@ svg text{font-family:Roboto,Arial,sans-serif}
  .top,.noprint,.foot{display:none!important}
  body,html{background:#fff}
  main{padding:0}
- .card,.fb,tr{break-inside:avoid}
+ .card,.fb,tr,.check{break-inside:avoid}
+ .rpt-year{break-inside:auto}
+ .kpis{grid-template-columns:repeat(3,1fr)!important}
+ .cols.even{grid-template-columns:1fr 1fr!important}
+ main{max-width:none}
+ .kpi .v{font-size:24px}
 }
 </style>
 </head>
@@ -156,7 +161,6 @@ svg text{font-family:Roboto,Arial,sans-serif}
    ========================================================= */
 
 const LEHRPERSON_PIN = '2026';     // hier ändern, wenn gewünscht
-const KLASSE = 'BM26A';
 
 const JAHRE = [2027, 2029, 2032];
 const BUDGET = [15000, 12000, 10000];     // Forschungsbudget pro Runde
@@ -457,7 +461,7 @@ function katalog(i){
 function b64u(bytes){ let s=''; bytes.forEach(b=>s+=String.fromCharCode(b)); return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''); }
 function unb64u(str){ str=str.replace(/-/g,'+').replace(/_/g,'/'); while(str.length%4) str+='='; const s=atob(str); const a=new Uint8Array(s.length); for(let i=0;i<s.length;i++) a[i]=s.charCodeAt(i); return a; }
 async function pipe(bytes, stream){ const r = new Blob([bytes]).stream().pipeThrough(stream); return new Uint8Array(await new Response(r).arrayBuffer()); }
-function pack(g){ return {v:2, k:KLASSE, t:g.team, h:g.pinHash, s:g.step, tab:g.tab, r:g.rounds}; }
+function pack(g){ return {v:2, t:g.team, h:g.pinHash, s:g.step, tab:g.tab, r:g.rounds}; }
 function unpack(o){ if(o.v!==2) throw new Error('Version'); return {team:o.t, pinHash:o.h, step:o.s||'spiel', tab:o.tab||'dossier', doc:null, rounds:o.r}; }
 async function encode(g){
   const json = new TextEncoder().encode(JSON.stringify(pack(g)));
@@ -514,7 +518,8 @@ function header(){
       h += `<div class="tabs">${[['dossier','Marktdossier',DOCS(i,ctxOf(i)).length],['analyse','Analyse',`${answered}/4`],['entscheide','Entscheide',open?open+' offen':'✓']].map(([k,t,n])=>`<button class="tab ${G.tab===k?'on':''}" data-tab="${k}">${t}<span class="n">${n}</span></button>`).join('')}<div class="budget">Forschungsbudget noch <b>${fmt(rest)} Fr.</b></div></div>`;
     }
   } else if(VIEW==='lehrperson'){ h += `<div class="round">Auswertung für die Lehrperson</div></div>`; }
-  else { h += `<div class="round">Planspiel Marketing · ${KLASSE}</div></div>`; }
+  else if(VIEW==='bericht'){ h += `<div class="team">${esc(REPORT.game.team)}</div><div class="round">Teambericht</div></div>`; }
+  else { h += `<div class="round">Planspiel Marketing</div></div>`; }
   $('#top').innerHTML = h;
   addFsButton();
 }
@@ -542,6 +547,7 @@ function render(keepScroll){
   header();
   const app=$('#app');
   if(VIEW==='start') app.innerHTML = viewStart();
+  else if(VIEW==='bericht') app.innerHTML = viewBericht();
   else if(VIEW==='lehrperson') app.innerHTML = viewTeacher();
   else if(G.step==='ergebnis') app.innerHTML = viewErgebnis();
   else if(G.step==='ende') app.innerHTML = viewEnde();
@@ -736,6 +742,7 @@ function viewEnde(){
   const bars=sim.rows.map((r,k)=>{ const h=Math.round(Math.abs(r.gewinn)/maxAbs*80), x=gap+k*(bw+gap), y=r.gewinn>=0?base-h:base; return `<rect x="${x}" y="${y}" width="${bw}" height="${Math.max(h,1)}" rx="4" fill="${r.gewinn>=0?'#2DAAAD':'#FF727F'}"/><text x="${x+bw/2}" y="${r.gewinn>=0?y-6:y+h+15}" text-anchor="middle" font-size="13" fill="#173C43">${fmt(r.gewinn/1000)}k</text><text x="${x+bw/2}" y="${H-4}" text-anchor="middle" font-size="13" fill="#277077">${r.y}</text>`; }).join('');
   return `<div class="cols"><div class="stack">
     <div class="rub">Schlussbilanz · ${esc(G.team)}</div><h1>Drei Jahre im Velomarkt</h1>
+    <div class="fb info"><p><b>Ihr Teambericht ist bereit.</b> Er zeigt für jedes Jahr, was Sie richtig gemacht haben und was nicht. Öffnen Sie ihn rechts mit «Teambericht anzeigen» und sichern Sie ihn als PDF.</p></div>
     <div class="kpis"><div class="kpi"><div class="v">${fmt(sim.total)}</div><div class="l">Gewinn total in Franken</div></div><div class="kpi"><div class="v">${sim.lp} / ${sim.lpMax}</div><div class="l">Lernpunkte</div></div><div class="kpi"><div class="v">${fmt(sim.rows.reduce((a,r)=>a+r.sold,0))}</div><div class="l">verkaufte Velos</div></div></div>
     <div class="card"><div class="rub">Gewinn pro Jahr in Tausend Franken</div><svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Gewinn pro Jahr"><line x1="0" x2="${W}" y1="${base}" y2="${base}" stroke="#B6EBE9"/>${bars}</svg></div>
     <table><tr><th>Jahr</th><th>Zielgruppen und Sortiment</th><th class="num">Gewinn</th><th class="num">LP</th></tr>
@@ -746,7 +753,7 @@ function viewEnde(){
      <textarea class="codebox" id="code" readonly style="height:140px">Code wird erstellt …</textarea><div class="btnrow"><button class="btn" data-act="copy">Code kopieren</button><span class="small" id="copyInfo"></span></div></div>
     <div class="card stack"><div class="rub">Zum Nachdenken im Team</div>
      <ul class="dots small dark"><li>Welche Information aus dem Dossier hat Ihnen am meisten geholfen? Welche hätten Sie im Nachhinein gerne gekauft?</li><li>Wo passten Ihre Zielgruppen und Ihr Sortiment gut zusammen, wo nicht?</li><li>Was würden Sie 2027 mit dem Wissen von heute anders machen?</li></ul></div>
-    <div class="btnrow"><button class="btn ghost" data-act="abmelden">Zur Startseite</button></div>
+    <div class="btnrow"><button class="btn" data-act="bericht">Teambericht anzeigen</button><button class="btn ghost" data-act="abmelden">Zur Startseite</button></div>
    </div></div>`;
 }
 
@@ -755,7 +762,7 @@ function viewTeacher(){
   const rows = TEACH.teams.map((t,k)=>({k,t,sim:simulate(t)})).sort((a,b)=>b.sim.total-a.sim.total);
   const open = TEACH.open!==null ? TEACH.teams[TEACH.open] : null;
   return `<div class="stack">
-   <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap"><div><div class="rub">Klasse ${KLASSE}</div><h1>Teamvergleich</h1></div>
+   <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap"><div><div class="rub">Auswertung</div><h1>Teamvergleich</h1></div>
     <div class="btnrow noprint"><button class="btn ghost" data-act="demo">Beispielteams laden</button><button class="btn dark" data-act="print" ${rows.length?'':'disabled'}>Drucken oder als PDF sichern</button><button class="link" data-act="abmelden">Zur Startseite</button></div></div>
    <div class="card stack noprint"><p>Fügen Sie die Abschlusscodes der Teams ein, einen pro Zeile. Die Codes werden nur hier im Browser ausgewertet und nirgends gespeichert.</p>
     <textarea id="tCodes" class="codebox" style="height:110px"></textarea><div class="btnrow"><button class="btn" data-act="auswerten">Auswerten</button><span class="err" id="tErr"></span></div></div>
@@ -767,11 +774,134 @@ function viewTeacher(){
 function docName(i,id,t){ const save=G; G=t; const n=(DOCS(i,{sim:simulate(t,i),round:t.rounds[i],game:t}).find(d=>d.id===id)||{}).t||id; G=save; return n; }
 function teamDetail(t){
   const sim=simulate(t);
-  return `<div class="card stack"><div class="rub">Detail</div><h2>${esc(t.team)}</h2>
+  return `<div class="card stack"><div class="rub">Detail</div><div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><h2>${esc(t.team)}</h2><button class="btn sm noprint" data-act="tbericht">Teambericht öffnen</button></div>
    <table><tr><th>Jahr</th><th>Zielgruppen</th><th>Sortiment und Qualität</th><th>Analyse</th><th>Begründung</th><th class="num">Gewinn</th></tr>
    ${sim.rows.map((row,k)=>{ const d=t.rounds[k].d; return `<tr><td>${row.y}</td><td class="small dark">${SEGS[d.prim]?.n||''}${d.sec?'<br>'+SEGS[d.sec].n:''}${row.baden?'<br>Filiale Baden':''}</td>
     <td class="small dark">${Object.entries(row.groups).map(([g,v])=>`${G_BY[g].n}: ${v.m} Mod., ${fmt(v.ord)} bestellt, ${fmt(v.dem)} Nachfrage`).join('<br>')}<br>${QUAL[d.qual]?.t||''} · Werkstatt ${d.mech}</td>
     <td class="small dark">${row.checks.map(c=>c.ok?'✓':'✗').join(' ')} (${row.lp}/4)</td><td class="small dark">«${esc(t.rounds[k].why)}»</td><td class="num">${fmt(row.gewinn)}</td></tr>`; }).join('')}</table></div>`;
+}
+
+/* =========================================================
+   Teambericht: was richtig und was falsch war
+   ========================================================= */
+let REPORT = null;   // {game, back}
+const THEMA = {
+  a1:['Sättigungsgrad berechnen','5.2'], a2:['Lebenszyklus','5.3'], a3:['Marktforschung und Markterkundung','5.1'], a4:['Kriterien der Segmentierung','5.2'],
+  b1:['Marktanteil berechnen','5.2'], b2:['Sättigungsgrad berechnen','5.2'], b3:['Gesättigter Markt und Verdrängungswettbewerb','5.2'], b4:['Instrumente der Informationsgewinnung','5.1'],
+  c1:['Lebenszyklus','5.3'], c2:['Marktsegment und Teilmarkt','5.2'], c3:['Breite und Tiefe des Sortiments','5.3'], c4:['Marktanteil berechnen','5.2']
+};
+const KAP = {'5.1':'Kapitel 5.1 Marktanalyse, E-Aufgaben 1 bis 3', '5.2':'Kapitel 5.2 Marktziele, E-Aufgaben 4 bis 6, W-Aufgaben 7 und 8', '5.3':'Kapitel 5.3 Produktziele, E-Aufgaben 9 bis 11, W-Aufgaben 12 bis 16'};
+const ICON = {ok:'✓', warn:'!', bad:'✗', info:'·'};
+
+function bewertung(game, sim, i){
+  const r = game.rounds[i], d = r.d, row = sim.rows[i], B = r.buy;
+  const docs = DOCS(i, {sim: simulate(game, i), round: r, game});
+  const fo = [], en = [];
+  const spentR = B.reduce((a,id)=>a+(docs.find(x=>x.id===id)?.cost||0),0);
+  const rest = BUDGET[i]-spentR;
+  const cheapest = Math.min(...docs.filter(x=>x.cost>0 && !B.includes(x.id)).map(x=>x.cost), Infinity);
+  // ---- Forschung
+  if(i===0){
+    fo.push(B.includes('umfrage') ? ['ok','Kundenbefragung gekauft. Sie kannten Grösse, Bedürfnisse und Budget der Zielgruppen aus einer repräsentativen Quelle.'] : ['warn','Keine Kundenbefragung. Ohne sie wussten Sie nicht, wie gross die Zielgruppen sind und was ihnen wichtig ist. Die Gespräche am Bahnhof sind Markterkundung und nicht repräsentativ.']);
+    fo.push(B.includes('studie') ? ['ok','Branchenstudie gekauft. Sie kannten das Marktvolumen und sahen, welche Teilmärkte wachsen.'] : ['bad','Keine Branchenstudie. Sie haben die Bestellmengen geplant, ohne das Marktvolumen zu kennen.']);
+    if(B.includes('testkauf')) fo.push(['ok','Testkäufe gekauft. Sie wussten, wo die Konkurrenz schwach ist: keine Cargobikes mit Beratung, lange Wartezeiten in der Werkstatt.']);
+    if(!B.includes('umfrage') && d.prim==='pend') fo.push(['bad','Die Hauptzielgruppe Pendler deckt sich mit den Gesprächen am Bahnhof. Dort trifft man um halb acht aber fast nur Pendler. Die Befragung hätte ein anderes Bild gezeigt.']);
+  }
+  if(i===1){
+    fo.push(B.includes('studie2') ? ['ok','Branchenstudie 2029 gekauft. Die Bestellmengen konnten Sie auf das neue Marktvolumen stützen.'] : ['warn','Keine Branchenstudie 2029. Für die Bestellmengen fehlten die aktuellen Marktzahlen.']);
+    if(row.badenNeu) fo.push(B.includes('baden') ? ['ok','Vor der Filiale in Baden haben Sie den Markt dort befragen lassen. So entscheidet man über einen neuen geografischen Markt.'] : ['warn','Die Filiale in Baden haben Sie eröffnet, ohne den Markt dort zu kennen. Die Befragung Region Baden hätte gezeigt, wer dort kauft.']);
+    if(B.includes('probe')) fo.push((d.models.komfort||0)>0 ? ['ok','Der Probeverkauf hat Nachfrage nach Komfort-E-Bikes gezeigt und Sie haben sie ins Sortiment genommen.'] : ['warn','Der Probeverkauf hat Nachfrage nach Komfort-E-Bikes gezeigt. Genutzt haben Sie das nicht.']);
+    if(B.includes('testpedalo')) fo.push(['ok','Testkäufe bei Pedalo gekauft. Sie wussten, dass die Kette günstig ist, aber schwach in Beratung und Werkstatt.']);
+  }
+  if(i===2){
+    fo.push(B.includes('studie3') ? ['ok','Branchenstudie 2032 gekauft. Sie sahen, dass die E-Bikes City schrumpfen und die Leicht-E-Bikes wachsen.'] : ['warn','Keine Branchenstudie 2032. Den Umbruch bei den E-Bikes konnten Sie nur aus dem Zeitungsartikel ahnen.']);
+    if(firmenAktiv(d)) fo.push(B.includes('firmen') ? ['ok','Bevor Sie Firmen als Zielgruppe gewählt haben, liessen Sie sie befragen.'] : ['warn','Firmen als Zielgruppe gewählt, ohne die Firmenbefragung zu kaufen. Was Firmen wollen, wussten Sie nicht.']);
+    if((d.models.ebike||0)>=6) fo.push(['bad','Der Hersteller hat Ihnen beim Kaffee gesagt, dass die E-Bikes City auslaufen. Trotzdem führen Sie noch viele Modelle davon. Auch ein Gratis-Gespräch kann wichtige Hinweise geben.']);
+  }
+  if(rest>=cheapest && cheapest<Infinity) fo.push(['warn',`${fmt(rest)} Franken Forschungsbudget blieben ungenutzt. Dafür hätten Sie noch weitere Informationen kaufen können.`]);
+
+  // ---- Zielgruppen
+  if(i===0){
+    if(d.prim==='fam'||d.prim==='senior') en.push(['ok','Zielgruppe',`${SEGS[d.prim].n}: Diese Gruppe findet in Aarau keine gute Beratung. Sie haben eine Marktlücke besetzt.`]);
+    if(d.prim==='pend') en.push(['warn','Zielgruppe','Pendlerinnen und Pendler: die grösste Gruppe, aber 38 Prozent kaufen online und die Konkurrenz ist stark. Ein schwieriger Start für ein neues Geschäft.']);
+    if(d.prim==='sport') en.push(['bad','Zielgruppe','Sportliche: Sie kaufen bei Sportwerk Aare, das gut berät und ihre Marken führt. Gegen eine starke Konkurrenz mit Stammkundschaft gewinnt ein neues Geschäft wenig.']);
+  } else {
+    en.push(['info','Zielgruppe',`${SEGS[d.prim].n}${d.sec?' und '+SEGS[d.sec].n:''}.`]);
+    if(i===2 && firmenAktiv(d)) en.push(['ok','Neues Marktsegment','Firmen sind eine neue Kundengruppe, um die sich noch niemand kümmert.']);
+  }
+  // ---- Sortiment passt zu Zielgruppen?
+  const ag = Object.keys(row.groups);
+  [d.prim, d.sec].filter(Boolean).forEach(s=>{ const fits = ag.some(g=>G_BY[g].seg.includes(s) || (s==='firmen'&&(g==='ebike'||g==='leicht'))); if(!fits) en.push(['bad','Zielgruppe ohne Angebot',`Sie sprechen ${SEGS[s].n} an, führen aber nichts Passendes. Marktziele und Produktziele passen nicht zusammen.`]); });
+  Object.entries(row.groups).forEach(([g,v])=>{ if(v.focus<1 && v.m>=3) en.push(['warn','Sortiment ohne Zielgruppe',`${G_BY[g].n} mit ${v.m} Modellen, aber keine Ihrer Zielgruppen braucht sie. Das bindet Platz und Geld.`]); });
+  const thin = Object.entries(row.groups).filter(([g,v])=>v.m<=2 && !(i===2 && g==='ebike')).map(([g])=>G_BY[g].n);
+  if(thin.length) en.push(['warn','Zu wenig Auswahl',`${thin.join(', ')}: Mit ein oder zwei Modellen findet kaum jemand das passende Velo.`]);
+  if(!en.some(e=>e[1].startsWith('Zielgruppe ohne')||e[1].startsWith('Sortiment ohne'))) en.push(['ok','Sortiment und Zielgruppen','Ihr Sortiment passt zu den Zielgruppen, die Sie ansprechen.']);
+  // ---- Qualität
+  const q = d.qual;
+  if(q==='beratung') en.push([(d.prim==='fam'||d.prim==='senior'||d.prim==='firmen')?'ok':'info','Qualitätsversprechen','Fachberatung mit Probefahrt. Familien und ältere Menschen wollen genau das. Gegen Pedalo ist Beratung zudem Ihr stärkstes Argument.']);
+  if(q==='marke') en.push([d.prim==='sport'?'ok':'warn','Qualitätsversprechen', d.prim==='sport' ? 'Markenvelos passen zu Sportlichen, die auf Marken achten.' : 'Markenvelos der Oberklasse: Ihre Hauptzielgruppe achtet weniger auf Marken. Sie haben Kundschaft verloren.']);
+  if(q==='preis') en.push(['warn','Qualitätsversprechen','Günstige Eigenmarke: Sie verdienen weniger pro Velo und konkurrieren über den Preis mit VeloDirekt und Pedalo. Diesen Kampf gewinnt ein kleines Geschäft selten.']);
+  // ---- Werkstatt
+  if(row.sold>row.kap) en.push(['bad','Werkstatt',`Überlastet: ${row.mech} ${row.mech===1?'Person':'Personen'} für ${fmt(row.sold)} Velos, Platz gewesen wäre für ${fmt(row.kap)}. Die langen Wartezeiten kosteten im Folgejahr Kundschaft.`]);
+  else if(row.sold<row.kap*0.5) en.push(['warn','Werkstatt',`Zu gross: Platz für ${fmt(row.kap)} Velos, verkauft haben Sie ${fmt(row.sold)}. Die Löhne bezahlen Sie trotzdem.`]);
+  else en.push(['ok','Werkstatt',`Passend: ${row.mech} ${row.mech===1?'Person':'Personen'} für ${fmt(row.sold)} verkaufte Velos.`]);
+  // ---- Bestellungen
+  Object.entries(row.groups).forEach(([g,v])=>{
+    const dev = v.dem ? (v.ord - v.dem)/v.dem : 0;
+    if(Math.abs(dev)<=0.1) en.push(['ok',`Bestellung ${G_BY[g].n}`,`${fmt(v.ord)} bestellt, ${fmt(v.dem)} wollten kaufen. Gut geplant.`]);
+    else if(dev>0) en.push([dev>0.3?'bad':'warn',`Bestellung ${G_BY[g].n}`,`${fmt(v.ord)} bestellt, nur ${fmt(v.dem)} wollten kaufen. ${fmt(v.unsold)} Velos blieben liegen, Verlust ${fmt(v.unsold*v.ek*ABSCHREIBUNG)} Franken.`]);
+    else en.push([dev<-0.3?'bad':'warn',`Bestellung ${G_BY[g].n}`,`${fmt(v.ord)} bestellt, aber ${fmt(v.dem)} wollten kaufen. ${fmt(v.missed)} Kundinnen und Kunden gingen leer aus.`]);
+  });
+  // ---- Besonderes
+  if(row.badenNeu) en.push(['info','Geografischer Markt',`Filiale in Baden eröffnet. Sie hat im ersten Jahr ${fmt(Object.values(row.groups).reduce((a,v)=>a+Math.min(v.dB, Math.max(0,v.sold-v.soldA)),0))} Velos zusätzlich verkauft, kostet aber ${fmt(KOSTEN.baden)} Franken pro Jahr.`]);
+  if(i===2){ if((d.models.leicht||0)>0) en.push(['ok','Neue Produktgruppe','Leicht-E-Bikes aufgenommen: Sie sind früh in einem Teilmarkt, der in der Einführung steht.']); else en.push(['warn','Neue Produktgruppe','Keine Leicht-E-Bikes. Sie verpassen den Teilmarkt, der die E-Bikes City ablösen wird.']); }
+  if(row.pedalo && i>=1) en.push([q==='beratung'?'info':'warn','Konkurrenz',`Pedalo hat Ihnen bei den ${SEGS[row.pedalo].n} Kundschaft abgenommen.${q==='beratung'?' Ihre Fachberatung hat den Schaden begrenzt.':''}`]);
+  return {fo, en};
+}
+
+function berichtHTML(game){
+  const sim = simulate(game);
+  const ev = sim.rows.map((row,i)=>bewertung(game, sim, i));
+  const all = ev.flatMap(e=>[...e.fo.map(x=>[x[0],x[1]]), ...e.en.map(x=>[x[0], x[1]+': '+x[2]])]);
+  const pick = (k,n)=>{ const seen=new Set(); return all.filter(x=>x[0]===k && !x[1].startsWith('Bestellung') && !seen.has(x[1].split(':')[0]) && seen.add(x[1].split(':')[0])).slice(0,n).map(x=>x[1]); };
+  const staerken = pick('ok',5), schwaechen = [...pick('bad',4), ...pick('warn',3)].slice(0,6);
+  const best = ev.flatMap(e=>e.en).filter(x=>x[1].startsWith('Bestellung')); const treffer = best.filter(x=>x[0]==='ok').length;
+  const falsch = sim.rows.flatMap(r=>r.checks.filter(c=>!c.ok).map(c=>c.id));
+  const kap = [...new Set(falsch.map(id=>THEMA[id][1]))].sort();
+  const lpTxt = sim.lp>=10 ? 'Sie haben den Markt sehr gut analysiert.' : sim.lp>=7 ? 'Ihre Marktanalyse war solide, mit einigen Lücken.' : 'Bei der Marktanalyse gibt es noch deutliche Lücken.';
+  const gTxt = sim.total>500000 ? 'Wirtschaftlich war Ihr Geschäft sehr erfolgreich.' : sim.total>0 ? 'Ihr Geschäft hat insgesamt Gewinn gemacht.' : 'Ihr Geschäft hat insgesamt Verlust gemacht.';
+  const li = (k,t)=>`<div class="check"><span class="mk ${k==='ok'?'ok':k==='info'?'open':'no'}">${ICON[k]}</span><span>${t}</span></div>`;
+  const datum = new Date().toLocaleDateString('de-CH');
+  return `<div class="report stack" style="gap:20px">
+   <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap">
+    <div><div class="rub">Teambericht · Planspiel Marktstart</div><h1>${esc(game.team)}</h1><p class="small">Erstellt am ${datum}. Alle Firmen und Zahlen im Spiel sind erfunden.</p></div>
+   </div>
+   <div class="kpis"><div class="kpi"><div class="v">${fmt(sim.total)}</div><div class="l">Gewinn total in Franken, drei Geschäftsjahre</div></div><div class="kpi"><div class="v">${sim.lp} / ${sim.lpMax}</div><div class="l">Lernpunkte aus der Analyse</div></div><div class="kpi"><div class="v">${treffer} / ${best.length}</div><div class="l">Bestellungen gut geplant, höchstens 10 Prozent daneben</div></div></div>
+   <div class="card"><div class="rub">Kurzfazit</div><p style="margin-top:6px">${gTxt} ${lpTxt}</p></div>
+   <div class="cols even">
+    <div class="card"><div class="rub">Das haben Sie gut gemacht</div>${staerken.length?staerken.map(t=>li('ok',t)).join(''):'<p class="small">Keine besonderen Stärken erkannt.</p>'}</div>
+    <div class="card"><div class="rub">Das können Sie besser machen</div>${schwaechen.length?schwaechen.map(t=>li(t.includes('ungenutzt')||!all.find(x=>x[1]===t&&x[0]==='bad')?'warn':'bad',t)).join(''):'<p class="small">Keine grösseren Fehler.</p>'}</div>
+   </div>
+   ${sim.rows.map((row,i)=>{ const r=game.rounds[i], d=r.d, e=ev[i]; const docs=DOCS(i,{sim:simulate(game,i),round:r,game});
+    return `<div class="card stack rpt-year">
+     <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap"><div><div class="rub">Runde ${i+1}</div><h2>Geschäftsjahr ${row.y}</h2></div><p class="small dark">Umsatz <b>${fmt(row.umsatz)}</b> Fr. · ${row.gewinn<0?'Verlust':'Gewinn'} <b>${fmt(Math.abs(row.gewinn))}</b> Fr. · ${fmt(row.sold)} Velos</p></div>
+     <div><h4>Marktforschung</h4><p class="small">Gekauft: ${r.buy.length?r.buy.map(id=>docs.find(x=>x.id===id)?.t||id).join(', '):'nichts'}.</p>${e.fo.map(x=>li(x[0],x[1])).join('')}</div>
+     <div><h4>Analyse: ${row.lp} von ${row.checks.length} richtig</h4>${row.checks.map((c,k)=>{ const q=ANALYSE[i][k]; const your = q.type==='num' ? ((c.ans??'')!==''?esc(c.ans)+' '+q.unit:'keine Antwort') : (Number.isInteger(c.ans)? q.opts[c.ans]:'keine Antwort'); return li(c.ok?'ok':'bad', `<b>${c.q}</b><br>Ihre Antwort: ${your}. ${c.ok?'Richtig.':'Richtig wäre: '+(q.type==='num'?pct(c.sol.v)+' '+q.unit:q.opts[c.sol.v])+'.'} ${c.sol.t}`); }).join('')}</div>
+     <div><h4>Entscheide</h4>${e.en.map(x=>li(x[0], `<b>${x[1]}:</b> ${x[2]}`)).join('')}</div>
+     <div><h4>Ihre Begründung</h4><p class="quote">«${esc(r.why)}»</p></div>
+    </div>`; }).join('')}
+   <div class="card stack"><div class="rub">Empfehlung zum Repetieren</div>
+    ${falsch.length ? `<p>Bei diesen Themen lagen Sie in der Analyse falsch:</p><ul class="dots">${[...new Set(falsch.map(id=>THEMA[id][0]))].map(t=>`<li>${t}</li>`).join('')}</ul><p style="margin-top:8px">Im Lehrmittel W&amp;G anwenden und verstehen helfen Ihnen dazu:</p><ul class="dots">${kap.map(k=>`<li>${KAP[k]}</li>`).join('')}</ul>` : '<p>Alle Analysefragen richtig. Zur Vertiefung eignen sich die W-Aufgaben 7, 8 und 12 bis 16 im Lehrmittel.</p>'}
+   </div>
+  </div>`;
+}
+function viewBericht(){
+  return `<div class="btnrow noprint" style="margin-bottom:18px"><button class="btn ghost sm" data-act="berichtzurueck">Zurück</button><button class="btn sm" data-act="print">Drucken oder als PDF sichern</button><button class="btn ghost sm" data-act="berichtdatei">Als Datei speichern</button></div>${berichtHTML(REPORT.game)}`;
+}
+function berichtDatei(){
+  const css = document.querySelector('style').textContent;
+  const html = `<!DOCTYPE html><html lang="de-CH"><head><meta charset="utf-8"><title>Teambericht ${esc(REPORT.game.team)}</title><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Montserrat:wght@500;600&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet"><style>${css}</style></head><body><main>${berichtHTML(REPORT.game)}</main></body></html>`;
+  try{ const a=document.createElement('a'); a.download='Teambericht_'+REPORT.game.team.replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/Ä/g,'Ae').replace(/Ö/g,'Oe').replace(/Ü/g,'Ue').replace(/[^A-Za-z0-9-]+/g,'_')+'.html'; a.href=URL.createObjectURL(new Blob([html],{type:'text/html'})); document.body.appendChild(a); a.click(); setTimeout(()=>a.remove(),1000); }catch(e){}
 }
 
 /* =========================================================
@@ -843,6 +973,10 @@ async function act(a){
   }
   if(a==='demo'){ TEACH.teams=demoTeams(); TEACH.open=null; render(); return; }
   if(a==='print'){ try{ window.print(); }catch(e){} return; }
+  if(a==='bericht'){ REPORT={game:G, back:'spiel'}; VIEW='bericht'; render(); return; }
+  if(a==='tbericht'){ const t=TEACH.teams[TEACH.open]; if(!t) return; REPORT={game:t, back:'lehrperson'}; VIEW='bericht'; render(); return; }
+  if(a==='berichtzurueck'){ VIEW=REPORT.back; render(); return; }
+  if(a==='berichtdatei'){ berichtDatei(); return; }
 }
 
 /* ---------- Beispielteams */
